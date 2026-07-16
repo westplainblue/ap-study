@@ -1,18 +1,19 @@
 import type { AmQuestion, ExamData, Major, PmQuestion } from "./types";
 import r2025a from "./exams/2025r07a.am.json";
+import r2025aPm from "./exams/2025r07a.pm.json";
 
-function normalize(raw: unknown): ExamData {
+function normalize(raw: unknown, pm: unknown[]): ExamData {
   const e = raw as Partial<ExamData>;
   return {
     examId: e.examId!,
     label: e.label!,
     source: e.source ?? "",
     am: (e.am ?? []) as AmQuestion[],
-    pm: (e.pm ?? []) as PmQuestion[],
+    pm: pm as PmQuestion[],
   };
 }
 
-export const EXAMS: ExamData[] = [normalize(r2025a)];
+export const EXAMS: ExamData[] = [normalize(r2025a, r2025aPm.pm)];
 
 export const AM_QUESTIONS: AmQuestion[] = EXAMS.flatMap((e) => e.am);
 export const PM_QUESTIONS: PmQuestion[] = EXAMS.flatMap((e) => e.pm);
