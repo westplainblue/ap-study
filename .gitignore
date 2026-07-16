@@ -1,0 +1,8 @@
+node_modules/
+dist/
+data-src/pdf/
+data-src/pages/
+data-src/work/
+.env
+.env.local
+.DS_Store
