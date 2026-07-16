@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import TabBar from "./components/TabBar";
+import { syncInBackground } from "./lib/sync";
 import Home from "./pages/Home";
 import MockExam from "./pages/MockExam";
 import MockRun from "./pages/MockRun";
@@ -12,6 +14,10 @@ import Settings from "./pages/Settings";
 import Stats from "./pages/Stats";
 
 export default function App() {
+  useEffect(() => {
+    syncInBackground();
+  }, []);
+
   return (
     <HashRouter>
       <main className="app-main">

@@ -206,6 +206,126 @@ a {
   color: var(--text-2);
 }
 
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  background: var(--surface);
+  line-height: 1.6;
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+.choice-kana {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.choice-selected {
+  border-color: var(--accent);
+  outline: 1.5px solid var(--accent);
+}
+
+.choice-correct {
+  background: var(--success-bg);
+  border-color: var(--success-text);
+  color: var(--success-text);
+}
+
+.choice-wrong {
+  background: var(--danger-bg);
+  border-color: var(--danger-text);
+  color: var(--danger-text);
+}
+
+.choice-dim {
+  opacity: 0.55;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-weight: 700;
+}
+
+.banner-ok {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.banner-ng {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.progress-track {
+  height: 5px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.bar-track {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.bar-fill.warn {
+  background: var(--warning-text);
+}
+
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  background: var(--surface);
+  width: 100%;
+  text-align: left;
+}
+
+.chip-toggle {
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  background: var(--surface);
+}
+
+.chip-toggle.on {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
 .small {
   font-size: 12.5px;
 }
