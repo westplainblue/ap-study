@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import ContributionGraph from "../components/ContributionGraph";
 import { amQuestion } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
-import { addDaysStr, loadState, todayStr } from "../lib/progress";
+import { loadState, todayStr } from "../lib/progress";
 
 interface Agg {
   n: number;
@@ -58,11 +59,6 @@ export default function Stats() {
   const weak = [...byMiddle.entries()]
     .filter(([, v]) => v.n >= 3 && v.ok / v.n < 0.6)
     .sort((a, b) => a[1].ok / a[1].n - b[1].ok / b[1].n);
-
-  const last14 = Array.from({ length: 14 }, (_, i) =>
-    addDaysStr(todayStr(), -(13 - i))
-  );
-  const maxDaily = Math.max(1, ...last14.map((d) => daily.get(d) ?? 0));
 
   return (
     <div>
@@ -152,33 +148,8 @@ export default function Stats() {
         )}
       </div>
 
-      <p style={{ fontWeight: 600, marginBottom: 8 }}>直近14日の学習量</p>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: 3,
-          height: 64,
-          marginBottom: 6,
-        }}
-      >
-        {last14.map((d) => {
-          const n = daily.get(d) ?? 0;
-          return (
-            <div
-              key={d}
-              title={`${d}: ${n}問`}
-              style={{
-                flex: 1,
-                height: `${Math.max(4, (n / maxDaily) * 100)}%`,
-                background: n > 0 ? "var(--accent)" : "var(--surface-2)",
-                borderRadius: 3,
-              }}
-            />
-          );
-        })}
-      </div>
-      <p className="muted small">左が13日前、右が今日です。</p>
+      <p style={{ fontWeight: 600, marginBottom: 8 }}>学習量(直近6か月)</p>
+      <ContributionGraph daily={daily} />
     </div>
   );
 }
