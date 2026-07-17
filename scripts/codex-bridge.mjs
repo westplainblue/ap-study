@@ -27,7 +27,7 @@
 import { spawn } from "node:child_process";
 import { timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -192,6 +192,45 @@ function runCodexExec(prompt, model) {
   };
 }
 
+/* ---------- アプリの静的配信(同一オリジン利用) ---------- */
+
+const DIST_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist");
+
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json",
+};
+
+/**
+ * dist/ のビルド済みアプリを配信する。ブリッジと同一オリジンでアプリを開けるため、
+ * ブラウザのCORS / Private Network Access / mixed content制限を受けない。
+ * 戻り値: 配信した場合 true
+ */
+function serveStatic(req, res, url) {
+  if (!existsSync(DIST_DIR)) return false;
+  let rel = decodeURIComponent(url.pathname);
+  if (rel === "/") rel = "/index.html";
+  const filePath = path.resolve(DIST_DIR, "." + rel);
+  if (!filePath.startsWith(DIST_DIR + path.sep) && filePath !== DIST_DIR) return false;
+  const target = existsSync(filePath) && statSync(filePath).isFile()
+    ? filePath
+    : path.join(DIST_DIR, "index.html"); // HashRouterなので不明パスはindexへ
+  if (!existsSync(target)) return false;
+  res.writeHead(200, {
+    "Content-Type": MIME[path.extname(target)] ?? "application/octet-stream",
+    "Cache-Control": "no-cache",
+  });
+  createReadStream(target).pipe(res);
+  return true;
+}
+
 /* ---------- サーバー本体 ---------- */
 
 /**
@@ -257,11 +296,17 @@ export function createBridgeServer(opts = {}) {
       res.writeHead(204, preflight);
       return res.end();
     }
+    const url = new URL(req.url ?? "/", "http://bridge.local");
+
+    // アプリ本体(dist/)の配信。/v1/ 以外のGETは静的ファイルとして扱う
+    if (req.method === "GET" && !url.pathname.startsWith("/v1/")) {
+      if (serveStatic(req, res, url)) return;
+      return jsonError(res, 404, "not_found", "not found(アプリを配信するには npm run build を実行してください)", cors);
+    }
+
     if (bridgeToken && !tokenMatches(bridgeToken, req.headers.authorization)) {
       return jsonError(res, 401, "bridge_auth_failed", "ブリッジの接続トークンが一致しません", cors);
     }
-
-    const url = new URL(req.url ?? "/", "http://bridge.local");
 
     try {
       /* --- 疎通確認 --- */
@@ -487,6 +532,11 @@ if (isMain) {
 
   bridge.server.listen(port, host, () => {
     console.log(`Codexブリッジ起動: http://${host}:${port}/v1`);
+    if (existsSync(DIST_DIR)) {
+      console.log(`📱 アプリ(同一オリジン・ブラウザ制限なし): http://${host === "0.0.0.0" ? "127.0.0.1" : host}:${port}/`);
+    } else {
+      console.log("ヒント: npm run build を実行すると、このブリッジがアプリ本体も配信します(http://127.0.0.1:" + port + "/)");
+    }
     console.log("ChatGPT認証はCodex App Serverが管理します(トークンはこのプロセスを通りません)");
     if (bridgeToken) console.log("ブリッジ接続トークン: 有効");
   });

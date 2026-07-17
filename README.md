@@ -78,6 +78,8 @@ npm run codex-bridge
 
 を起動したまま、アプリの設定 → AIチャット → 「Codex(ChatGPTサブスク/ローカル)」を選びます。
 
+> **確実な使い方(推奨)**: `npm run build` を一度実行しておくと、ブリッジがアプリ本体も配信します。ブラウザで **http://127.0.0.1:8399/** を開けば同一オリジンになるため、ブラウザのCORS / Private Network Access / mixed content制限(Safari含む)の影響を一切受けません。
+
 - **APIキーの入力は不要です。** ChatGPTログインは公式の Codex App Server(`codex app-server`)が管理し、Codex CLIでログイン済みなら自動的に「接続済み」と表示されます
 - 未ログインの場合は、設定画面の「ChatGPTでログイン」ボタンからChatGPT公式のOAuthフローが開き、完了すると自動的に接続済みへ切り替わります。以後のトークン保存・更新もCodexが行い、**アクセストークンや auth.json の内容がブラウザやブリッジのHTTP応答に渡ることはありません**
 - ローカルでCodexのプログラム(CLI / App Server)を利用することは、OpenAIが公式に文書化している利用方法です(App Serverは「カスタム製品にCodexを統合するためのインターフェース」として案内されています)。**1つの個人アカウントを複数人で共有する使い方はしないでください**
