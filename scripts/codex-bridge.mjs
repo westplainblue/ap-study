@@ -249,7 +249,12 @@ export function createBridgeServer(opts = {}) {
         : {};
 
     if (req.method === "OPTIONS") {
-      res.writeHead(204, cors);
+      const preflight = { ...cors, "Access-Control-Max-Age": "600" };
+      // ChromeのPrivate Network Access(公開サイト→ローカルネットワーク)対応
+      if (req.headers["access-control-request-private-network"] === "true") {
+        preflight["Access-Control-Allow-Private-Network"] = "true";
+      }
+      res.writeHead(204, preflight);
       return res.end();
     }
     if (bridgeToken && !tokenMatches(bridgeToken, req.headers.authorization)) {
