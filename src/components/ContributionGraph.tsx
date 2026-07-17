@@ -16,7 +16,10 @@ function level(n: number): number {
   return 4;
 }
 
-/** GitHubの貢献グラフ風の学習量ヒートマップ(列=週、行=曜日) */
+/**
+ * GitHubの貢献グラフ風の学習量ヒートマップ(列=週、行=曜日)。
+ * マスは画面幅に合わせて伸縮する(スマホ〜PCまで常にコンテナ幅いっぱい)。
+ */
 export default function ContributionGraph({ daily }: Props) {
   const today = new Date();
   const weekStart = new Date(today);
@@ -44,64 +47,79 @@ export default function ContributionGraph({ daily }: Props) {
     weeks.push(col);
   }
 
+  const gridStyle: React.CSSProperties = {
+    flex: 1,
+    display: "grid",
+    gridTemplateColumns: `repeat(${WEEKS}, 1fr)`,
+    gap: 2,
+  };
+
   return (
-    <div style={{ overflowX: "auto", paddingBottom: 4 }}>
-      <div style={{ display: "flex", gap: 2, marginLeft: 26, height: 13 }}>
-        {monthLabels.map((label, i) => (
-          <div
-            key={i}
-            style={{
-              width: 10,
-              flexShrink: 0,
-              fontSize: 9,
-              color: "var(--text-3)",
-              whiteSpace: "nowrap",
-              overflow: "visible",
-            }}
-          >
-            {label}
-          </div>
-        ))}
-      </div>
+    <div>
       <div style={{ display: "flex", gap: 2 }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            width: 24,
-            flexShrink: 0,
-          }}
-        >
-          {DAY_LABELS.map((label, i) => (
+        <div style={{ width: 24, flexShrink: 0 }} />
+        <div style={{ ...gridStyle, height: 16 }}>
+          {monthLabels.map((label, i) => (
             <div
               key={i}
               style={{
-                height: 10,
-                fontSize: 9,
-                lineHeight: "10px",
+                fontSize: 10,
                 color: "var(--text-3)",
+                whiteSpace: "nowrap",
+                overflow: "visible",
               }}
             >
               {label}
             </div>
           ))}
         </div>
-        {weeks.map((col, w) => (
-          <div key={w} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {col.map((cell) =>
-              cell.count === null ? (
-                <div key={cell.date} style={{ width: 10, height: 10 }} />
-              ) : (
-                <div
-                  key={cell.date}
-                  className={`heat-cell heat-${level(cell.count)}`}
-                  title={`${cell.date}: ${cell.count}問`}
-                />
-              )
-            )}
-          </div>
-        ))}
+      </div>
+      <div style={{ display: "flex", gap: 2 }}>
+        <div
+          style={{
+            width: 24,
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {DAY_LABELS.map((label, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                fontSize: 10,
+                color: "var(--text-3)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div style={gridStyle}>
+          {weeks.map((col, w) => (
+            <div
+              key={w}
+              style={{ display: "flex", flexDirection: "column", gap: 2 }}
+            >
+              {col.map((cell) =>
+                cell.count === null ? (
+                  <div key={cell.date} style={{ width: "100%", aspectRatio: "1" }} />
+                ) : (
+                  <div
+                    key={cell.date}
+                    className={`heat-cell heat-${level(cell.count)}`}
+                    style={{ width: "100%", aspectRatio: "1" }}
+                    title={`${cell.date}: ${cell.count}問`}
+                  />
+                )
+              )}
+            </div>
+          ))}
+        </div>
       </div>
       <div
         className="small muted"
@@ -116,7 +134,11 @@ export default function ContributionGraph({ daily }: Props) {
       >
         少
         {[0, 1, 2, 3, 4].map((lv) => (
-          <span key={lv} className={`heat-cell heat-${lv}`} style={{ display: "inline-block" }} />
+          <span
+            key={lv}
+            className={`heat-cell heat-${lv}`}
+            style={{ display: "inline-block", width: 10, height: 10 }}
+          />
         ))}
         多
       </div>

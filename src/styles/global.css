@@ -327,8 +327,6 @@ a {
 }
 
 .heat-cell {
-  width: 10px;
-  height: 10px;
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -338,37 +336,19 @@ a {
 }
 
 .heat-1 {
-  background: #9be9a8;
+  background: var(--accent-bg);
 }
 
 .heat-2 {
-  background: #40c463;
+  background: color-mix(in srgb, var(--accent) 45%, var(--surface));
 }
 
 .heat-3 {
-  background: #30a14e;
+  background: color-mix(in srgb, var(--accent) 72%, var(--surface));
 }
 
 .heat-4 {
-  background: #216e39;
-}
-
-@media (prefers-color-scheme: dark) {
-  .heat-1 {
-    background: #0e4429;
-  }
-
-  .heat-2 {
-    background: #006d32;
-  }
-
-  .heat-3 {
-    background: #26a641;
-  }
-
-  .heat-4 {
-    background: #39d353;
-  }
+  background: var(--accent);
 }
 
 .small {
