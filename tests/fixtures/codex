@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+/**
+ * テスト用の偽Codex CLI。実際のCodex/ChatGPTには一切接続しない。
+ * 環境変数で挙動を制御する:
+ *   FAKE_CODEX_STATE = loggedin | loggedout          (account/read の結果)
+ *   FAKE_CODEX_LOGIN = success | fail | none         (login/completed 通知)
+ *   FAKE_CODEX_CRASH = 1                             (initialize直後に異常終了)
+ *   FAKE_CODEX_EXEC_SLEEP = ミリ秒                    (execの遅延)
+ */
+import { writeFileSync } from "node:fs";
+
+const mode = process.argv[2];
+
+if (mode === "app-server") {
+  if (process.env.FAKE_CODEX_CRASH === "1") {
+    // 起動直後に異常終了(再起動しても回復しないケースを再現)
+    process.exit(1);
+  }
+  const state = process.env.FAKE_CODEX_STATE ?? "loggedin";
+  const login = process.env.FAKE_CODEX_LOGIN ?? "success";
+  const send = (obj) => process.stdout.write(JSON.stringify(obj) + "\n");
+  let buf = "";
+  process.stdin.on("data", (d) => {
+    buf += d.toString();
+    let i;
+    while ((i = buf.indexOf("\n")) >= 0) {
+      const line = buf.slice(0, i).trim();
+      buf = buf.slice(i + 1);
+      if (!line) continue;
+      const msg = JSON.parse(line);
+      switch (msg.method) {
+        case "initialize":
+          send({ jsonrpc: "2.0", id: msg.id, result: { userAgent: "fake-codex/0.0.0" } });
+          break;
+        case "initialized":
+          break;
+        case "account/read":
+          send({
+            jsonrpc: "2.0",
+            id: msg.id,
+            result:
+              state === "loggedin"
+                ? {
+                    account: {
+                      type: "chatgpt",
+                      email: "test@example.com",
+                      planType: "plus",
+                      // ブリッジが素通ししないことを検証するための「漏れてはいけない」ダミー値
+                      accessToken: "sk-secret-DO-NOT-LEAK",
+                    },
+                    requiresOpenaiAuth: true,
+                  }
+                : { account: null, requiresOpenaiAuth: true },
+          });
+          break;
+        case "account/login/start":
+          send({
+            jsonrpc: "2.0",
+            id: msg.id,
+            result: {
+              type: "chatgpt",
+              loginId: "login-1",
+              authUrl: "https://auth.example.com/oauth",
+            },
+          });
+          if (login !== "none") {
+            setTimeout(() => {
+              send({
+                jsonrpc: "2.0",
+                method: "account/login/completed",
+                params: {
+                  loginId: "login-1",
+                  success: login === "success",
+                  error: login === "fail" ? "login was cancelled by user" : null,
+                },
+              });
+            }, 100);
+          }
+          break;
+        case "account/logout":
+          send({ jsonrpc: "2.0", id: msg.id, result: {} });
+          break;
+        default:
+          send({
+            jsonrpc: "2.0",
+            id: msg.id,
+            error: { code: -32601, message: `unknown method ${msg.method}` },
+          });
+      }
+    }
+  });
+} else if (mode === "exec") {
+  const outIdx = process.argv.indexOf("-o");
+  const outFile = outIdx >= 0 ? process.argv[outIdx + 1] : null;
+  const chunks = [];
+  process.stdin.on("data", (d) => chunks.push(d));
+  process.stdin.on("end", async () => {
+    const sleep = Number(process.env.FAKE_CODEX_EXEC_SLEEP ?? "0");
+    if (sleep > 0) await new Promise((r) => setTimeout(r, sleep));
+    if (outFile) writeFileSync(outFile, "これはテスト応答です");
+    process.exit(0);
+  });
+} else {
+  process.exit(2);
+}

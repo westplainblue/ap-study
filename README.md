@@ -70,18 +70,33 @@ npm run build      # 本番ビルド(dist/)
 
 ### Codexブリッジの使い方(ChatGPTサブスク枠)
 
-前提: [Codex CLI](https://developers.openai.com/codex/cli) がインストール済みで、`codex login`(ChatGPTサインイン)が完了していること。
+前提: [Codex CLI](https://developers.openai.com/codex/cli) がインストール済みであること。
 
 ```bash
 npm run codex-bridge
 ```
 
-を起動したまま、アプリの設定 → AIチャット → 「Codex(ChatGPTサブスク/ローカル)」を選ぶだけです(既定URL `http://127.0.0.1:8399/v1`)。内部では公式CLIの `codex exec` を読み取り専用サンドボックス+空ディレクトリで呼び出し、CLIの保存済み認証(サブスク枠)を利用します。
+を起動したまま、アプリの設定 → AIチャット → 「Codex(ChatGPTサブスク/ローカル)」を選びます。
 
-- スマホから使う場合: `npm run codex-bridge -- --host 0.0.0.0 --token <好きな合言葉>` で起動し、設定のブリッジURLに `http://<MacのIP>:8399/v1`、APIキー欄相当としてブリッジのトークンを設定します(同一Wi-Fi内のみ)。
-- **注意(規約)**: ChatGPTサブスク認証の第三者的な利用についてOpenAIは明示的に許可も禁止もしていません(2026年7月時点の調査)。自分専用・ローカル完結の範囲で自己責任で使ってください。心配な場合はAPIキー方式を使ってください。
-- 応答はAPI直叩きより遅めです(1回あたり10〜30秒程度。`codex exec` の起動を伴うため)。
-- ブラウザの注意: 公開サイト(HTTPS)からローカルブリッジ(HTTP)への接続は、Chrome / Edge / Firefox では localhost 例外により動作します(実測確認済み)。**Safariにはこの例外がないため**、Safariで使う場合は `npm run dev` で起動したローカル版(http://localhost:5273)から利用してください。同じ理由でiPhoneのSafariからのブリッジ利用は不可のため、**スマホではAPIキー方式を推奨**します。
+- **APIキーの入力は不要です。** ChatGPTログインは公式の Codex App Server(`codex app-server`)が管理し、Codex CLIでログイン済みなら自動的に「接続済み」と表示されます
+- 未ログインの場合は、設定画面の「ChatGPTでログイン」ボタンからChatGPT公式のOAuthフローが開き、完了すると自動的に接続済みへ切り替わります。以後のトークン保存・更新もCodexが行い、**アクセストークンや auth.json の内容がブラウザやブリッジのHTTP応答に渡ることはありません**
+- ローカルでCodexのプログラム(CLI / App Server)を利用することは、OpenAIが公式に文書化している利用方法です(App Serverは「カスタム製品にCodexを統合するためのインターフェース」として案内されています)。**1つの個人アカウントを複数人で共有する使い方はしないでください**
+- 内部ではチャット1回ごとに `codex exec` を隔離設定(読み取り専用サンドボックス・空の作業ディレクトリ・`--ignore-user-config`・`--ignore-rules`・`--ephemeral`)で実行するため、グローバルのMCP・プラグイン・ルール設定には依存しません
+- 応答はAPI直叩きより遅めです(1回あたり10〜30秒程度。`codex exec` の起動を伴うため)
+- ブラウザの注意: 公開サイト(HTTPS)からローカルブリッジ(HTTP)への接続は、Chrome / Edge / Firefox では localhost 例外により動作します。**Safariにはこの例外がないため**、Safariで使う場合は `npm run dev` で起動したローカル版から利用してください
+
+#### スマホ・LANの別端末から使う場合
+
+ChatGPTの認証とは**別に**、ブリッジ自体への接続認証(ブリッジトークン)が必要です。
+
+```bash
+AP_STUDY_CODEX_BRIDGE_TOKEN=<十分長いランダムな値> npm run codex-bridge -- --host 0.0.0.0
+```
+
+- 非ループバックで待ち受ける場合、ブリッジトークン未設定なら**起動に失敗**します(コマンドライン引数でトークンを渡す旧 `--token` は非推奨です。ps等で他プロセスから見えるため環境変数を使ってください)
+- アプリ側は 設定 → AIチャット → 詳細設定 で、ブリッジURLに `http://<MacのIP>:8399/v1`、ブリッジ接続トークンに同じ値を設定します
+- ログイン方式は自動で切り替わります(ローカル端末=ブラウザOAuth、別端末=デバイスコード方式)
+- ブリッジ自体は経路を暗号化しません。**LAN越しに使う場合はHTTPS化(リバースプロキシ)またはTailscale等のプライベートトンネルを併用**し、公衆Wi-Fiでは使わないでください。なおHTTPSの公開サイトからHTTPのプライベートIPへの接続はブラウザ側で拒否されるため、実用上はトンネル(Tailscale HTTPS等)の利用を推奨します
 
 ### APIキー方式(OpenAI / Claude / Grok)
 

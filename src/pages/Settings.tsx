@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import CodexAccountPanel from "../components/CodexAccountPanel";
 import {
   CODEX_DEFAULT_URL,
   DEFAULT_MODELS,
@@ -196,27 +197,56 @@ export default function Settings() {
 
         {ai.provider === "codex" ? (
           <div style={{ marginBottom: 10 }}>
-            <p className="small" style={{ fontWeight: 600, marginBottom: 4 }}>
-              ブリッジURL
-            </p>
-            <input
-              value={ai.codexBaseUrl ?? ""}
-              placeholder={CODEX_DEFAULT_URL}
-              onChange={(e) =>
-                updateAi((c) => {
-                  const v = e.target.value.trim();
-                  if (v) c.codexBaseUrl = v;
-                  else delete c.codexBaseUrl;
-                })
-              }
-              style={{ width: "100%" }}
-            />
-            <p className="muted small" style={{ marginTop: 6, lineHeight: 1.7 }}>
-              ChatGPTサブスクのCodex枠を使う方式です(APIキー不要)。Macで
+            <p className="muted small" style={{ marginBottom: 8 }}>
+              ChatGPTサブスクのCodex枠を使う方式です。Macで
               <code> npm run codex-bridge </code>
-              を起動しておく必要があります(要 Codex CLI+ChatGPTサインイン)。
-              手順と注意点(規約上の位置づけ・スマホから使う場合)はREADME参照。
+              を起動しておいてください(要 Codex CLI)。
             </p>
+            <CodexAccountPanel
+              key={`${ai.codexBaseUrl ?? ""}|${ai.apiKeys.codex ?? ""}`}
+            />
+            <details>
+              <summary className="muted small" style={{ cursor: "pointer" }}>
+                詳細設定(通常は変更不要)
+              </summary>
+              <div style={{ marginTop: 8 }}>
+                <p className="small" style={{ fontWeight: 600, marginBottom: 4 }}>
+                  ブリッジURL
+                </p>
+                <input
+                  value={ai.codexBaseUrl ?? ""}
+                  placeholder={CODEX_DEFAULT_URL}
+                  onChange={(e) =>
+                    updateAi((c) => {
+                      const v = e.target.value.trim();
+                      if (v) c.codexBaseUrl = v;
+                      else delete c.codexBaseUrl;
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+                <p className="small" style={{ fontWeight: 600, margin: "8px 0 4px" }}>
+                  ブリッジ接続トークン(LAN利用時のみ)
+                </p>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={ai.apiKeys.codex ?? ""}
+                  onChange={(e) =>
+                    updateAi((c) => {
+                      const v = e.target.value.trim();
+                      if (v) c.apiKeys.codex = v;
+                      else delete c.apiKeys.codex;
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+                <p className="muted small" style={{ marginTop: 6, lineHeight: 1.7 }}>
+                  スマホ等の別端末から使う場合、ブリッジ起動時の環境変数
+                  AP_STUDY_CODEX_BRIDGE_TOKEN と同じ値を入力します(ChatGPTのトークンとは別物です)。
+                </p>
+              </div>
+            </details>
           </div>
         ) : ai.apiKeys[ai.provider] ? (
           <div
