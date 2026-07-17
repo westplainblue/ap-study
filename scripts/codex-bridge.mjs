@@ -467,6 +467,19 @@ if (isMain) {
     process.exit(1);
   }
 
+  bridge.server.on("error", (e) => {
+    if (e.code === "EADDRINUSE") {
+      console.error(
+        `起動失敗: ポート${port}は既に使用中です。\n` +
+          `  - 既にブリッジが起動していればそのまま使えます(重複起動は不要です)\n` +
+          `  - 別プロセスを止めるか、--port <番号> で別ポートを指定してください`
+      );
+    } else {
+      console.error(`起動失敗: ${e.message}`);
+    }
+    process.exit(1);
+  });
+
   bridge.server.listen(port, host, () => {
     console.log(`Codexブリッジ起動: http://${host}:${port}/v1`);
     console.log("ChatGPT認証はCodex App Serverが管理します(トークンはこのプロセスを通りません)");
