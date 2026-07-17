@@ -5,10 +5,8 @@
  *   FAKE_CODEX_STATE = loggedin | loggedout          (account/read の結果)
  *   FAKE_CODEX_LOGIN = success | fail | none         (login/completed 通知)
  *   FAKE_CODEX_CRASH = 1                             (initialize直後に異常終了)
- *   FAKE_CODEX_EXEC_SLEEP = ミリ秒                    (execの遅延)
+ *   FAKE_CODEX_TURN_SLEEP = ミリ秒                    (ターン完了までの遅延)
  */
-import { writeFileSync } from "node:fs";
-
 const mode = process.argv[2];
 
 if (mode === "app-server") {
@@ -18,6 +16,7 @@ if (mode === "app-server") {
   }
   const state = process.env.FAKE_CODEX_STATE ?? "loggedin";
   const login = process.env.FAKE_CODEX_LOGIN ?? "success";
+  let threadCount = 0;
   const send = (obj) => process.stdout.write(JSON.stringify(obj) + "\n");
   let buf = "";
   process.stdin.on("data", (d) => {
@@ -80,6 +79,24 @@ if (mode === "app-server") {
         case "account/logout":
           send({ jsonrpc: "2.0", id: msg.id, result: {} });
           break;
+        case "thread/start":
+          send({ jsonrpc: "2.0", id: msg.id, result: { thread: { id: `t${++threadCount}` } } });
+          break;
+        case "turn/start": {
+          const threadId = msg.params.threadId;
+          send({ jsonrpc: "2.0", id: msg.id, result: { turn: { id: `turn-${threadId}`, status: "inProgress" } } });
+          const sleep = Number(process.env.FAKE_CODEX_TURN_SLEEP ?? "0");
+          setTimeout(() => {
+            send({ jsonrpc: "2.0", method: "item/agentMessage/delta", params: { threadId, turnId: `turn-${threadId}`, itemId: "i1", delta: "これは" } });
+            send({ jsonrpc: "2.0", method: "item/agentMessage/delta", params: { threadId, turnId: `turn-${threadId}`, itemId: "i1", delta: "テスト応答です" } });
+            send({ jsonrpc: "2.0", method: "item/completed", params: { threadId, turnId: `turn-${threadId}`, completedAtMs: 0, item: { id: "i1", type: "agentMessage", text: "これはテスト応答です" } } });
+            send({ jsonrpc: "2.0", method: "turn/completed", params: { threadId, turn: { id: `turn-${threadId}`, status: "completed", items: [] } } });
+          }, sleep);
+          break;
+        }
+        case "turn/interrupt":
+          send({ jsonrpc: "2.0", id: msg.id, result: {} });
+          break;
         default:
           send({
             jsonrpc: "2.0",
@@ -88,17 +105,6 @@ if (mode === "app-server") {
           });
       }
     }
-  });
-} else if (mode === "exec") {
-  const outIdx = process.argv.indexOf("-o");
-  const outFile = outIdx >= 0 ? process.argv[outIdx + 1] : null;
-  const chunks = [];
-  process.stdin.on("data", (d) => chunks.push(d));
-  process.stdin.on("end", async () => {
-    const sleep = Number(process.env.FAKE_CODEX_EXEC_SLEEP ?? "0");
-    if (sleep > 0) await new Promise((r) => setTimeout(r, sleep));
-    if (outFile) writeFileSync(outFile, "これはテスト応答です");
-    process.exit(0);
   });
 } else {
   process.exit(2);

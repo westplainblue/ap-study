@@ -30,7 +30,7 @@ beforeEach(() => {
   delete process.env.FAKE_CODEX_STATE;
   delete process.env.FAKE_CODEX_LOGIN;
   delete process.env.FAKE_CODEX_CRASH;
-  delete process.env.FAKE_CODEX_EXEC_SLEEP;
+  delete process.env.FAKE_CODEX_TURN_SLEEP;
 });
 
 after(() => {
@@ -152,7 +152,7 @@ test("ブリッジトークン: 不一致は401、正しいトークンは通る
   assert.equal(withAuth.status, 200);
 });
 
-test("チャット: 偽execの応答がSSEで返る", async () => {
+test("チャット: 応答がdeltaごとにストリーミングされる", async () => {
   const { base } = await startBridge();
   const res = await fetch(`${base}/v1/chat/completions`, {
     method: "POST",
@@ -161,12 +161,14 @@ test("チャット: 偽execの応答がSSEで返る", async () => {
   });
   assert.equal(res.status, 200);
   const text = await res.text();
-  assert.ok(text.includes("これはテスト応答です"));
+  // 2つのdeltaが別チャンクとして届く(=一括ではなくオンデマンド出力)
+  const deltas = [...text.matchAll(/"content":"([^"]*)"/g)].map((m) => m[1]);
+  assert.deepEqual(deltas, ["これは", "テスト応答です"]);
   assert.ok(text.includes("[DONE]"));
 });
 
 test("同時実行上限: 3件同時のうち1件は429(busy)", async () => {
-  process.env.FAKE_CODEX_EXEC_SLEEP = "800";
+  process.env.FAKE_CODEX_TURN_SLEEP = "800";
   const { base } = await startBridge();
   const fire = () =>
     fetch(`${base}/v1/chat/completions`, {

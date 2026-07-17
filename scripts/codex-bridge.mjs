@@ -24,7 +24,6 @@
  *   --allow-origin <o>   CORS許可オリジンを追加(複数指定可)
  *   --token <secret>     [非推奨] 環境変数 AP_STUDY_CODEX_BRIDGE_TOKEN を使ってください
  */
-import { spawn } from "node:child_process";
 import { timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
 import { createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
@@ -33,8 +32,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CodexAppServer, CodexAppServerError } from "./codex-app-server.mjs";
 
-const EXEC_TIMEOUT_MS = 180_000;
-const MAX_CONCURRENT_EXEC = 2;
+const TURN_TIMEOUT_MS = 180_000;
+const MAX_CONCURRENT_TURNS = 2;
 const LOGIN_ENTRY_TTL_MS = 10 * 60 * 1000;
 
 const DEFAULT_ORIGINS = [
@@ -107,87 +106,131 @@ function buildPrompt(body) {
   ].join("\n");
 }
 
-/**
- * `codex exec` を隔離設定で1回実行する。
- * 戻り値: { promise, kill } — kill() でクライアント切断時に中断できる。
- */
-function runCodexExec(prompt, model) {
-  const workDir = mkdtempSync(path.join(tmpdir(), "ap-study-codex-"));
-  const outFile = path.join(workDir, "last-message.txt");
-  const cliArgs = [
-    "exec",
-    "--ephemeral",
-    "--skip-git-repo-check",
-    "--ignore-user-config", // グローバル設定(MCP・プラグイン等)を読まない。認証はCODEX_HOMEを利用
-    "--ignore-rules", // ユーザー/プロジェクトのexecpolicyルールを読まない
-    "-s",
-    "read-only",
-    "-C",
-    workDir,
-    "-o",
-    outFile,
-    "--color",
-    "never",
-  ];
-  if (model && model !== "default") cliArgs.push("-m", model);
-
-  const child = spawn("codex", cliArgs, { stdio: ["pipe", "ignore", "pipe"] });
-  let stderr = "";
-  let killedByClient = false;
-  child.stdin.on("error", () => {
-    /* 起動失敗時のEPIPEはerror/closeハンドラ側で処理する */
+/** ターン失敗メッセージをユーザー向けエラーへ変換する(トークン等は含めない) */
+function mapTurnFailure(raw) {
+  const msg = typeof raw === "string" ? raw : "";
+  const lower = msg.toLowerCase();
+  if (lower.includes("rate limit") || lower.includes("usage limit") || msg.includes("429")) {
+    return Object.assign(
+      new Error("ChatGPTプランのレート制限に達しています。時間をおいて再試行してください"),
+      { code: "rate_limited" }
+    );
+  }
+  if (lower.includes("login") || lower.includes("auth")) {
+    return Object.assign(
+      new Error("ChatGPTにログインしていません。設定画面からログインしてください"),
+      { code: "not_logged_in" }
+    );
+  }
+  if (lower.includes("newer version")) {
+    return Object.assign(
+      new Error(
+        "このモデルには新しいCodex CLIが必要です。`codex update` を実行するか、設定のモデルに gpt-5.4 等を指定してください"
+      ),
+      { code: "exec_failed" }
+    );
+  }
+  return Object.assign(new Error(`Codexの実行に失敗しました: ${msg.slice(0, 200)}`), {
+    code: "exec_failed",
   });
-  child.stderr.on("data", (d) => (stderr = (stderr + d.toString()).slice(-2000)));
+}
 
-  const promise = new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      child.kill("SIGKILL");
-      reject(Object.assign(new Error("Codexの実行がタイムアウトしました(180秒)"), { code: "exec_timeout" }));
-    }, EXEC_TIMEOUT_MS);
+/**
+ * Codex App Serverの thread/turn で1問答える(ストリーミング)。
+ * 隔離: 読み取り専用サンドボックス・承認なし・空の一時ディレクトリ・ephemeral。
+ * onDelta にモデル出力が生成されたそばから流れる。
+ * 戻り値: { promise, kill } — kill() でクライアント切断時に turn/interrupt する。
+ */
+function runCodexTurn(appServer, turnHandlers, prompt, model, onDelta) {
+  let killed = false;
+  let ids = null; // { threadId, turnId }
+  const workDir = mkdtempSync(path.join(tmpdir(), "ap-study-codex-"));
 
-    child.on("error", (e) => {
-      clearTimeout(timer);
-      rmSync(workDir, { recursive: true, force: true });
-      reject(
-        e.code === "ENOENT"
-          ? Object.assign(new Error("codex コマンドが見つかりません(Codex CLI未インストール)"), { code: "cli_not_found" })
-          : Object.assign(new Error("codex exec を起動できません"), { code: "app_server_failed" })
-      );
+  const interrupt = () => {
+    if (ids) void appServer.request("turn/interrupt", ids, 5_000).catch(() => {});
+  };
+
+  const promise = (async () => {
+    const threadResp = await appServer.request(
+      "thread/start",
+      {
+        cwd: workDir,
+        sandbox: "read-only",
+        approvalPolicy: "never",
+        ephemeral: true,
+        ...(model && model !== "default" ? { model } : {}),
+      },
+      30_000
+    );
+    const threadId = threadResp?.thread?.id;
+    if (!threadId) {
+      throw Object.assign(new Error("Codexスレッドを開始できませんでした"), { code: "exec_failed" });
+    }
+
+    let streamedLen = 0;
+    const completion = new Promise((resolve, reject) => {
+      turnHandlers.set(threadId, {
+        onDelta: (d) => {
+          streamedLen += d.length;
+          onDelta(d);
+        },
+        // deltaが欠けた場合に備え、完了メッセージとの差分を補完する
+        onItemText: (text) => {
+          if (typeof text === "string" && text.length > streamedLen) {
+            onDelta(text.slice(streamedLen));
+            streamedLen = text.length;
+          }
+        },
+        onTurnCompleted: (turn) => {
+          if (turn?.status === "failed" && !killed) {
+            reject(mapTurnFailure(turn?.error?.message));
+          } else {
+            resolve();
+          }
+        },
+        onError: (message, willRetry) => {
+          if (!willRetry && !killed) reject(mapTurnFailure(message));
+        },
+      });
     });
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      let text = "";
-      try {
-        text = readFileSync(outFile, "utf8").trim();
-      } catch {
-        /* 出力ファイルなし */
-      }
-      rmSync(workDir, { recursive: true, force: true });
-      if (killedByClient) {
-        reject(Object.assign(new Error("クライアントにより中断されました"), { code: "aborted" }));
-      } else if (code !== 0 && !text) {
-        const lower = stderr.toLowerCase();
-        if (lower.includes("rate limit") || lower.includes("usage limit") || stderr.includes("429")) {
-          reject(Object.assign(new Error("ChatGPTプランのレート制限に達しています。時間をおいて再試行してください"), { code: "rate_limited" }));
-        } else if (lower.includes("login") || lower.includes("auth")) {
-          reject(Object.assign(new Error("ChatGPTにログインしていません。設定画面からログインしてください"), { code: "not_logged_in" }));
-        } else {
-          reject(Object.assign(new Error(`Codexの実行に失敗しました(exit ${code})`), { code: "exec_failed" }));
-        }
-      } else {
-        resolve(text || "(Codexから空の応答が返りました)");
-      }
-    });
 
-    child.stdin.write(prompt);
-    child.stdin.end();
+    if (killed) return;
+    const turnResp = await appServer.request(
+      "turn/start",
+      { threadId, input: [{ type: "text", text: prompt, text_elements: [] }] },
+      30_000
+    );
+    ids = { threadId, turnId: turnResp?.turn?.id ?? "" };
+    if (killed) interrupt();
+
+    let timeoutId;
+    try {
+      await Promise.race([
+        completion,
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            interrupt();
+            reject(
+              Object.assign(new Error("Codexの実行がタイムアウトしました(180秒)"), {
+                code: "exec_timeout",
+              })
+            );
+          }, TURN_TIMEOUT_MS);
+        }),
+      ]);
+    } finally {
+      clearTimeout(timeoutId);
+      turnHandlers.delete(threadId);
+    }
+  })().finally(() => {
+    rmSync(workDir, { recursive: true, force: true });
   });
 
   return {
     promise,
     kill: () => {
-      killedByClient = true;
-      child.kill("SIGKILL");
+      killed = true;
+      interrupt();
     },
   };
 }
@@ -252,6 +295,8 @@ export function createBridgeServer(opts = {}) {
 
   // ログイン試行の状態: loginId -> { status, message, createdAt }
   const logins = new Map();
+  // 実行中ターンの通知ルーティング: threadId -> handlers
+  const turnHandlers = new Map();
   const appServer = new CodexAppServer({
     clientVersion: opts.clientVersion ?? "0.1.0",
     onNotification: (method, params) => {
@@ -270,11 +315,23 @@ export function createBridgeServer(opts = {}) {
         } else if (loginId) {
           logins.set(loginId, { status, message, createdAt: Date.now() });
         }
+        return;
+      }
+      const handler = params?.threadId ? turnHandlers.get(params.threadId) : undefined;
+      if (!handler) return;
+      if (method === "item/agentMessage/delta" && typeof params.delta === "string") {
+        handler.onDelta(params.delta);
+      } else if (method === "item/completed" && params.item?.type === "agentMessage") {
+        handler.onItemText(params.item.text);
+      } else if (method === "turn/completed") {
+        handler.onTurnCompleted(params.turn);
+      } else if (method === "error") {
+        handler.onError(params.error?.message, params.willRetry === true);
       }
     },
   });
 
-  let activeExecs = 0;
+  let activeTurns = 0;
 
   const server = createServer(async (req, res) => {
     const origin = req.headers.origin;
@@ -400,9 +457,9 @@ export function createBridgeServer(opts = {}) {
         }
       }
 
-      /* --- チャット --- */
+      /* --- チャット(App Serverターンでストリーミング) --- */
       if (req.method === "POST" && url.pathname === "/v1/chat/completions") {
-        if (activeExecs >= MAX_CONCURRENT_EXEC) {
+        if (activeTurns >= MAX_CONCURRENT_TURNS) {
           return jsonError(res, 429, "busy", "同時に実行できるCodexリクエスト数を超えています。少し待ってから再試行してください", cors);
         }
         let body;
@@ -411,44 +468,43 @@ export function createBridgeServer(opts = {}) {
         } catch {
           return jsonError(res, 400, "bad_request", "JSONボディを解釈できません", cors);
         }
-        activeExecs += 1;
-        const exec = runCodexExec(buildPrompt(body), body.model);
-        req.on("close", () => {
-          if (!res.writableEnded) exec.kill();
-        });
+        activeTurns += 1;
         res.writeHead(200, {
           ...cors,
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
           Connection: "keep-alive",
         });
-        const ping = setInterval(() => res.write(": ping\n\n"), 10_000);
-        console.log(`[bridge] チャット実行(model=${body.model ?? "default"})…`);
-        try {
-          const text = await exec.promise;
+        const sseDelta = (content) =>
           res.write(
             `data: ${JSON.stringify({
               id: "codex-bridge",
               object: "chat.completion.chunk",
-              choices: [{ index: 0, delta: { content: text }, finish_reason: null }],
+              choices: [{ index: 0, delta: { content }, finish_reason: null }],
             })}\n\n`
           );
+        const ping = setInterval(() => res.write(": ping\n\n"), 10_000);
+        console.log(`[bridge] チャット実行(model=${body.model ?? "default"})…`);
+        const turn = runCodexTurn(
+          appServer,
+          turnHandlers,
+          buildPrompt(body),
+          body.model,
+          sseDelta
+        );
+        req.on("close", () => {
+          if (!res.writableEnded) turn.kill();
+        });
+        try {
+          await turn.promise;
           res.write("data: [DONE]\n\n");
           console.log("[bridge] チャット応答完了");
         } catch (e) {
-          if (e.code !== "aborted") {
-            res.write(
-              `data: ${JSON.stringify({
-                id: "codex-bridge",
-                object: "chat.completion.chunk",
-                choices: [{ index: 0, delta: { content: `⚠️ ${e.message}` }, finish_reason: "stop" }],
-              })}\n\n`
-            );
-            res.write("data: [DONE]\n\n");
-            console.error(`[bridge] チャットエラー(${e.code ?? "unknown"})`);
-          }
+          sseDelta(`⚠️ ${e.message}`);
+          res.write("data: [DONE]\n\n");
+          console.error(`[bridge] チャットエラー(${e.code ?? "unknown"})`);
         } finally {
-          activeExecs -= 1;
+          activeTurns -= 1;
           clearInterval(ping);
           res.end();
         }
