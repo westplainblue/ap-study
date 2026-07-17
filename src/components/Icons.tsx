@@ -111,3 +111,21 @@ export function IconChevronRight({ size }: IconProps) {
     </svg>
   );
 }
+
+export function IconSparkle({ size }: IconProps) {
+  return (
+    <svg {...svgProps(size)}>
+      <path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z" />
+      <path d="M18.5 16l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" />
+    </svg>
+  );
+}
+
+export function IconSend({ size }: IconProps) {
+  return (
+    <svg {...svgProps(size)}>
+      <path d="M4 11.5L20 4l-7.5 16-2-6.5z" />
+      <path d="M10.5 13.5L20 4" />
+    </svg>
+  );
+}

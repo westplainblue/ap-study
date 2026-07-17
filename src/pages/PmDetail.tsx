@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { examLabel, figureUrl, pmQuestion } from "../data";
+import { setAiContext } from "../lib/aiContext";
 import {
   pmRecords,
   setPmGrade,
@@ -22,6 +23,35 @@ export default function PmDetail() {
   );
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+
+  // 表示中の午後問題をAIチャットに共有する(模範解答はネタバレ防止のため含めない)
+  useEffect(() => {
+    if (!q) {
+      setAiContext(null);
+      return;
+    }
+    const body = q.sections
+      .map((s) => `${s.heading ? `〔${s.heading}〕\n` : ""}${s.body}`)
+      .join("\n\n")
+      .slice(0, 8000);
+    const setumonList = q.setumon
+      .flatMap((s) => s.parts.map((p) => `${s.label} ${p.label}: ${p.question}`))
+      .join("\n");
+    setAiContext({
+      label: `${examLabel(q.examId)} 午後 問${q.number}`,
+      text: [
+        "【ユーザーが現在取り組んでいる午後問題】",
+        `出典: ${examLabel(q.examId)} 午後 問${q.number}(${q.field})`,
+        `題材: ${q.title}`,
+        "--- 問題文 ---",
+        body,
+        "--- 設問 ---",
+        setumonList,
+        "ユーザーは記述式の解答を自分で考えている最中です。模範解答を丸ごと示すのではなく、読み解き方や着眼点のヒントを優先してください(明示的に答えを求められた場合は答えて構いません)。",
+      ].join("\n"),
+    });
+    return () => setAiContext(null);
+  }, [q]);
 
   if (!q) {
     return (

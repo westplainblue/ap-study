@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
+import { setAiContext } from "../lib/aiContext";
 import { addToReview, isInReview, recordAnswer, type Mode } from "../lib/progress";
 import { IconCheck, IconStar, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
@@ -19,6 +21,38 @@ export default function Player({ questions, mode, title, emptyMessage }: Props) 
   const [results, setResults] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
   const [reviewAdded, setReviewAdded] = useState(false);
+
+  // 表示中の問題をAIチャットに共有する
+  useEffect(() => {
+    const q = questions[idx];
+    if (finished || !q) {
+      setAiContext(null);
+      return;
+    }
+    const lines = [
+      "【ユーザーが現在取り組んでいる問題】",
+      `出典: ${sourceOf(q)}(分野: ${q.middle})`,
+      `問題文: ${q.text}`,
+      ...q.choices.map((c, i) => `${KANA[i]}: ${c}`),
+    ];
+    if (q.figure) {
+      lines.push("※この問題には図表が含まれますが、図はテキスト共有できていません。");
+    }
+    if (selected !== null) {
+      lines.push(
+        `正解: ${KANA[q.answer]}`,
+        `ユーザーの解答: ${KANA[selected]}(${selected === q.answer ? "正解" : "不正解"})`,
+        `解説: ${q.explanation}`
+      );
+    } else {
+      lines.push(
+        "ユーザーはまだ解答中です。正答の記号を直接明かさず、考え方のヒントを中心に支援してください。"
+      );
+    }
+    setAiContext({ label: sourceOf(q), text: lines.join("\n") });
+  }, [questions, idx, selected, finished]);
+
+  useEffect(() => () => setAiContext(null), []);
 
   if (questions.length === 0) {
     return (
@@ -105,6 +139,7 @@ export default function Player({ questions, mode, title, emptyMessage }: Props) 
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 8,
+          paddingRight: 48,
         }}
       >
         <span className="chip">{q.middle}</span>

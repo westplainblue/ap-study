@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
+import AiChat from "./components/AiChat";
 import TabBar from "./components/TabBar";
 import { syncInBackground } from "./lib/sync";
 import Home from "./pages/Home";
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
+      <AiChat />
       <TabBar />
     </HashRouter>
   );

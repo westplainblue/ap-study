@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "fetch-exam": "tsx scripts/fetch-exam.ts",
-    "extract-am": "tsx scripts/extract-am.ts"
+    "extract-am": "tsx scripts/extract-am.ts",
+    "codex-bridge": "node scripts/codex-bridge.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

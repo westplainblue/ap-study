@@ -1,5 +1,15 @@
 import { useRef, useState } from "react";
 import {
+  CODEX_DEFAULT_URL,
+  DEFAULT_MODELS,
+  loadAiConfig,
+  maskKey,
+  PROVIDER_LABEL,
+  saveAiConfig,
+  type AiConfig,
+  type AiProvider,
+} from "../lib/aiConfig";
+import {
   dueReviewIds,
   exportJson,
   importJson,
@@ -22,6 +32,16 @@ export default function Settings() {
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [ai, setAi] = useState(loadAiConfig());
+  const [keyDraft, setKeyDraft] = useState("");
+  const [showKey, setShowKey] = useState(false);
+
+  const updateAi = (mutate: (c: AiConfig) => void) => {
+    const c = loadAiConfig();
+    mutate(c);
+    saveAiConfig(c);
+    setAi(loadAiConfig());
+  };
 
   const update = (mutate: (s: ReturnType<typeof loadState>) => void) => {
     const s = loadState();
@@ -148,6 +168,120 @@ export default function Settings() {
             {syncMessage}
           </p>
         )}
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
+        <p style={{ fontWeight: 600, marginBottom: 4 }}>AIチャット</p>
+        <p className="muted small" style={{ marginBottom: 10 }}>
+          画面右上の✨ボタンで開くAIアシスタントの接続先です。APIキーは
+          <strong>この端末のブラウザ内にのみ</strong>
+          保存され、クラウド同期・エクスポートには一切含まれません。送信先は各社の公式APIだけです。
+        </p>
+        <p className="small" style={{ fontWeight: 600, marginBottom: 4 }}>使用するAI</p>
+        <select
+          value={ai.provider}
+          onChange={(e) =>
+            updateAi((c) => {
+              c.provider = e.target.value as AiProvider;
+            })
+          }
+          style={{ width: "100%", marginBottom: 10 }}
+        >
+          {(Object.keys(PROVIDER_LABEL) as AiProvider[]).map((p) => (
+            <option key={p} value={p}>
+              {PROVIDER_LABEL[p]}
+            </option>
+          ))}
+        </select>
+
+        {ai.provider === "codex" ? (
+          <div style={{ marginBottom: 10 }}>
+            <p className="small" style={{ fontWeight: 600, marginBottom: 4 }}>
+              ブリッジURL
+            </p>
+            <input
+              value={ai.codexBaseUrl ?? ""}
+              placeholder={CODEX_DEFAULT_URL}
+              onChange={(e) =>
+                updateAi((c) => {
+                  const v = e.target.value.trim();
+                  if (v) c.codexBaseUrl = v;
+                  else delete c.codexBaseUrl;
+                })
+              }
+              style={{ width: "100%" }}
+            />
+            <p className="muted small" style={{ marginTop: 6, lineHeight: 1.7 }}>
+              ChatGPTサブスクのCodex枠を使う方式です(APIキー不要)。Macで
+              <code> npm run codex-bridge </code>
+              を起動しておく必要があります(要 Codex CLI+ChatGPTサインイン)。
+              手順と注意点(規約上の位置づけ・スマホから使う場合)はREADME参照。
+            </p>
+          </div>
+        ) : ai.apiKeys[ai.provider] ? (
+          <div
+            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}
+          >
+            <span className="small" style={{ fontFamily: "monospace", flex: 1 }}>
+              キー設定済み: {maskKey(ai.apiKeys[ai.provider]!)}
+            </span>
+            <button
+              className="btn"
+              onClick={() =>
+                updateAi((c) => {
+                  delete c.apiKeys[c.provider];
+                })
+              }
+            >
+              削除
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+            <input
+              type={showKey ? "text" : "password"}
+              placeholder={`${PROVIDER_LABEL[ai.provider]}のAPIキー`}
+              value={keyDraft}
+              autoComplete="off"
+              onChange={(e) => setKeyDraft(e.target.value)}
+              style={{ flex: 1, minWidth: 0 }}
+            />
+            <button className="btn" onClick={() => setShowKey((v) => !v)}>
+              {showKey ? "隠す" : "表示"}
+            </button>
+            <button
+              className="btn btn-primary"
+              disabled={keyDraft.trim() === ""}
+              onClick={() => {
+                updateAi((c) => {
+                  c.apiKeys[c.provider] = keyDraft.trim();
+                });
+                setKeyDraft("");
+                setShowKey(false);
+              }}
+            >
+              保存
+            </button>
+          </div>
+        )}
+
+        <p className="small" style={{ fontWeight: 600, marginBottom: 4 }}>モデル</p>
+        <input
+          value={ai.models[ai.provider] ?? ""}
+          placeholder={`${DEFAULT_MODELS[ai.provider]}(推奨)`}
+          onChange={(e) =>
+            updateAi((c) => {
+              const v = e.target.value.trim();
+              if (v) c.models[c.provider] = v;
+              else delete c.models[c.provider];
+            })
+          }
+          style={{ width: "100%" }}
+        />
+        <p className="muted small" style={{ marginTop: 8 }}>
+          空欄なら推奨モデル({DEFAULT_MODELS[ai.provider]}
+          )を使います。共有端末ではキーを保存しないでください。
+        </p>
       </div>
 
       <div className="card" style={{ marginBottom: 12 }}>

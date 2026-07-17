@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import QuestionCard from "../components/QuestionCard";
-import { EXAMS } from "../data";
+import { EXAMS, KANA, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
+import { setAiContext } from "../lib/aiContext";
 import { recordAnswersBatch } from "../lib/progress";
 import { MOCK_KEY, type MockState } from "./MockExam";
 
@@ -39,6 +40,30 @@ export default function MockRun() {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [graded]);
+
+  // 表示中の問題をAIチャットに共有する(模試中はネタバレ防止の指示付き)
+  useEffect(() => {
+    const q = exam?.am[idx];
+    if (!q || graded) {
+      setAiContext(null);
+      return;
+    }
+    setAiContext({
+      label: `${sourceOf(q)}(模試中)`,
+      text: [
+        "【ユーザーが模試モードで現在解いている問題】",
+        `出典: ${sourceOf(q)}(分野: ${q.middle})`,
+        `問題文: ${q.text}`,
+        ...q.choices.map((c, i) => `${KANA[i]}: ${c}`),
+        q.figure ? "※この問題には図表が含まれますが、図はテキスト共有できていません。" : "",
+        "模試の最中です。ユーザーが明示的に答えを要求しない限り、正答の記号や決定的な絞り込みは伝えず、考え方のヒントにとどめてください。",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+  }, [exam, idx, graded]);
+
+  useEffect(() => () => setAiContext(null), []);
 
   if (!mock || !exam) {
     return (
@@ -163,6 +188,7 @@ export default function MockRun() {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 8,
+          paddingRight: 48,
         }}
       >
         <span
