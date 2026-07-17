@@ -48,15 +48,29 @@ const figuresDir = path.join(root, `public/figures/${code}`);
 const ansPdf = path.join(root, `data-src/pdf/${code}_ap_am_ans.pdf`);
 
 // --- 1. 公式解答例をパース(問N → 正答記号・分野) ---
-const ansText = execFileSync("pdftotext", ["-layout", ansPdf, "-"]).toString();
-const answers = new Map<number, { answer: number; major: "T" | "M" | "S" }>();
+// 解答例PDFが画像(テキスト層なし)の回は、data-src/work/am_answers-<code>.json に
+// { "1": {"answer":"ア","major":"T"}, ... } 形式で手動転記した正答を置くとそれを使う。
 const kanaIndex: Record<string, number> = { ア: 0, イ: 1, ウ: 2, エ: 3 };
 const majorMap: Record<string, "T" | "M" | "S"> = { Ｔ: "T", Ｍ: "M", Ｓ: "S", T: "T", M: "M", S: "S" };
-for (const m of ansText.matchAll(/問\s*(\d{1,2})\s+([アイウエ])\s+([ＴＭＳTMS])/g)) {
-  answers.set(Number(m[1]), {
-    answer: kanaIndex[m[2]],
-    major: majorMap[m[3]],
-  });
+const answers = new Map<number, { answer: number; major: "T" | "M" | "S" }>();
+
+const manualAnsPath = path.join(root, `data-src/work/am_answers-${code}.json`);
+if (existsSync(manualAnsPath)) {
+  const manual: Record<string, { answer: string; major: string }> = JSON.parse(
+    readFileSync(manualAnsPath, "utf8")
+  );
+  for (const [num, v] of Object.entries(manual)) {
+    answers.set(Number(num), { answer: kanaIndex[v.answer], major: majorMap[v.major] });
+  }
+  console.log(`手動解答ファイルを使用: ${manualAnsPath}`);
+} else {
+  const ansText = execFileSync("pdftotext", ["-layout", ansPdf, "-"]).toString();
+  for (const m of ansText.matchAll(/問\s*(\d{1,2})\s+([アイウエ])\s+([ＴＭＳTMS])/g)) {
+    answers.set(Number(m[1]), {
+      answer: kanaIndex[m[2]],
+      major: majorMap[m[3]],
+    });
+  }
 }
 if (answers.size !== 80) {
   console.error(`解答例のパース結果が80問になりません: ${answers.size}問`);
