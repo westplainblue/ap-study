@@ -2,7 +2,10 @@ node_modules/
 dist/
 data-src/pdf/
 data-src/pages/
-data-src/work/
+# data-src/work配下は中間生成物(転記チャンク・正答キー)なので除外。ただし
+# 手動転記した正答オーバーライドだけは保全する(解答例PDFが画像で自動抽出できない回の唯一の正答源)
+data-src/work/*
+!data-src/work/am_answers-*.json
 .env
 .env.local
 .DS_Store
