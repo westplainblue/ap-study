@@ -139,13 +139,17 @@ Resources:
       Principal: "*"
       FunctionUrlAuthType: NONE
 
+  # InvokeFunction 側: FunctionUrlAuthType 条件は InvokeFunctionUrl にしか付与できない
+  # (AWS の検証エラーになる)。本来の推奨は lambda:InvokedViaFunctionUrl 条件だが、
+  # AWS::Lambda::Permission では表現できないため条件なしで付与する。
+  # このエンドポイントは元々「同期コードで誰でも読み書きする公開設計」であり、
+  # InvokeFunction 直呼びには AWS 認証情報+関数ARN が必要なため、実害はない。
   SyncFunctionInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref SyncFunction
       Action: lambda:InvokeFunction
       Principal: "*"
-      FunctionUrlAuthType: NONE
 
 Outputs:
   SyncApiUrl:
