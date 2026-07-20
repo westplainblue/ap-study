@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  GitHub Actions からキーレス(OIDC)で S3 デプロイ+CloudFront 無効化を行うための
+  IAM ロール。長期のアクセスキーを GitHub に保存しないための構成。
+  デプロイには CAPABILITY_IAM が必要。
+
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: westplainblue
+    Description: リポジトリのオーナー(user または org)
+  GitHubRepo:
+    Type: String
+    Default: ap-study
+    Description: リポジトリ名
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: デプロイを許可するブランチ
+  BucketArn:
+    Type: String
+    Description: hosting スタックの出力 BucketArn
+  DistributionArn:
+    Type: String
+    Description: hosting スタックの出力 DistributionArn
+  CreateOIDCProvider:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: >
+      アカウントに GitHub の OIDC プロバイダが未作成なら true。
+      既に別リポジトリ等で作成済みなら false(重複作成はエラーになる)。
+
+Conditions:
+  ShouldCreateOIDCProvider: !Equals [!Ref CreateOIDCProvider, "true"]
+
+Resources:
+  # アカウントに 1 つだけ持てる GitHub OIDC プロバイダ(既存なら CreateOIDCProvider=false)
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: ShouldCreateOIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      # AWS は GitHub 等の既知 IdP では実際には thumbprint を検証しないが、
+      # CloudFormation は本プロパティを必須とするため既知値を設定する。
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fca
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: GitHub Actions deploy role for ap-study
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              # 新規作成時は !Ref で依存関係を張り(プロバイダ作成後にロール作成)、
+              # 既存利用時はアカウント内で一意に決まる ARN を直接組み立てる。
+              Federated: !If
+                - ShouldCreateOIDCProvider
+                - !Ref GitHubOIDCProvider
+                - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubOrg}/${GitHubRepo}:ref:refs/heads/${GitHubBranch}"
+      Policies:
+        - PolicyName: deploy-s3-and-invalidate
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ListBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !Ref BucketArn
+              - Sid: ReadWriteObjects
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub "${BucketArn}/*"
+              - Sid: InvalidateCache
+                Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Ref DistributionArn
+
+Outputs:
+  DeployRoleArn:
+    Description: GitHub Secrets の AWS_DEPLOY_ROLE_ARN に設定する値
+    Value: !GetAtt DeployRole.Arn
