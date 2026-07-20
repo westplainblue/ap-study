@@ -7,6 +7,7 @@
 | ファイル | 役割 |
 |---|---|
 | `hosting.yaml` | S3(非公開)+ CloudFront + OAC + バケットポリシー。**これだけで公開できる** |
+| `sync.yaml` | クラウド同期バックエンド(DynamoDB + Lambda + Function URL)。端末間で学習データを同期する場合に使う |
 | `github-oidc.yaml` | GitHub Actions 用のキーレス(OIDC)デプロイロール |
 | `../scripts/deploy.sh` | 手元からの手動デプロイ(ビルド→S3同期→キャッシュ無効化) |
 | `../.github/workflows/deploy-aws.yml` | push で自動デプロイ(OIDC)。既定は無効(手動起動のみ) |
@@ -85,8 +86,7 @@ aws cloudformation describe-stacks --stack-name ap-study-github-oidc \
 | `AWS_DEPLOY_ROLE_ARN` | 上の DeployRoleArn |
 | `S3_BUCKET` | 手順1の BucketName |
 | `CF_DISTRIBUTION_ID` | 手順1の DistributionId |
-| `VITE_SUPABASE_URL` | (任意)Supabase URL |
-| `VITE_SUPABASE_ANON_KEY` | (任意)Supabase anon キー |
+| `VITE_SYNC_API_URL` | (任意)クラウド同期を使う場合。手順5の SyncApiUrl |
 
 3-3. `.github/workflows/deploy-aws.yml` の `push:` トリガーのコメントを外して有効化 → `main` に push すると自動デプロイされる。
 
@@ -99,6 +99,44 @@ aws budgets create-budget --account-id ACCOUNT_ID \
   --budget '{"BudgetName":"ap-study-monthly","BudgetLimit":{"Amount":"1","Unit":"USD"},"TimeUnit":"MONTHLY","BudgetType":"COST"}' \
   --notifications-with-subscribers '[{"Notification":{"NotificationType":"ACTUAL","ComparisonOperator":"GREATER_THAN","Threshold":80},"Subscribers":[{"SubscriptionType":"EMAIL","Address":"you@example.com"}]}]'
 ```
+
+### 5. クラウド同期バックエンド(任意)
+
+端末間(PC↔スマホ等)で学習データを同期したい場合に構築する。DynamoDB + Lambda + Function URL。
+
+5-1. 同期スタックを作成(`AllowOrigin` は配信元URLを推奨。手順1の SiteURL を指定):
+
+```bash
+aws cloudformation deploy \
+  --template-file infra/sync.yaml \
+  --stack-name ap-study-sync \
+  --capabilities CAPABILITY_IAM \
+  --region ap-northeast-1 \
+  --parameter-overrides AllowOrigin=https://xxxx.cloudfront.net
+```
+
+5-2. 同期APIのURLを取得:
+
+```bash
+aws cloudformation describe-stacks --stack-name ap-study-sync \
+  --query "Stacks[0].Outputs[?OutputKey=='SyncApiUrl'].OutputValue" --output text
+```
+
+5-3. リポジトリ直下に `.env` を作成し、上のURLを設定(`.env` は git 管理外):
+
+```bash
+echo 'VITE_SYNC_API_URL=<手順5-2のURL>' > .env
+```
+
+5-4. 再ビルド&再デプロイして、同期機能を有効化:
+
+```bash
+HOSTING_STACK=ap-study-hosting ./scripts/deploy.sh
+```
+
+5-5. アプリの 設定 → クラウド同期 で、片方の端末で「同期コードを発行」→ もう片方で同じコードを入力 →「今すぐ同期」。
+
+> 💰 コスト目安: Lambda 常時無料枠(月100万リクエスト)+ DynamoDB オンデマンド(個人利用の回数では実質0円)+ 保存25GB無料枠。
 
 ---
 
@@ -115,7 +153,9 @@ aws budgets create-budget --account-id ACCOUNT_ID \
 # 先にバケットを空にする(Retain 設定のため中身が残っていると削除できない)
 aws s3 rm "s3://<BucketName>" --recursive
 aws cloudformation delete-stack --stack-name ap-study-github-oidc
+aws cloudformation delete-stack --stack-name ap-study-sync      # 同期を作った場合
 aws cloudformation delete-stack --stack-name ap-study-hosting
-# SiteBucket は DeletionPolicy: Retain のため、不要なら最後に手動削除
+# SiteBucket / SyncTable は DeletionPolicy: Retain のため、不要なら最後に手動削除
 aws s3 rb "s3://<BucketName>"
+# aws dynamodb delete-table --table-name <TableName>   # 同期テーブルも消す場合
 ```
