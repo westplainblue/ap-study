@@ -4,6 +4,7 @@ import { KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import { addToReview, isInReview, recordAnswer, type Mode } from "../lib/progress";
+import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
 import { IconCheck, IconStar, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
 
@@ -12,15 +13,41 @@ interface Props {
   mode: Extract<Mode, "practice" | "review">;
   title: string;
   emptyMessage?: string;
+  /** 指定すると進行状況を保存し、タブ破棄・再読込をまたいで途中から再開できる */
+  storageKey?: string;
 }
 
 /** 1問ごと即時フィードバック型の演習プレイヤー(分野別演習・復習で共用) */
-export default function Player({ questions, mode, title, emptyMessage }: Props) {
-  const [idx, setIdx] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [results, setResults] = useState<boolean[]>([]);
-  const [finished, setFinished] = useState(false);
+export default function Player({ questions, mode, title, emptyMessage, storageKey }: Props) {
+  // 保存済みセッションの問題セットが現在の出題と一致する場合のみ進捗を復元する
+  const [saved] = useState<RunState | null>(() => {
+    if (!storageKey) return null;
+    const r = loadRun(storageKey);
+    if (!r) return null;
+    const currentIds = questions.map((q) => q.id).join(",");
+    return r.questionIds.join(",") === currentIds ? r : null;
+  });
+  const [idx, setIdx] = useState(saved?.idx ?? 0);
+  const [selected, setSelected] = useState<number | null>(saved?.selected ?? null);
+  const [results, setResults] = useState<boolean[]>(saved?.results ?? []);
+  const [finished, setFinished] = useState(saved?.finished ?? false);
   const [reviewAdded, setReviewAdded] = useState(false);
+
+  // 進行状況を保存(結果画面に到達したら破棄)。次回起動時に途中から再開できる。
+  useEffect(() => {
+    if (!storageKey || questions.length === 0) return;
+    if (finished) {
+      clearRun(storageKey);
+      return;
+    }
+    saveRun(storageKey, {
+      questionIds: questions.map((q) => q.id),
+      idx,
+      selected,
+      results,
+      finished,
+    });
+  }, [storageKey, questions, idx, selected, results, finished]);
 
   // 表示中の問題をAIチャットに共有する
   useEffect(() => {

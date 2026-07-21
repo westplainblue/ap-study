@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { countByMiddle } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
+import { clearRun } from "../lib/run";
 
 const COUNTS = [5, 10, 20];
 
@@ -19,6 +20,7 @@ export default function PracticeSetup() {
   };
 
   const start = () => {
+    clearRun("practice"); // 新しい演習を始めるので、前回の途中状態は破棄する
     sessionStorage.setItem(
       "ap-practice",
       JSON.stringify({ middles: [...selected], count })

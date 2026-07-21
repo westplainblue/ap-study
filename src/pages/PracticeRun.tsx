@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import Player from "../components/Player";
 import { questionsByMiddle } from "../data";
 import { statsByQuestion } from "../lib/progress";
+import { resumeQuestions } from "../lib/run";
 
 interface Config {
   middles: string[];
@@ -19,6 +20,9 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function PracticeRun() {
   const questions = useMemo(() => {
+    // 中断した演習があれば、同じ問題セットのまま再開する
+    const resumed = resumeQuestions("practice");
+    if (resumed) return resumed;
     const config: Config = JSON.parse(
       sessionStorage.getItem("ap-practice") ?? '{"middles":[],"count":10}'
     );
@@ -35,6 +39,7 @@ export default function PracticeRun() {
       mode="practice"
       title="分野別演習"
       emptyMessage="選択した分野の問題がまだ収録されていません。"
+      storageKey="practice"
     />
   );
 }
