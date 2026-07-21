@@ -2,10 +2,14 @@
 
 `infra/` のCloudFormationテンプレートから **cfn-diagram** で自動生成した、AWS公式アイコンつきの構成図(draw.io形式)。**テンプレートと図が一致**するのが利点(コードが正、図はそこから生成)。
 
-| ファイル | 元テンプレート | 含まれるリソース |
+| ファイル | 種類 | 含まれるもの |
 |---|---|---|
-| [`hosting.drawio`](./hosting.drawio) | `infra/hosting.yaml` | S3・CloudFront・OAC・バケットポリシー |
-| [`sync.drawio`](./sync.drawio) | `infra/sync.yaml` | Lambda・Lambda Function URL・DynamoDB・IAMロール/ポリシー |
+| [`architecture-combined.drawio`](./architecture-combined.drawio) | **統合図(手動整形)** | 利用者・端末 + 配信(CloudFront/S3)+ 同期(Lambda/DynamoDB)を1枚に。**まずこれを見るのがおすすめ** |
+| [`hosting.drawio`](./hosting.drawio) | 自動生成(hosting) | S3・CloudFront・OAC・バケットポリシー |
+| [`sync.drawio`](./sync.drawio) | 自動生成(sync) | Lambda・Lambda Function URL・DynamoDB・IAMロール/ポリシー |
+
+- **統合図**は、両スタック + 利用者を1枚にまとめた俯瞰図(AWS公式アイコン使用)。プレゼンや説明向け。
+- **自動生成図**(hosting / sync)は cfn-diagram でテンプレートから機械生成したスタック別の詳細図。
 
 > システム全体を俯瞰した図(利用者・配信・同期・デプロイを1枚に)は [`../architecture.md`](../architecture.md)(Mermaid)を参照。こちらの `.drawio` は**スタックごとの詳細**で、自由に編集できます。
 
