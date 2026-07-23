@@ -36,6 +36,18 @@ export default function Home() {
 
   return (
     <div>
+      <p
+        style={{
+          fontSize: 13,
+          fontWeight: 800,
+          color: "var(--accent-text)",
+          letterSpacing: 0.5,
+          marginBottom: 6,
+          paddingRight: 48,
+        }}
+      >
+        AP Study<span style={{ color: "var(--text-3)", fontWeight: 600 }}> ・ 応用情報 学習</span>
+      </p>
       <h1
         style={{
           fontSize: 19,
