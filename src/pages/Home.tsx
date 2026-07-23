@@ -46,7 +46,7 @@ export default function Home() {
           paddingRight: 48,
         }}
       >
-        AP Study<span style={{ color: "var(--text-3)", fontWeight: 600 }}> ・ 応用情報 学習</span>
+        AP Study
       </p>
       <h1
         style={{
@@ -121,6 +121,7 @@ export default function Home() {
 
       <Link
         to="/stats"
+        state={{ scrollTo: "achievements" }}
         className="card"
         style={{
           display: "flex",

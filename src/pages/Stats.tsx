@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AccuracyTrend, { type DayPoint } from "../components/AccuracyTrend";
 import AchievementGrid from "../components/AchievementGrid";
 import ContributionGraph from "../components/ContributionGraph";
@@ -14,6 +14,20 @@ interface Agg {
 
 export default function Stats() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const achvRef = useRef<HTMLDivElement>(null);
+
+  // ホームの実績カードから来たときは、実績セクションまで自動スクロールする
+  useEffect(() => {
+    const st = location.state as { scrollTo?: string } | null;
+    if (st?.scrollTo !== "achievements") return;
+    // グラフ(幅計測で高さが変わる)等のレイアウト確定後にスクロール
+    const t = setTimeout(() => {
+      achvRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 160);
+    return () => clearTimeout(t);
+  }, [location.state]);
+
   const { byMiddle, byMajor, daily, total, dailyRate, overall, todayAgg, last7Agg } =
     useMemo(() => {
       const state = loadState();
@@ -225,7 +239,11 @@ export default function Stats() {
       <p style={{ fontWeight: 600, marginBottom: 8 }}>学習量(直近6か月)</p>
       <ContributionGraph daily={daily} />
 
-      <div style={{ marginTop: 22 }}>
+      <div
+        ref={achvRef}
+        id="achievements"
+        style={{ marginTop: 22, scrollMarginTop: 12 }}
+      >
         <AchievementGrid />
       </div>
     </div>
