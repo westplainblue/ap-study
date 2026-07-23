@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   IconChevronRight,
@@ -9,6 +10,7 @@ import {
 } from "../components/Icons";
 import Badge from "../components/Badge";
 import { achievementRows, totalCount } from "../lib/achievements";
+import { pickGreeting } from "../lib/greeting";
 import { dueReviewIds, loadState, studyStats } from "../lib/progress";
 
 function daysUntil(dateStr: string): number {
@@ -24,6 +26,7 @@ export default function Home() {
   const due = dueReviewIds(state).length;
   const examDate = state.settings.examDate;
   const left = examDate ? daysUntil(examDate) : null;
+  const [greeting] = useState(() => pickGreeting(state));
 
   const achvRows = achievementRows(state);
   const achvUnlocked = achvRows.filter((r) => r.unlocked);
@@ -33,7 +36,16 @@ export default function Home() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>AP Study</h1>
+      <h1
+        style={{
+          fontSize: 19,
+          marginBottom: 4,
+          lineHeight: 1.5,
+          paddingRight: 48, // 右上のAIボタンに文字が重ならないようにする
+        }}
+      >
+        {greeting}
+      </h1>
       <p className="muted small" style={{ marginBottom: 16 }}>
         {left !== null && left >= 0
           ? `応用情報技術者試験まで あと${left}日`
