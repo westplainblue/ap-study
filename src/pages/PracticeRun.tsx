@@ -7,6 +7,7 @@ import { resumeQuestions } from "../lib/run";
 interface Config {
   middles: string[];
   count: number;
+  excludeCalc?: boolean;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -28,7 +29,9 @@ export default function PracticeRun() {
     );
     const stats = statsByQuestion();
     // 解答回数が少ない問題を優先しつつ、同回数内はシャッフル
-    return shuffle(questionsByMiddle(config.middles))
+    return shuffle(
+      questionsByMiddle(config.middles, { excludeCalc: config.excludeCalc })
+    )
       .sort((a, b) => (stats.get(a.id)?.n ?? 0) - (stats.get(b.id)?.n ?? 0))
       .slice(0, config.count);
   }, []);

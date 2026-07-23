@@ -10,7 +10,8 @@ export default function PracticeSetup() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [count, setCount] = useState(10);
-  const counts = countByMiddle();
+  const [excludeCalc, setExcludeCalc] = useState(false);
+  const counts = countByMiddle({ excludeCalc });
 
   const toggle = (middle: string) => {
     const next = new Set(selected);
@@ -23,7 +24,7 @@ export default function PracticeSetup() {
     clearRun("practice"); // 新しい演習を始めるので、前回の途中状態は破棄する
     sessionStorage.setItem(
       "ap-practice",
-      JSON.stringify({ middles: [...selected], count })
+      JSON.stringify({ middles: [...selected], count, excludeCalc })
     );
     navigate("/practice/run");
   };
@@ -59,7 +60,7 @@ export default function PracticeSetup() {
 
       <div className="card" style={{ marginTop: 18 }}>
         <p style={{ fontWeight: 600, marginBottom: 8 }}>出題数</p>
-        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           {COUNTS.map((c) => (
             <button
               key={c}
@@ -71,6 +72,30 @@ export default function PracticeSetup() {
             </button>
           ))}
         </div>
+
+        <p style={{ fontWeight: 600, marginBottom: 8 }}>オプション</p>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={excludeCalc}
+          className={`chip-toggle ${excludeCalc ? "on" : ""}`}
+          style={{
+            width: "100%",
+            padding: "10px 0",
+            marginBottom: 6,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+          onClick={() => setExcludeCalc((v) => !v)}
+        >
+          {excludeCalc ? "☑" : "☐"} 計算問題を除いて出題する
+        </button>
+        <p className="muted small" style={{ marginBottom: 16 }}>
+          待ち行列・稼働率・伝送時間など、選択肢が数値の計算問題を出題対象から外します。
+        </p>
+
         <button className="btn btn-primary btn-block" onClick={start}>
           演習を始める
         </button>
