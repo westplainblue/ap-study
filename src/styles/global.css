@@ -498,3 +498,39 @@ a {
 .small {
   font-size: 12.5px;
 }
+
+/* 実績解除トースト */
+.achv-toast {
+  position: fixed;
+  left: 12px;
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 14px);
+  max-width: min(340px, calc(100% - 92px));
+  z-index: 78;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px 11px 11px;
+  background: var(--success-bg);
+  border: 1px solid color-mix(in srgb, var(--success-text) 32%, var(--surface));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  animation: achv-in 0.28s ease;
+}
+.achv-toast-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success-text);
+}
+.achv-toast-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes achv-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

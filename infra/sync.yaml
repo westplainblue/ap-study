@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  ap-study クラウド同期バックエンド(DynamoDB + Lambda + Lambda Function URL)。
+  ブラウザから「同期コード」をキーに学習データ(JSON)を保存/取得する。
+  データの統合(マージ)はクライアント側で行うため、Lambda は読み書きするだけ。
+  個人利用は Lambda 常時無料枠(月100万リクエスト)+ DynamoDB オンデマンドの
+  微少課金(実質0円)+ 保存25GB無料枠 に収まる想定。
+
+Parameters:
+  AllowOrigin:
+    Type: String
+    Default: "*"
+    Description: >
+      CORS で許可するオリジン。セキュリティのため配信元URL
+      (例 https://d234aij0ig1n9m.cloudfront.net)を指定するのが望ましい。
+      "*" は全オリジン許可(手軽だが緩い)。
+
+Resources:
+  # ---- 学習データの保存先(NoSQL テーブル) ----
+  SyncTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain          # スタック削除時に学習データを誤って消さない
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST  # オンデマンド(使った回数だけ課金・固定費なし)
+      AttributeDefinitions:
+        - AttributeName: sync_code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: sync_code
+          KeyType: HASH             # パーティションキー(=主キー)
+
+  # ---- Lambda 実行ロール(最小権限) ----
+  SyncFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # ログ出力(CloudWatch Logs)用の標準ポリシー
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: dynamodb-get-put
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                Resource: !GetAtt SyncTable.Arn
+
+  # ---- 同期処理を行う Lambda 関数(インラインコード) ----
+  SyncFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt SyncFunctionRole.Arn
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SyncTable
+      Code:
+        # nodejs20.x ランタイムには AWS SDK v3 が同梱されているため、
+        # 追加パッケージのバンドル不要でインライン記述できる。
+        ZipFile: |
+          const { DynamoDBClient, GetItemCommand, PutItemCommand } = require("@aws-sdk/client-dynamodb");
+          const ddb = new DynamoDBClient({});
+          const TABLE = process.env.TABLE_NAME;
+          const json = (statusCode, obj) => ({
+            statusCode,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(obj),
+          });
+          exports.handler = async (event) => {
+            const method = event.requestContext?.http?.method || "GET";
+            try {
+              if (method === "GET") {
+                const code = event.queryStringParameters?.code;
+                if (!code) return json(400, { error: "code required" });
+                const r = await ddb.send(new GetItemCommand({
+                  TableName: TABLE,
+                  Key: { sync_code: { S: code } },
+                }));
+                const data = r.Item && r.Item.data && r.Item.data.S
+                  ? JSON.parse(r.Item.data.S)
+                  : null;
+                return json(200, { data });
+              }
+              if (method === "PUT" || method === "POST") {
+                const b = JSON.parse(event.body || "{}");
+                if (!b.sync_code) return json(400, { error: "sync_code required" });
+                await ddb.send(new PutItemCommand({
+                  TableName: TABLE,
+                  Item: {
+                    sync_code: { S: String(b.sync_code) },
+                    data: { S: JSON.stringify(b.data ?? null) },
+                    updated_at: { S: new Date().toISOString() },
+                  },
+                }));
+                return json(200, { ok: true });
+              }
+              return json(405, { error: "method not allowed" });
+            } catch (e) {
+              return json(500, { error: String((e && e.message) || e) });
+            }
+          };
+
+  # ---- 関数を HTTP 公開する URL(API Gateway 不要・CORS 付き) ----
+  SyncFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt SyncFunction.Arn
+      AuthType: NONE                # 認証なし(同期コード方式・現行アプリと同じ割り切り)
+      Cors:
+        AllowOrigins:
+          - !Ref AllowOrigin
+        AllowMethods:
+          - GET
+          - PUT
+        AllowHeaders:
+          - content-type
+
+  # ---- Function URL(認証なし)を公開するために必要な明示的許可 ----
+  # 2025年10月以降に作成する Function URL は、公開(匿名)アクセスに
+  # lambda:InvokeFunctionUrl と lambda:InvokeFunction の「両方」の許可が必要。
+  SyncFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SyncFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  # InvokeFunction 側: FunctionUrlAuthType 条件は InvokeFunctionUrl にしか付与できない
+  # (AWS の検証エラーになる)。本来の推奨は lambda:InvokedViaFunctionUrl 条件だが、
+  # AWS::Lambda::Permission では表現できないため条件なしで付与する。
+  # このエンドポイントは元々「同期コードで誰でも読み書きする公開設計」であり、
+  # InvokeFunction 直呼びには AWS 認証情報+関数ARN が必要なため、実害はない。
+  SyncFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SyncFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+
+Outputs:
+  SyncApiUrl:
+    Description: .env の VITE_SYNC_API_URL に設定する同期APIのURL
+    Value: !GetAtt SyncFunctionUrl.FunctionUrl
+  TableName:
+    Description: 作成された DynamoDB テーブル名
+    Value: !Ref SyncTable

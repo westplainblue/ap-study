@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Badge from "../components/Badge";
 import QuestionCard from "../components/QuestionCard";
 import { EXAMS, KANA, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
+import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
 import { recordAnswersBatch } from "../lib/progress";
 import { MOCK_KEY, type MockState } from "./MockExam";
@@ -29,6 +31,7 @@ export default function MockRun() {
   const [now, setNow] = useState(Date.now());
   const [graded, setGraded] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
+  const [unlocked, setUnlocked] = useState<string[]>([]);
 
   const exam = useMemo(
     () => EXAMS.find((e) => e.examId === mock?.examId),
@@ -88,6 +91,7 @@ export default function MockRun() {
     recordAnswersBatch(
       questions.map((q, i) => ({ qid: q.id, ok: res[i], mode: "mock" as const }))
     );
+    setUnlocked(refreshAfterBatch()); // 実績を判定(トーストは出さず結果画面に表示)
     localStorage.removeItem(MOCK_KEY);
     setResults(res);
     setGraded(true);
@@ -126,6 +130,27 @@ export default function MockRun() {
             {pass ? "合格ライン(60%)クリア!" : "合格ラインまであと少し"}
           </span>
         </div>
+
+        {unlocked.length > 0 && (
+          <div className="card" style={{ marginBottom: 12 }}>
+            <p style={{ fontWeight: 600, marginBottom: 10 }}>
+              実績を{unlocked.length}件解除!
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+              {unlocked.map((id) => {
+                const d = achvDef(id);
+                return d ? (
+                  <div key={id} style={{ width: 64, textAlign: "center" }}>
+                    <Badge tier={d.tier} glyph={d.glyph} size={52} />
+                    <div style={{ fontSize: 10.5, fontWeight: 600, marginTop: 4 }}>
+                      {d.name}
+                    </div>
+                  </div>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="card" style={{ marginBottom: 12 }}>
           <p style={{ fontWeight: 600, marginBottom: 8 }}>大分類別</p>

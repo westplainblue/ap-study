@@ -103,8 +103,8 @@ export default function Settings() {
         <p style={{ fontWeight: 600, marginBottom: 8 }}>クラウド同期</p>
         {!syncAvailable && (
           <p className="muted small" style={{ marginBottom: 8 }}>
-            未設定です。Supabaseプロジェクトを作成し、.env に VITE_SUPABASE_URL と
-            VITE_SUPABASE_ANON_KEY を設定すると有効になります(手順は README 参照)。
+            未設定です。AWS(DynamoDB + Lambda)の同期APIを構築し、.env に
+            VITE_SYNC_API_URL を設定すると有効になります(手順は infra/README 参照)。
           </p>
         )}
         {state.settings.syncCode ? (

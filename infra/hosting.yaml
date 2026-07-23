@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  ap-study 静的サイトホスティング(S3 + CloudFront + OAC)。
+  S3 は完全非公開にし、CloudFront の Origin Access Control 経由でのみ配信する。
+  個人利用は CloudFront の常時無料枠(1TB/月・1,000万req)内に収まる想定。
+
+Parameters:
+  PriceClass:
+    Type: String
+    Default: PriceClass_200
+    AllowedValues: [PriceClass_100, PriceClass_200, PriceClass_All]
+    Description: >
+      CloudFront の料金クラス。PriceClass_200 は日本のエッジを含む。
+      無料枠(1TB)内なのでクラスによる追加費用は個人利用では発生しない。
+
+Resources:
+  # ---- オリジン(非公開 S3 バケット) ----
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain          # スタック削除時にバケットを誤削除しない
+    UpdateReplacePolicy: Retain
+    Properties:
+      # BucketName は指定せず CloudFormation に一意な名前を生成させる(グローバル衝突回避)
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced   # ACL を無効化(モダンな既定)
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # ---- CloudFront が S3 を読むための署名設定(OAC) ----
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # ---- CDN ディストリビューション ----
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: ap-study static hosting
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: !Ref PriceClass
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""   # OAC 使用時は空文字が必須
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true                 # gzip / brotli を自動圧縮
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          # Managed-CachingOptimized(オリジンの Cache-Control を尊重)
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        # HashRouter 採用のため SPA フォールバック(403/404 -> index.html)は不要。
+        # 将来 BrowserRouter に変える場合のみ CustomErrorResponses を追加する。
+
+  # ---- CloudFront だけに GetObject を許可するバケットポリシー ----
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipalReadOnly
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+
+Outputs:
+  BucketName:
+    Description: アップロード先の S3 バケット名(デプロイスクリプト/CIで使用)
+    Value: !Ref SiteBucket
+  BucketArn:
+    Description: OIDC ロール権限に渡すバケット ARN
+    Value: !GetAtt SiteBucket.Arn
+  DistributionId:
+    Description: キャッシュ無効化に使う CloudFront ディストリビューション ID
+    Value: !Ref Distribution
+  DistributionArn:
+    Description: OIDC ロール権限に渡すディストリビューション ARN
+    Value: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+  SiteURL:
+    Description: 公開 URL(独自ドメイン未設定時)
+    Value: !Sub "https://${Distribution.DomainName}"

@@ -28,11 +28,22 @@ export interface PmPartRecord {
 /** 午後: 問題ID → 設問パーツキー → 自己採点 */
 export type PmRecords = Record<string, Record<string, PmPartRecord>>;
 
+export type AchvId = string;
+
+export interface AchievementRecord {
+  unlockedAt: number; // 初回解除の epoch ms(再導出不能なので保存)
+  seen: boolean; // 解除トースト提示済み(二重発火防止)
+  progress?: number; // 達成時点の値(非単調指標の後退救済に使う)
+}
+
+export type Achievements = Record<AchvId, AchievementRecord>;
+
 export interface ProgressState {
   attempts: Attempt[];
   review: Record<string, ReviewEntry>;
   settings: Settings;
   pm?: PmRecords;
+  achievements?: Achievements;
   updatedAt: number;
 }
 
@@ -67,6 +78,7 @@ export function loadState(): ProgressState {
     if (!Array.isArray(s.attempts)) return emptyState();
     s.review ??= {};
     s.settings ??= {};
+    s.achievements ??= {};
     s.updatedAt ??= 0;
     return s;
   } catch {
@@ -237,11 +249,28 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
   for (const [pmId, parts] of Object.entries(newer.pm ?? {})) {
     pm[pmId] = { ...pm[pmId], ...parts };
   }
+  // 実績: 和集合。unlockedAt は早い方、seen は OR、progress は大きい方(後退救済)
+  const achievements: Achievements = {};
+  const aAch = a.achievements ?? {};
+  const bAch = b.achievements ?? {};
+  for (const id of new Set([...Object.keys(aAch), ...Object.keys(bAch)])) {
+    const x = aAch[id];
+    const y = bAch[id];
+    achievements[id] =
+      x && y
+        ? {
+            unlockedAt: Math.min(x.unlockedAt, y.unlockedAt),
+            seen: x.seen || y.seen,
+            progress: Math.max(x.progress ?? 0, y.progress ?? 0),
+          }
+        : (x ?? y)!;
+  }
   return {
     attempts,
     review: { ...older.review, ...newer.review },
     settings: { ...older.settings, ...newer.settings },
     pm,
+    achievements,
     updatedAt: Math.max(a.updatedAt, b.updatedAt),
   };
 }

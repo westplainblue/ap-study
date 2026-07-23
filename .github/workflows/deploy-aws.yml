@@ -1,0 +1,68 @@
+name: Deploy to AWS (S3 + CloudFront)
+
+# main への push で S3 に同期し CloudFront を無効化する。
+# OIDC でロールを一時取得するため、長期アクセスキーは不要。
+#
+# 事前に必要な GitHub Secrets:
+#   AWS_DEPLOY_ROLE_ARN   … infra/github-oidc.yaml が出力する DeployRoleArn
+#   S3_BUCKET             … infra/hosting.yaml の出力 BucketName
+#   CF_DISTRIBUTION_ID    … infra/hosting.yaml の出力 DistributionId
+#   VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY … 任意(クラウド同期を使う場合)
+#
+# 既定は無効(手動起動のみ)。有効化するには push トリガーのコメントを外す。
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+permissions:
+  id-token: write   # OIDC に必須
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Sync to S3
+        run: |
+          aws s3 sync dist/ "s3://${{ secrets.S3_BUCKET }}" --delete \
+            --exclude "index.html" \
+            --cache-control "public,max-age=31536000,immutable"
+          aws s3 cp dist/figures "s3://${{ secrets.S3_BUCKET }}/figures" --recursive \
+            --cache-control "public,max-age=86400" \
+            --metadata-directive REPLACE
+          aws s3 cp dist/index.html "s3://${{ secrets.S3_BUCKET }}/index.html" \
+            --cache-control "no-cache" \
+            --content-type "text/html; charset=utf-8"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.CF_DISTRIBUTION_ID }}" \
+            --paths "/*"
