@@ -96,13 +96,36 @@ function isNumericChoice(s: string): boolean {
   );
 }
 
-const calcIds = new Set(
-  AM_QUESTIONS.filter((q) => {
+// 選択肢が数値でないため上の判定では拾えないが、式(論理式・集合演算・計算量・
+// 漸化式・記法変換など)を導いて答える計算問題や、計算した結果を順序・金額・
+// グラフで選ぶ計算問題。全640問を精読して個別に列挙した。
+const EXTRA_CALC_IDS = [
+  // 式で答える(論理式・集合演算・ビット演算・計算量・漸化式・記法変換)
+  "2022r04a-am-02", "2025r07a-am-01", // カルノー図→論理式
+  "2022r04h-am-02", "2025r07h-am-28", // 集合/関係代数の式
+  "2023r05h-am-21", "2025r07a-am-21", "2025r07h-am-01", // 論理式
+  "2023r05h-am-01", // ビット演算の式
+  "2023r05a-am-01", // 2進数の式
+  "2023r05h-am-06", "2025r07a-am-06", // 平均比較回数の式
+  "2024r06h-am-38", // 鍵数の式
+  "2024r06h-am-02", // 待ち時間の式
+  "2025r07h-am-07", // 再帰的定義
+  "2022r04h-am-01", // 浮動小数点の計算
+  "2024r06a-am-03", "2024r06h-am-06", // 逆ポーランド/木の走査出力
+  // 計算するが答えが数値以外(順序・記述・グラフ・金額)で数値判定から漏れたもの
+  "2024r06a-am-14", "2023r05h-am-16", "2025r07h-am-13", // 稼働率の計算
+  "2023r05h-am-75", "2024r06h-am-54", // 期待値(EMV)
+  "2024r06h-am-64", "2024r06a-am-64", // PBP/BPRの金額計算
+];
+
+const calcIds = new Set<string>([
+  ...AM_QUESTIONS.filter((q) => {
     const ch = q.choices ?? [];
     if (ch.length < 3) return false; // 選択肢が図中(choicesInFigure)等は対象外
     return ch.filter(isNumericChoice).length >= 3;
-  }).map((q) => q.id)
-);
+  }).map((q) => q.id),
+  ...EXTRA_CALC_IDS,
+]);
 
 /** 計算問題(選択肢が数値の定量問題)かどうか */
 export function isCalcQuestion(q: AmQuestion): boolean {
