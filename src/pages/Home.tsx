@@ -5,7 +5,10 @@ import {
   IconDoc,
   IconPencil,
   IconRefresh,
+  IconStar,
 } from "../components/Icons";
+import Badge from "../components/Badge";
+import { achievementRows, totalCount } from "../lib/achievements";
 import { dueReviewIds, loadState, studyStats } from "../lib/progress";
 
 function daysUntil(dateStr: string): number {
@@ -21,6 +24,12 @@ export default function Home() {
   const due = dueReviewIds(state).length;
   const examDate = state.settings.examDate;
   const left = examDate ? daysUntil(examDate) : null;
+
+  const achvRows = achievementRows(state);
+  const achvUnlocked = achvRows.filter((r) => r.unlocked);
+  const latest = [...achvUnlocked].sort(
+    (a, b) => (b.unlockedAt ?? 0) - (a.unlockedAt ?? 0)
+  )[0];
 
   return (
     <div>
@@ -85,6 +94,45 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      <Link
+        to="/stats"
+        className="card"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 16,
+          textDecoration: "none",
+          color: "inherit",
+        }}
+      >
+        <Badge
+          tier={latest ? latest.def.tier : "bronze"}
+          glyph={latest ? latest.def.glyph : "first"}
+          size={40}
+          state={latest ? "unlocked" : "locked"}
+        />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p
+            className="small"
+            style={{ color: "var(--accent-text)", fontWeight: 600, marginBottom: 2 }}
+          >
+            <IconStar size={14} /> 実績 {achvUnlocked.length} / {totalCount()}
+          </p>
+          <p
+            style={{
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {latest ? `最新: ${latest.def.name}` : "最初の1問で実績を解除しよう"}
+          </p>
+        </div>
+        <IconChevronRight size={18} />
+      </Link>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {[

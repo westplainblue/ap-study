@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import AccuracyTrend, { type DayPoint } from "../components/AccuracyTrend";
+import AchievementGrid from "../components/AchievementGrid";
 import ContributionGraph from "../components/ContributionGraph";
 import { amQuestion } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
@@ -223,6 +224,10 @@ export default function Stats() {
 
       <p style={{ fontWeight: 600, marginBottom: 8 }}>学習量(直近6か月)</p>
       <ContributionGraph daily={daily} />
+
+      <div style={{ marginTop: 22 }}>
+        <AchievementGrid />
+      </div>
     </div>
   );
 }

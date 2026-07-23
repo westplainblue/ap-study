@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
+import { refreshAfterAnswer } from "../lib/achievements";
 import { addToReview, isInReview, recordAnswer, type Mode } from "../lib/progress";
 import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
 import { IconCheck, IconStar, IconX } from "./Icons";
@@ -146,6 +147,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
     const ok = i === q.answer;
     setResults((r) => [...r, ok]);
     recordAnswer(q.id, ok, mode);
+    refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
   };
 
   const handleNext = () => {

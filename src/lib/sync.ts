@@ -1,3 +1,4 @@
+import { reconcile } from "./achievements";
 import {
   loadState,
   mergeStates,
@@ -47,6 +48,8 @@ export async function syncNow(): Promise<SyncResult> {
     if (remote?.data) {
       merged = mergeStates(state, remote.data);
     }
+    // 相手端末の履歴を含めて実績を再判定してから保存・送信する
+    reconcile(merged, { silent: true, emit: false });
     saveStateRaw(merged);
     // push: マージ結果を保存
     const put = await fetch(`${base}/`, {

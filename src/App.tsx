@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
+import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
 import TabBar from "./components/TabBar";
+import { reconcileSilent } from "./lib/achievements";
 import { syncInBackground } from "./lib/sync";
 import Home from "./pages/Home";
 import MockExam from "./pages/MockExam";
@@ -16,6 +18,7 @@ import Stats from "./pages/Stats";
 
 export default function App() {
   useEffect(() => {
+    reconcileSilent(); // 既存の学習履歴から実績を遡及解除(トーストなし)
     syncInBackground();
   }, []);
 
@@ -35,6 +38,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
+      <AchievementToast />
       <AiChat />
       <TabBar />
     </HashRouter>
