@@ -5,6 +5,8 @@ import AiChat from "./components/AiChat";
 import TabBar from "./components/TabBar";
 import { reconcileSilent } from "./lib/achievements";
 import { syncInBackground } from "./lib/sync";
+import DrillRun from "./pages/DrillRun";
+import DrillSetup from "./pages/DrillSetup";
 import Home from "./pages/Home";
 import MockExam from "./pages/MockExam";
 import MockRun from "./pages/MockRun";
@@ -29,6 +31,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<PracticeSetup />} />
           <Route path="/practice/run" element={<PracticeRun />} />
+          <Route path="/drill" element={<DrillSetup />} />
+          <Route path="/drill/run" element={<DrillRun />} />
           <Route path="/review/run" element={<ReviewRun />} />
           <Route path="/mock" element={<MockExam />} />
           <Route path="/mock/run" element={<MockRun />} />

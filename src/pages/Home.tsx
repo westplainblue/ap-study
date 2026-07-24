@@ -167,6 +167,12 @@ export default function Home() {
             label: "分野別演習(午前)",
             desc: "分野と問数を選んで演習",
           },
+          {
+            to: "/drill",
+            icon: IconRefresh,
+            label: "反復学習",
+            desc: "正解するまで繰り返して定着",
+          },
           { to: "/pm", icon: IconDoc, label: "午後演習", desc: "長文読解と自己採点" },
           { to: "/mock", icon: IconClock, label: "模試モード", desc: "80問150分の通し演習" },
         ].map(({ to, icon: Icon, label, desc }) => (
