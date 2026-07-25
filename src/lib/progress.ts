@@ -20,9 +20,11 @@ export interface Settings {
 export type PmGrade = "o" | "d" | "x"; // ○ / △ / ×
 
 export interface PmPartRecord {
-  grade: PmGrade;
+  grade?: PmGrade; // ○/△/×(未採点なら undefined)
   my?: string; // 自分の解答
   t: number;
+  /** AI採点の講評(任意)。suggested はAIが提示した評価で、grade はユーザーが変更可能。 */
+  ai?: { suggested?: PmGrade; feedback: string; t: number };
 }
 
 /** 午後: 問題ID → 設問パーツキー → 自己採点 */
@@ -208,7 +210,32 @@ export function setPmGrade(
   const s = loadState();
   s.pm ??= {};
   s.pm[pmId] ??= {};
-  s.pm[pmId][partKey] = { grade, my, t: Date.now() };
+  const prev = s.pm[pmId][partKey];
+  // 既存の AI 講評(ai)は保持したまま、ユーザーの採点で grade を上書きする
+  s.pm[pmId][partKey] = { ...prev, grade, my: my ?? prev?.my, t: Date.now() };
+  saveState(s);
+}
+
+/** AI採点の結果を保存する。推定評価は自己採点欄に反映し、ユーザーが後から変更可能。 */
+export function setPmAiScore(
+  pmId: string,
+  partKey: string,
+  suggested: PmGrade | undefined,
+  feedback: string,
+  my?: string
+): void {
+  const s = loadState();
+  s.pm ??= {};
+  s.pm[pmId] ??= {};
+  const prev = s.pm[pmId][partKey];
+  const now = Date.now();
+  s.pm[pmId][partKey] = {
+    ...prev,
+    grade: suggested ?? prev?.grade, // AIが判定できたら反映(できなければ据え置き)
+    my: my ?? prev?.my,
+    t: now,
+    ai: { suggested, feedback, t: now },
+  };
   saveState(s);
 }
 

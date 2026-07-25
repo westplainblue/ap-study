@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import PmAiGrade from "../components/PmAiGrade";
 import { examLabel, figureUrl, pmQuestion } from "../data";
 import { setAiContext } from "../lib/aiContext";
 import {
@@ -203,6 +204,18 @@ export default function PmDetail() {
                       </div>
                     </div>
                   )}
+
+                  <PmAiGrade
+                    pmId={q.id}
+                    partKey={key}
+                    question={part.question}
+                    modelAnswer={part.answer}
+                    note={part.note}
+                    draft={drafts[key] ?? rec?.my ?? ""}
+                    savedFeedback={rec?.ai?.feedback}
+                    onStart={() => reveal(key)}
+                    onGraded={() => setRecords(pmRecords(q.id))}
+                  />
                 </div>
               );
             })}
