@@ -18,6 +18,27 @@ export function epochDay(ms: number): number {
 }
 
 // ---------------------------------------------------------------------------
+// Sessions — R4 (successive relearning across distinct, spaced sessions)
+// ---------------------------------------------------------------------------
+//
+// Successive relearning is measured across separate study sessions, so each
+// review needs a session identity. New attempts carry an explicit `s`. Legacy
+// attempts recorded before this field existed are grouped one-session-per-day
+// from their timestamp, so historical data still yields a sensible session
+// count without being rewritten (the attempt log stays the source of truth).
+
+export interface SessionAttempt {
+  t: number;
+  ok: boolean;
+  s?: string;
+}
+
+/** Session identity for an attempt; legacy attempts fall back to their day. */
+export function sessionKey(a: SessionAttempt): string {
+  return a.s ?? `legacy:${epochDay(a.t)}`;
+}
+
+// ---------------------------------------------------------------------------
 // Drill (within-session "repeat until recalled") — R4/R5, option B
 // ---------------------------------------------------------------------------
 //

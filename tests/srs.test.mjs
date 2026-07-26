@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DRILL_CAP, drillNext, epochDay } from "../src/lib/srs.ts";
+import { DRILL_CAP, drillNext, epochDay, sessionKey } from "../src/lib/srs.ts";
 
 test("epochDay: same calendar day maps to same index", () => {
   const base = 1_700_000_000_000;
@@ -48,4 +48,26 @@ test("drillNext: with cap=2 an item is seen at most twice before being deferred"
 test("drillNext: empty queue is a no-op", () => {
   const r = drillNext([], false, 5, DRILL_CAP);
   assert.deepEqual(r.queue, []);
+});
+
+test("sessionKey: uses the explicit session id when present", () => {
+  assert.equal(sessionKey({ t: 1, ok: true, s: "sess-42" }), "sess-42");
+  assert.equal(
+    sessionKey({ t: 1, ok: true, s: "a" }),
+    sessionKey({ t: 999, ok: false, s: "a" }),
+  ); // same id -> same session regardless of time
+  assert.notEqual(
+    sessionKey({ t: 1, ok: true, s: "a" }),
+    sessionKey({ t: 1, ok: true, s: "b" }),
+  );
+});
+
+test("sessionKey: legacy attempts (no id) group one session per day", () => {
+  const base = 20_000 * 86_400_000; // aligned to a UTC-day boundary
+  const morning = { t: base, ok: true };
+  const evening = { t: base + 3600_000 * 8, ok: true }; // +8h, same UTC day
+  const nextDay = { t: base + 86_400_000, ok: false };
+  assert.equal(sessionKey(morning), sessionKey(evening));
+  assert.notEqual(sessionKey(morning), sessionKey(nextDay));
+  assert.match(sessionKey(morning), /^legacy:/);
 });

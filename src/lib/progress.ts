@@ -5,6 +5,7 @@ export interface Attempt {
   t: number; // epoch ms
   ok: boolean;
   mode: Mode;
+  s?: string; // 学習セッションID(R4: セッションをまたいだ successive relearning 用)
 }
 
 export interface ReviewEntry {
@@ -68,6 +69,23 @@ export function addDaysStr(base: string, days: number): string {
   return todayStr(d);
 }
 
+/**
+ * 現在の学習セッションIDを返す(同一セッションで共通・タブを閉じるまで持続)。
+ * sessionStorage スコープなので、別タブ/別セッションでは新しいIDになる。
+ */
+function currentSessionId(): string {
+  try {
+    let sid = sessionStorage.getItem("ap-study:sid");
+    if (!sid) {
+      sid = `${todayStr()}-${Math.random().toString(36).slice(2, 8)}`;
+      sessionStorage.setItem("ap-study:sid", sid);
+    }
+    return sid;
+  } catch {
+    return `${todayStr()}-x`;
+  }
+}
+
 function emptyState(): ProgressState {
   return { attempts: [], review: {}, settings: {}, updatedAt: 0 };
 }
@@ -101,7 +119,7 @@ export function saveStateRaw(s: ProgressState): void {
 /** 解答を記録し、復習キューを更新する */
 export function recordAnswer(qid: string, ok: boolean, mode: Mode): void {
   const s = loadState();
-  s.attempts.push({ q: qid, t: Date.now(), ok, mode });
+  s.attempts.push({ q: qid, t: Date.now(), ok, mode, s: currentSessionId() });
   const entry = s.review[qid];
   if (!ok) {
     s.review[qid] = { box: 1, due: addDaysStr(todayStr(), REVIEW_INTERVALS[0]) };
@@ -184,8 +202,9 @@ export function recordAnswersBatch(
   const s = loadState();
   const now = Date.now();
   const today = todayStr();
+  const sid = currentSessionId();
   entries.forEach((e, i) => {
-    s.attempts.push({ q: e.qid, t: now + i, ok: e.ok, mode: e.mode });
+    s.attempts.push({ q: e.qid, t: now + i, ok: e.ok, mode: e.mode, s: sid });
     const entry = s.review[e.qid];
     if (!e.ok) {
       s.review[e.qid] = { box: 1, due: addDaysStr(today, REVIEW_INTERVALS[0]) };
