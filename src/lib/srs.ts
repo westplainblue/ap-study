@@ -39,6 +39,52 @@ export function sessionKey(a: SessionAttempt): string {
 }
 
 // ---------------------------------------------------------------------------
+// Delayed retention — R5 (do not reward the fluency illusion of cramming)
+// ---------------------------------------------------------------------------
+//
+// Within-session accuracy rewards massed practice: drill an item enough and it
+// reads as 100%. The honest signal of durable learning is whether an item is
+// still recalled after a real delay. delayedRetention measures accuracy on the
+// re-tests of an item that follow a gap of at least `minGapDays` since it was
+// last seen — cramming (short gaps) never enters the numerator or denominator.
+
+export interface RetentionAgg {
+  n: number; // number of delayed re-tests
+  ok: number; // of those, how many were recalled correctly
+}
+
+export interface RetentionAttempt {
+  q: string;
+  t: number;
+  ok: boolean;
+}
+
+export function delayedRetention(
+  attempts: RetentionAttempt[],
+  minGapDays = 7,
+): RetentionAgg {
+  const byQ = new Map<string, RetentionAttempt[]>();
+  for (const a of attempts) {
+    const list = byQ.get(a.q) ?? byQ.set(a.q, []).get(a.q)!;
+    list.push(a);
+  }
+  const gapMs = minGapDays * DAY_MS;
+  let n = 0;
+  let ok = 0;
+  for (const list of byQ.values()) {
+    list.sort((x, y) => x.t - y.t);
+    for (let i = 1; i < list.length; i++) {
+      // Count an attempt only when the item had not been seen for >= the gap.
+      if (list[i].t - list[i - 1].t >= gapMs) {
+        n += 1;
+        if (list[i].ok) ok += 1;
+      }
+    }
+  }
+  return { n, ok };
+}
+
+// ---------------------------------------------------------------------------
 // Drill (within-session "repeat until recalled") — R4/R5, option B
 // ---------------------------------------------------------------------------
 //

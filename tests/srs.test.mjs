@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DRILL_CAP, drillNext, epochDay, sessionKey } from "../src/lib/srs.ts";
+import {
+  DRILL_CAP,
+  delayedRetention,
+  drillNext,
+  epochDay,
+  sessionKey,
+} from "../src/lib/srs.ts";
+
+const DAY = 86_400_000;
 
 test("epochDay: same calendar day maps to same index", () => {
   const base = 1_700_000_000_000;
@@ -60,6 +68,50 @@ test("sessionKey: uses the explicit session id when present", () => {
     sessionKey({ t: 1, ok: true, s: "a" }),
     sessionKey({ t: 1, ok: true, s: "b" }),
   );
+});
+
+test("delayedRetention: needs a prior sighting, so a lone attempt does not count", () => {
+  assert.deepEqual(delayedRetention([{ q: "a", t: 0, ok: true }], 7), {
+    n: 0,
+    ok: 0,
+  });
+  assert.deepEqual(delayedRetention([], 7), { n: 0, ok: 0 });
+});
+
+test("delayedRetention: a re-test after >= the gap counts (and grades)", () => {
+  const a = [
+    { q: "a", t: 0, ok: false },
+    { q: "a", t: 10 * DAY, ok: true }, // recalled after 10 days
+  ];
+  assert.deepEqual(delayedRetention(a, 7), { n: 1, ok: 1 });
+});
+
+test("delayedRetention: cramming (short gaps) is excluded entirely", () => {
+  const a = [
+    { q: "a", t: 0, ok: false },
+    { q: "a", t: 2 * DAY, ok: true }, // only 2 days later
+    { q: "a", t: 3 * DAY, ok: true }, // 1 day later
+  ];
+  assert.deepEqual(delayedRetention(a, 7), { n: 0, ok: 0 });
+});
+
+test("delayedRetention: only the first re-test after the gap is scored", () => {
+  const a = [
+    { q: "a", t: 0, ok: true },
+    { q: "a", t: 9 * DAY, ok: false }, // delayed re-test -> counts (wrong)
+    { q: "a", t: 9 * DAY + 3600_000, ok: true }, // same-day retry -> excluded
+  ];
+  assert.deepEqual(delayedRetention(a, 7), { n: 1, ok: 0 });
+});
+
+test("delayedRetention: aggregates across questions", () => {
+  const a = [
+    { q: "a", t: 0, ok: true },
+    { q: "a", t: 8 * DAY, ok: true }, // n+1, ok+1
+    { q: "b", t: 0, ok: true },
+    { q: "b", t: 8 * DAY, ok: false }, // n+1, ok+0
+  ];
+  assert.deepEqual(delayedRetention(a, 7), { n: 2, ok: 1 });
 });
 
 test("sessionKey: legacy attempts (no id) group one session per day", () => {
