@@ -6,6 +6,7 @@ import ContributionGraph from "../components/ContributionGraph";
 import { amQuestion } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
 import { addDaysStr, loadState, todayStr } from "../lib/progress";
+import { delayedRetention } from "../lib/srs";
 
 interface Agg {
   n: number;
@@ -28,8 +29,17 @@ export default function Stats() {
     return () => clearTimeout(t);
   }, [location.state]);
 
-  const { byMiddle, byMajor, daily, total, dailyRate, overall, todayAgg, last7Agg } =
-    useMemo(() => {
+  const {
+    byMiddle,
+    byMajor,
+    daily,
+    total,
+    dailyRate,
+    overall,
+    todayAgg,
+    last7Agg,
+    retention,
+  } = useMemo(() => {
       const state = loadState();
       const byMiddle = new Map<string, Agg>();
       const byMajor = new Map<Major, Agg>();
@@ -68,6 +78,7 @@ export default function Stats() {
           last7Agg.ok += p.ok;
         }
       }
+      const retention = delayedRetention(state.attempts, 7);
       return {
         byMiddle,
         byMajor,
@@ -77,8 +88,12 @@ export default function Stats() {
         overall: { n: state.attempts.length, ok: okTotal } as Agg,
         todayAgg,
         last7Agg,
+        retention,
       };
     }, []);
+
+  const retentionRate =
+    retention.n > 0 ? Math.round((retention.ok / retention.n) * 100) : null;
 
   const overallRate = overall.n > 0 ? Math.round((overall.ok / overall.n) * 100) : 0;
 
@@ -123,27 +138,35 @@ export default function Stats() {
         }}
       >
         <div>
-          <div style={{ fontSize: 34, fontWeight: 700, lineHeight: 1 }}>{overallRate}%</div>
+          <div style={{ fontSize: 34, fontWeight: 700, lineHeight: 1 }}>
+            {retentionRate !== null ? `${retentionRate}%` : "—"}
+          </div>
           <div className="muted small" style={{ marginTop: 4 }}>
-            全体の正解率({overall.ok}/{overall.n}問)
+            遅延保持率
+            {retentionRate !== null ? `(${retention.ok}/${retention.n}問)` : "(集計待ち)"}
           </div>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 18 }}>
-          {([["今日", todayAgg], ["直近7日", last7Agg]] as [string, Agg][]).map(
-            ([label, agg]) => (
-              <div key={label} style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 18, fontWeight: 600, lineHeight: 1.1 }}>
-                  {agg.n > 0 ? `${Math.round((agg.ok / agg.n) * 100)}%` : "—"}
-                </div>
-                <div className="muted small">
-                  {label}
-                  {agg.n > 0 ? `(${agg.ok}/${agg.n})` : ""}
-                </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 16, flexWrap: "wrap" }}>
+          {([["全体", overall], ["今日", todayAgg], ["直近7日", last7Agg]] as [
+            string,
+            Agg,
+          ][]).map(([label, agg]) => (
+            <div key={label} style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.1 }}>
+                {agg.n > 0 ? `${Math.round((agg.ok / agg.n) * 100)}%` : "—"}
               </div>
-            )
-          )}
+              <div className="muted small">
+                {label}
+                {agg.n > 0 ? `(${agg.ok}/${agg.n})` : ""}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+      <p className="muted small" style={{ marginTop: -8, marginBottom: 16, lineHeight: 1.6 }}>
+        遅延保持率＝7日以上あけて解き直した問題の正解率。詰め込みではなく「あとで思い出せるか」を測る指標です。
+        {retentionRate === null && " まだ十分なデータがありません(同じ問題を7日以上あけて解くと集計されます)。"}
+      </p>
 
       <p style={{ fontWeight: 600, marginBottom: 8 }}>正解率の推移(日別)</p>
       <AccuracyTrend points={dailyRate} average={overallRate} />

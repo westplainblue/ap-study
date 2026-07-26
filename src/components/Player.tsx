@@ -1,10 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { KANA, sourceOf } from "../data";
+import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import { refreshAfterAnswer } from "../lib/achievements";
-import { addToReview, isInReview, recordAnswer, type Mode } from "../lib/progress";
+import {
+  displayedIndex,
+  isValidPerm,
+  newChoicePerm,
+  remapKanaLabels,
+} from "../lib/choiceShuffle";
+import {
+  addToReview,
+  isInReview,
+  loadState,
+  recordAnswer,
+  type Mode,
+} from "../lib/progress";
 import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
 import { IconCheck, IconStar, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
@@ -34,6 +46,29 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   const [finished, setFinished] = useState(saved?.finished ?? false);
   const [reviewAdded, setReviewAdded] = useState(false);
 
+  // 選択肢シャッフル(設定で無効化可)。問題ごとに表示順を決め、解説の記号も
+  // 表示に合わせて変換する。onSelect は元の添字を返すので記録・判定は不変。
+  const [shuffleOn] = useState(() => loadState().settings.shuffleChoices !== false);
+  const cur: AmQuestion | undefined = questions[idx];
+  // 再開時は保存済みの並びを復元する(解答済み画面の記号が変わらないように)。
+  // undefined=復元なし(新しく引く) / null=並び替えなし / 配列=その並びを使う
+  const [restoredOrder, setRestoredOrder] = useState<number[] | null | undefined>(
+    () => {
+      if (!saved || saved.order === undefined) return undefined;
+      if (saved.order === null) return null;
+      const q0 = questions[saved.idx ?? 0];
+      return q0 && isValidPerm(saved.order, q0.choices.length)
+        ? saved.order
+        : undefined;
+    }
+  );
+  const order = useMemo(() => {
+    if (restoredOrder !== undefined) return restoredOrder;
+    return shuffleOn && cur && canShuffleChoices(cur) ? newChoicePerm() : null;
+  }, [shuffleOn, cur, restoredOrder]);
+  const kanaOf = (o: number) => KANA[order ? displayedIndex(order, o) : o];
+  const remap = (t: string) => (order ? remapKanaLabels(t, order) : t);
+
   // 進行状況を保存(結果画面に到達したら破棄)。次回起動時に途中から再開できる。
   useEffect(() => {
     if (!storageKey || questions.length === 0) return;
@@ -47,8 +82,9 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       selected,
       results,
       finished,
+      order, // 再開時に同じ並び・記号で見せる
     });
-  }, [storageKey, questions, idx, selected, results, finished]);
+  }, [storageKey, questions, idx, selected, results, finished, order]);
 
   // 表示中の問題をAIチャットに共有する
   useEffect(() => {
@@ -57,20 +93,22 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       setAiContext(null);
       return;
     }
+    const ord = order ?? q.choices.map((_, i) => i);
     const lines = [
       "【ユーザーが現在取り組んでいる問題】",
       `出典: ${sourceOf(q)}(分野: ${q.middle})`,
       `問題文: ${q.text}`,
-      ...q.choices.map((c, i) => `${KANA[i]}: ${c}`),
+      // 画面と同じ並び・記号で共有する(シャッフル時は記号を振り直している)
+      ...ord.map((oi, di) => `${KANA[di]}: ${q.choices[oi]}`),
     ];
     if (q.figure) {
       lines.push("※この問題には図表が含まれますが、図はテキスト共有できていません。");
     }
     if (selected !== null) {
       lines.push(
-        `正解: ${KANA[q.answer]}`,
-        `ユーザーの解答: ${KANA[selected]}(${selected === q.answer ? "正解" : "不正解"})`,
-        `解説: ${q.explanation}`
+        `正解: ${kanaOf(q.answer)}`,
+        `ユーザーの解答: ${kanaOf(selected)}(${selected === q.answer ? "正解" : "不正解"})`,
+        `解説: ${remap(q.explanation)}`
       );
     } else {
       lines.push(
@@ -78,7 +116,8 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       );
     }
     setAiContext({ label: sourceOf(q), text: lines.join("\n") });
-  }, [questions, idx, selected, finished]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- kanaOf/remap は order から導出
+  }, [questions, idx, selected, finished, order]);
 
   useEffect(() => () => setAiContext(null), []);
 
@@ -157,6 +196,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       setIdx(idx + 1);
       setSelected(null);
       setReviewAdded(false);
+      setRestoredOrder(undefined); // 次の問題は新しい並びを引く
     }
   };
 
@@ -188,6 +228,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         selected={selected}
         answered={answered}
         onSelect={handleSelect}
+        order={order ?? undefined}
       />
 
       {answered && (
@@ -195,14 +236,13 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
           <div className={correct ? "banner banner-ok" : "banner banner-ng"}>
             {correct ? <IconCheck size={18} /> : <IconX size={18} />}
             <span>
-              {correct ? "正解!" : "不正解…"} 答えは「
-              {["ア", "イ", "ウ", "エ"][q.answer]}」
+              {correct ? "正解!" : "不正解…"} 答えは「{kanaOf(q.answer)}」
             </span>
           </div>
           <div className="card" style={{ marginTop: 10 }}>
             <p style={{ fontWeight: 600, marginBottom: 4 }}>解説</p>
             <p className="small" style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
-              {q.explanation}
+              {remap(q.explanation)}
             </p>
             {q.point && (
               <div
@@ -214,7 +254,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
                 }}
               >
                 <p className="small" style={{ fontWeight: 600 }}>💡 初学者ポイント</p>
-                <p className="small" style={{ lineHeight: 1.7 }}>{q.point}</p>
+                <p className="small" style={{ lineHeight: 1.7 }}>{remap(q.point)}</p>
               </div>
             )}
           </div>

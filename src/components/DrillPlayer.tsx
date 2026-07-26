@@ -1,10 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { KANA, sourceOf } from "../data";
+import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import { refreshAfterAnswer } from "../lib/achievements";
-import { recordAnswer } from "../lib/progress";
+import {
+  displayedIndex,
+  newChoicePerm,
+  remapKanaLabels,
+} from "../lib/choiceShuffle";
+import { loadState, recordAnswer } from "../lib/progress";
+import { DRILL_CAP, drillNext } from "../lib/srs";
 import { IconCheck, IconRefresh, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
 
@@ -15,8 +21,9 @@ interface Props {
 }
 
 /**
- * 反復学習プレイヤー: 「正解するまで繰り返す」ドリル。
- * 間違えた問題はセッション末尾に再投入し、全問正解できるまでループする。
+ * 反復学習プレイヤー: 「正解するまで繰り返す」ドリル(セッション内上限つき)。
+ * 誤答はキュー末尾へ再投入するが、1問あたり DRILL_CAP 回で打ち切り、それ以上は
+ * その場で粘らず次回のスペース学習にまわす(第一セッションでの過剰学習を抑制)。
  * 履歴に残すのは各問題の初回解答のみ(以降の反復は記録せず、統計や
  * 間隔反復(Leitner)のスケジュールを乱さない)。
  */
@@ -30,11 +37,25 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
   const [recorded, setRecorded] = useState<Set<string>>(() => new Set());
   const [answers, setAnswers] = useState(0); // 延べ解答数
   const [firstTryOk, setFirstTryOk] = useState(0); // 初回で正解した問題数
+  const [mastered, setMastered] = useState(0); // このセッションで正解できた問題数
+  const [deferred, setDeferred] = useState(0); // 上限に達して次回にまわした問題数
+  const triesRef = useRef<Map<string, number>>(new Map()); // 問題ごとのセッション内挑戦回数
 
   const currentId = queue[0];
   const q = currentId ? byId.get(currentId) : undefined;
   const finished = total > 0 && queue.length === 0;
-  const mastered = total - queue.length;
+  const handled = total - queue.length; // 決着した問題数(マスター + 次回まわし)
+
+  // 選択肢シャッフル(設定で無効化可)。再出題のたびに並びを引き直す(round)。
+  const [shuffleOn] = useState(() => loadState().settings.shuffleChoices !== false);
+  const [round, setRound] = useState(0);
+  const order = useMemo(
+    () => (shuffleOn && q && canShuffleChoices(q) ? newChoicePerm() : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- round は再出題ごとの引き直し用
+    [shuffleOn, currentId, round]
+  );
+  const kanaOf = (o: number) => KANA[order ? displayedIndex(order, o) : o];
+  const remap = (t: string) => (order ? remapKanaLabels(t, order) : t);
 
   // 現在の問題をAIチャットに共有する
   useEffect(() => {
@@ -42,20 +63,22 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
       setAiContext(null);
       return;
     }
+    const ord = order ?? q.choices.map((_, i) => i);
     const lines = [
       "【ユーザーが現在取り組んでいる問題(反復学習)】",
       `出典: ${sourceOf(q)}(分野: ${q.middle})`,
       `問題文: ${q.text}`,
-      ...q.choices.map((c, i) => `${KANA[i]}: ${c}`),
+      // 画面と同じ並び・記号で共有する(シャッフル時は記号を振り直している)
+      ...ord.map((oi, di) => `${KANA[di]}: ${q.choices[oi]}`),
     ];
     if (q.figure) {
       lines.push("※この問題には図表が含まれますが、図はテキスト共有できていません。");
     }
     if (selected !== null) {
       lines.push(
-        `正解: ${KANA[q.answer]}`,
-        `ユーザーの解答: ${KANA[selected]}(${selected === q.answer ? "正解" : "不正解"})`,
-        `解説: ${q.explanation}`
+        `正解: ${kanaOf(q.answer)}`,
+        `ユーザーの解答: ${kanaOf(selected)}(${selected === q.answer ? "正解" : "不正解"})`,
+        `解説: ${remap(q.explanation)}`
       );
     } else {
       lines.push(
@@ -63,7 +86,8 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
       );
     }
     setAiContext({ label: sourceOf(q), text: lines.join("\n") });
-  }, [q, selected, finished]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- kanaOf/remap は order から導出
+  }, [q, selected, finished, order]);
 
   useEffect(() => () => setAiContext(null), []);
 
@@ -87,10 +111,12 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
         <h1 style={{ fontSize: 20, marginBottom: 12 }}>反復完了</h1>
         <div className="card" style={{ textAlign: "center", marginBottom: 12 }}>
           <p style={{ fontSize: 30, fontWeight: 700, marginBottom: 4 }}>
-            🎉 全 {total} 問マスター!
+            {deferred === 0 ? `🎉 全 ${total} 問マスター!` : "おつかれさま!"}
           </p>
           <p className="muted">
-            正解するまで繰り返し、すべてクリアしました。おつかれさま!
+            {deferred === 0
+              ? "正解するまで繰り返し、すべてクリアしました。"
+              : `${mastered} 問マスター、${deferred} 問は次回の復習にまわしました。`}
           </p>
           <div
             style={{
@@ -102,13 +128,17 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
           >
             <div>
               <div style={{ fontSize: 20, fontWeight: 700 }}>
-                {firstTryOk} / {total}
+                {mastered} / {total}
               </div>
+              <div className="muted small">マスター</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700 }}>{firstTryOk}</div>
               <div className="muted small">一発正解</div>
             </div>
             <div>
               <div style={{ fontSize: 20, fontWeight: 700 }}>{answers}</div>
-              <div className="muted small">延べ解答数</div>
+              <div className="muted small">延べ解答</div>
             </div>
           </div>
         </div>
@@ -134,6 +164,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
     setSelected(i);
     const ok = i === q.answer;
     setAnswers((n) => n + 1);
+    triesRef.current.set(q.id, (triesRef.current.get(q.id) ?? 0) + 1);
     // 初回の解答だけ履歴に記録する(反復ぶんは記録しない)
     if (!recorded.has(q.id)) {
       recordAnswer(q.id, ok, "practice");
@@ -144,10 +175,18 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
   };
 
   const handleNext = () => {
-    // 正解: 先頭を除去してマスター / 誤答: 末尾へ回してあとで再挑戦
-    setQueue(([head, ...rest]) => (correct ? rest : [...rest, head]));
+    const tries = triesRef.current.get(q.id) ?? 0;
+    const { queue: next, outcome } = drillNext(queue, correct, tries, DRILL_CAP);
+    if (outcome === "mastered") setMastered((m) => m + 1);
+    else if (outcome === "deferred") setDeferred((d) => d + 1);
+    setQueue(next);
     setSelected(null);
+    setRound((r) => r + 1); // 次の出題で選択肢の並びを引き直す
   };
+
+  const atCap = (triesRef.current.get(q.id) ?? 0) >= DRILL_CAP;
+  const willDefer = answered && !correct && atCap; // これ以上は再出題せず次回へ
+  const willFinish = queue.length === 1 && (correct || willDefer);
 
   return (
     <div>
@@ -168,7 +207,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
       <div className="progress-track" style={{ marginBottom: 6 }}>
         <div
           className="progress-fill"
-          style={{ width: `${(mastered / total) * 100}%` }}
+          style={{ width: `${(handled / total) * 100}%` }}
         />
       </div>
       <p className="muted small" style={{ marginBottom: 14 }}>
@@ -180,6 +219,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
         selected={selected}
         answered={answered}
         onSelect={handleSelect}
+        order={order ?? undefined}
       />
 
       {answered && (
@@ -189,13 +229,15 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
             <span>
               {correct
                 ? "正解! マスターしました。"
-                : `不正解… 答えは「${KANA[q.answer]}」。あとでもう一度出ます。`}
+                : willDefer
+                  ? `不正解… 答えは「${kanaOf(q.answer)}」。今回はここまで、次回の復習にまわします。`
+                  : `不正解… 答えは「${kanaOf(q.answer)}」。あとでもう一度出ます。`}
             </span>
           </div>
           <div className="card" style={{ marginTop: 10 }}>
             <p style={{ fontWeight: 600, marginBottom: 4 }}>解説</p>
             <p className="small" style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
-              {q.explanation}
+              {remap(q.explanation)}
             </p>
             {q.point && (
               <div
@@ -207,7 +249,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
                 }}
               >
                 <p className="small" style={{ fontWeight: 600 }}>💡 初学者ポイント</p>
-                <p className="small" style={{ lineHeight: 1.7 }}>{q.point}</p>
+                <p className="small" style={{ lineHeight: 1.7 }}>{remap(q.point)}</p>
               </div>
             )}
           </div>
@@ -216,7 +258,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
             style={{ marginTop: 12 }}
             onClick={handleNext}
           >
-            {queue.length === 1 && correct ? "完了する" : "次の問題へ"}
+            {willFinish ? "完了する" : "次の問題へ"}
           </button>
         </div>
       )}

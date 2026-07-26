@@ -100,6 +100,38 @@ export default function Settings() {
       </div>
 
       <div className="card" style={{ marginBottom: 12 }}>
+        <p style={{ fontWeight: 600, marginBottom: 8 }}>出題</p>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={state.settings.shuffleChoices !== false}
+          className={`chip-toggle ${state.settings.shuffleChoices !== false ? "on" : ""}`}
+          style={{
+            width: "100%",
+            padding: "10px 0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+          onClick={() =>
+            update((s) => {
+              // ON は「キーなし(既定)」で表現する。明示値は false のみ保存し、
+              // 端末間マージで OFF が別端末の true に上書きされないようにする。
+              if (s.settings.shuffleChoices === false) delete s.settings.shuffleChoices;
+              else s.settings.shuffleChoices = false;
+            })
+          }
+        >
+          {state.settings.shuffleChoices !== false ? "☑" : "☐"} 選択肢の並びを毎回シャッフル
+        </button>
+        <p className="muted small" style={{ marginTop: 6, lineHeight: 1.7 }}>
+          「答えの位置」で覚えてしまうのを防ぎます。記号(ア〜エ)は表示順に振り直され、
+          解説内の記号も自動で読み替えられます。図中選択肢・数値選択肢の問題と模試は対象外です。
+        </p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
         <p style={{ fontWeight: 600, marginBottom: 8 }}>クラウド同期</p>
         {!syncAvailable && (
           <p className="muted small" style={{ marginBottom: 8 }}>
