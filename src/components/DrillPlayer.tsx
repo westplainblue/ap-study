@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { KANA, sourceOf } from "../data";
+import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import { refreshAfterAnswer } from "../lib/achievements";
-import { recordAnswer } from "../lib/progress";
+import {
+  displayedIndex,
+  newChoicePerm,
+  remapKanaLabels,
+} from "../lib/choiceShuffle";
+import { loadState, recordAnswer } from "../lib/progress";
 import { DRILL_CAP, drillNext } from "../lib/srs";
 import { IconCheck, IconRefresh, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
@@ -41,26 +46,39 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
   const finished = total > 0 && queue.length === 0;
   const handled = total - queue.length; // 決着した問題数(マスター + 次回まわし)
 
+  // 選択肢シャッフル(設定で無効化可)。再出題のたびに並びを引き直す(round)。
+  const [shuffleOn] = useState(() => loadState().settings.shuffleChoices !== false);
+  const [round, setRound] = useState(0);
+  const order = useMemo(
+    () => (shuffleOn && q && canShuffleChoices(q) ? newChoicePerm() : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- round は再出題ごとの引き直し用
+    [shuffleOn, currentId, round]
+  );
+  const kanaOf = (o: number) => KANA[order ? displayedIndex(order, o) : o];
+  const remap = (t: string) => (order ? remapKanaLabels(t, order) : t);
+
   // 現在の問題をAIチャットに共有する
   useEffect(() => {
     if (finished || !q) {
       setAiContext(null);
       return;
     }
+    const ord = order ?? q.choices.map((_, i) => i);
     const lines = [
       "【ユーザーが現在取り組んでいる問題(反復学習)】",
       `出典: ${sourceOf(q)}(分野: ${q.middle})`,
       `問題文: ${q.text}`,
-      ...q.choices.map((c, i) => `${KANA[i]}: ${c}`),
+      // 画面と同じ並び・記号で共有する(シャッフル時は記号を振り直している)
+      ...ord.map((oi, di) => `${KANA[di]}: ${q.choices[oi]}`),
     ];
     if (q.figure) {
       lines.push("※この問題には図表が含まれますが、図はテキスト共有できていません。");
     }
     if (selected !== null) {
       lines.push(
-        `正解: ${KANA[q.answer]}`,
-        `ユーザーの解答: ${KANA[selected]}(${selected === q.answer ? "正解" : "不正解"})`,
-        `解説: ${q.explanation}`
+        `正解: ${kanaOf(q.answer)}`,
+        `ユーザーの解答: ${kanaOf(selected)}(${selected === q.answer ? "正解" : "不正解"})`,
+        `解説: ${remap(q.explanation)}`
       );
     } else {
       lines.push(
@@ -68,7 +86,8 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
       );
     }
     setAiContext({ label: sourceOf(q), text: lines.join("\n") });
-  }, [q, selected, finished]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- kanaOf/remap は order から導出
+  }, [q, selected, finished, order]);
 
   useEffect(() => () => setAiContext(null), []);
 
@@ -162,6 +181,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
     else if (outcome === "deferred") setDeferred((d) => d + 1);
     setQueue(next);
     setSelected(null);
+    setRound((r) => r + 1); // 次の出題で選択肢の並びを引き直す
   };
 
   const atCap = (triesRef.current.get(q.id) ?? 0) >= DRILL_CAP;
@@ -199,6 +219,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
         selected={selected}
         answered={answered}
         onSelect={handleSelect}
+        order={order ?? undefined}
       />
 
       {answered && (
@@ -209,14 +230,14 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
               {correct
                 ? "正解! マスターしました。"
                 : willDefer
-                  ? `不正解… 答えは「${KANA[q.answer]}」。今回はここまで、次回の復習にまわします。`
-                  : `不正解… 答えは「${KANA[q.answer]}」。あとでもう一度出ます。`}
+                  ? `不正解… 答えは「${kanaOf(q.answer)}」。今回はここまで、次回の復習にまわします。`
+                  : `不正解… 答えは「${kanaOf(q.answer)}」。あとでもう一度出ます。`}
             </span>
           </div>
           <div className="card" style={{ marginTop: 10 }}>
             <p style={{ fontWeight: 600, marginBottom: 4 }}>解説</p>
             <p className="small" style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
-              {q.explanation}
+              {remap(q.explanation)}
             </p>
             {q.point && (
               <div
@@ -228,7 +249,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
                 }}
               >
                 <p className="small" style={{ fontWeight: 600 }}>💡 初学者ポイント</p>
-                <p className="small" style={{ lineHeight: 1.7 }}>{q.point}</p>
+                <p className="small" style={{ lineHeight: 1.7 }}>{remap(q.point)}</p>
               </div>
             )}
           </div>

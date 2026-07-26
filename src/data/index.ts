@@ -1,3 +1,4 @@
+import { hasStandaloneKana } from "../lib/choiceShuffle";
 import type { AmQuestion, ExamData, Major, PmQuestion } from "./types";
 import r2025a from "./exams/2025r07a.am.json";
 import r2025aPm from "./exams/2025r07a.pm.json";
@@ -11,11 +12,20 @@ import r2022h from "./exams/2022r04h.am.json";
 
 function normalize(raw: unknown, pm: unknown[]): ExamData {
   const e = raw as Partial<ExamData>;
+  const am = (e.am ?? []) as AmQuestion[];
+  // 図中選択肢(choicesInFigure)で choices が空のままの問題は、解答ボタンが
+  // 1つも描画されず解答不能になる。既存の同型データと同じ「(図のア)」形式の
+  // 選択肢を合成して、図を見ながらア〜エで解答できるようにする。
+  for (const q of am) {
+    if (q.choicesInFigure && (q.choices ?? []).length === 0) {
+      q.choices = ["(図のア)", "(図のイ)", "(図のウ)", "(図のエ)"];
+    }
+  }
   return {
     examId: e.examId!,
     label: e.label!,
     source: e.source ?? "",
-    am: (e.am ?? []) as AmQuestion[],
+    am,
     pm: pm as PmQuestion[],
   };
 }
@@ -130,6 +140,27 @@ const calcIds = new Set<string>([
 /** 計算問題(選択肢が数値の定量問題)かどうか */
 export function isCalcQuestion(q: AmQuestion): boolean {
   return calcIds.has(q.id);
+}
+
+// --- 選択肢シャッフルの可否 ------------------------------------------------
+// 「ア〜エ」のような範囲参照は記号の振り直し(文字単位の変換)では意味が壊れる
+const KANA_RANGE = /[アイウエ]\s*[〜~-]\s*[アイウエ]/;
+
+/**
+ * 選択肢の並びをシャッフルして出題できる問題かどうか。除外するのは:
+ * - 選択肢が図中にある問題(画面側で並び替えできない)
+ * - 4択でない問題
+ * - 数値選択肢の問題(実試験の昇順掲載の慣例を保つ。位置で覚える弊害も小さい)
+ * - 問題文・選択肢が記号を参照する問題 / 解説等に範囲参照(ア〜エ)がある問題
+ */
+export function canShuffleChoices(q: AmQuestion): boolean {
+  if (q.choicesInFigure) return false;
+  const ch = q.choices ?? [];
+  if (ch.length !== 4) return false;
+  if (ch.filter(isNumericChoice).length >= 3) return false;
+  if (hasStandaloneKana(q.text) || ch.some((c) => hasStandaloneKana(c))) return false;
+  if (KANA_RANGE.test(`${q.explanation}\n${q.point ?? ""}`)) return false;
+  return true;
 }
 
 interface QueryOptions {

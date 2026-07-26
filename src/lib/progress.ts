@@ -16,6 +16,8 @@ export interface ReviewEntry {
 export interface Settings {
   examDate?: string; // YYYY-MM-DD
   syncCode?: string;
+  /** 選択肢の並びを毎回シャッフルする(未設定=有効。模試は常に固定) */
+  shuffleChoices?: boolean;
 }
 
 export type PmGrade = "o" | "d" | "x"; // ○ / △ / ×

@@ -11,6 +11,8 @@ export interface RunState {
   selected: number | null; // 現在の問題で選んだ選択肢(未解答は null)
   results: boolean[]; // 解答済み問題の正誤
   finished: boolean; // 結果画面に到達済みか
+  /** 現在の問題の選択肢表示順(シャッフル時)。再開後も同じ並び・記号で見せる */
+  order?: number[] | null;
 }
 
 const storageKey = (key: string) => `ap-run:${key}`;

@@ -8,6 +8,12 @@ interface Props {
   onSelect: (index: number) => void;
   /** 模試モードでは正誤の色付けをしない */
   revealAnswer?: boolean;
+  /**
+   * 選択肢の表示順(表示位置 d に choices[order[d]] を出す)。
+   * 記号(ア〜エ)は表示位置に振り直す。onSelect には元の添字を渡すので、
+   * 呼び出し側の正誤判定・記録は並び替えの影響を受けない。省略時は元の順。
+   */
+  order?: number[];
 }
 
 export default function QuestionCard({
@@ -16,7 +22,9 @@ export default function QuestionCard({
   answered,
   onSelect,
   revealAnswer = true,
+  order,
 }: Props) {
+  const displayOrder = order ?? q.choices.map((_, i) => i);
   return (
     <div>
       <p style={{ whiteSpace: "pre-wrap", marginBottom: 12 }}>{q.text}</p>
@@ -38,23 +46,25 @@ export default function QuestionCard({
         </div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {q.choices.map((choice, i) => {
+        {displayOrder.map((oi, di) => {
+          // oi=元データの添字(正誤判定・記録用), di=表示位置(記号ア〜エ用)
+          const choice = q.choices[oi];
           let cls = "choice";
           if (answered && revealAnswer) {
-            if (i === q.answer) cls += " choice-correct";
-            else if (i === selected) cls += " choice-wrong";
+            if (oi === q.answer) cls += " choice-correct";
+            else if (oi === selected) cls += " choice-wrong";
             else cls += " choice-dim";
-          } else if (i === selected) {
+          } else if (oi === selected) {
             cls += " choice-selected";
           }
           return (
             <button
-              key={i}
+              key={oi}
               className={cls}
-              onClick={() => onSelect(i)}
+              onClick={() => onSelect(oi)}
               disabled={answered && revealAnswer}
             >
-              <span className="choice-kana">{KANA[i]}</span>
+              <span className="choice-kana">{KANA[di]}</span>
               <span style={{ flex: 1 }}>{choice}</span>
             </button>
           );
