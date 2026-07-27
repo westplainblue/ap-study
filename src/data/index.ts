@@ -11,6 +11,7 @@ import r2024hPm from "./exams/2024r06h.pm.json";
 import r2023a from "./exams/2023r05a.am.json";
 import r2023aPm from "./exams/2023r05a.pm.json";
 import r2023h from "./exams/2023r05h.am.json";
+import r2023hPm from "./exams/2023r05h.pm.json";
 import r2022a from "./exams/2022r04a.am.json";
 import r2022h from "./exams/2022r04h.am.json";
 
@@ -40,7 +41,7 @@ export const EXAMS: ExamData[] = [
   normalize(r2024a, r2024aPm.pm),
   normalize(r2024h, r2024hPm.pm),
   normalize(r2023a, r2023aPm.pm),
-  normalize(r2023h, []),
+  normalize(r2023h, r2023hPm.pm),
   normalize(r2022a, []),
   normalize(r2022h, []),
 ];
