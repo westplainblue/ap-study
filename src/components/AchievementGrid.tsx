@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { achievementRows, type AchvRow } from "../lib/achievements";
 import { loadState } from "../lib/progress";
+import AchievementDetail from "./AchievementDetail";
 import Badge from "./Badge";
 
 type Filter = "all" | "unlocked" | "locked";
@@ -8,6 +9,8 @@ type Filter = "all" | "unlocked" | "locked";
 export default function AchievementGrid() {
   const rows = useMemo(() => achievementRows(loadState()), []);
   const [filter, setFilter] = useState<Filter>("all");
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const detail = detailId ? rows.find((r) => r.def.id === detailId) : undefined;
 
   const unlocked = rows.filter((r) => r.unlocked).length;
   const sorted = useMemo(() => {
@@ -67,18 +70,25 @@ export default function AchievementGrid() {
         }}
       >
         {shown.map((r) => (
-          <AchvCard key={r.def.id} row={r} />
+          <AchvCard key={r.def.id} row={r} onOpen={() => setDetailId(r.def.id)} />
         ))}
       </div>
+
+      {detail && (
+        <AchievementDetail row={detail} onClose={() => setDetailId(null)} />
+      )}
     </div>
   );
 }
 
-function AchvCard({ row }: { row: AchvRow }) {
+function AchvCard({ row, onOpen }: { row: AchvRow; onOpen: () => void }) {
   const { def, unlocked, ratio } = row;
   return (
-    <div
-      className="card"
+    <button
+      type="button"
+      className="card achv-card"
+      onClick={onOpen}
+      aria-label={`${def.name}の詳細を見る`}
       style={{
         padding: "12px 8px 10px",
         display: "flex",
@@ -109,6 +119,6 @@ function AchvCard({ row }: { row: AchvRow }) {
           <div className="bar-fill" style={{ width: `${Math.round(ratio * 100)}%` }} />
         </div>
       )}
-    </div>
+    </button>
   );
 }
