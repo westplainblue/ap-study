@@ -197,6 +197,11 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   const answered = selected !== null;
   const correct = answered && selected === q.answer;
 
+  // このセッションのリアルタイム成績(解答した瞬間に results が伸びて更新される)
+  const liveDone = results.length;
+  const liveCorrect = results.filter(Boolean).length;
+  const liveRate = liveDone > 0 ? Math.round((liveCorrect / liveDone) * 100) : 0;
+
   const handleSelect = (i: number) => {
     if (answered) return;
     setSelected(i);
@@ -247,11 +252,42 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
           </button>
         </span>
       </div>
-      <div className="progress-track" style={{ marginBottom: 14 }}>
+      <div className="progress-track" style={{ marginBottom: 6 }}>
         <div
           className="progress-fill"
           style={{ width: `${((idx + (answered ? 1 : 0)) / questions.length) * 100}%` }}
         />
+      </div>
+
+      {/* このセッションの正答率(1問解答するたびに更新) */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          marginBottom: 14,
+          minHeight: 18,
+        }}
+      >
+        {liveDone > 0 ? (
+          <>
+            <span className="muted small">
+              正答 {liveCorrect} / {liveDone}
+            </span>
+            <span
+              className="small"
+              style={{
+                fontWeight: 700,
+                color:
+                  liveRate >= 60 ? "var(--success-text)" : "var(--warning-text)",
+              }}
+            >
+              正答率 {liveRate}%
+            </span>
+          </>
+        ) : (
+          <span className="muted small">まだ解答していません</span>
+        )}
       </div>
 
       <QuestionCard
