@@ -60,18 +60,18 @@ export default function AchievementDetail({
 
   return (
     <div
-      className="achv-modal-backdrop"
+      className="modal-backdrop"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="achv-modal"
+        className="modal"
         role="dialog"
         aria-modal="true"
         aria-label={`実績 ${def.name} の詳細`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="achv-modal-close" aria-label="閉じる" onClick={onClose}>
+        <button className="modal-close" aria-label="閉じる" onClick={onClose}>
           <IconX size={18} />
         </button>
 
