@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
@@ -32,6 +32,8 @@ interface Props {
 
 /** 1問ごと即時フィードバック型の演習プレイヤー(分野別演習・復習で共用) */
 export default function Player({ questions, mode, title, emptyMessage, storageKey }: Props) {
+  const navigate = useNavigate();
+  const [askQuit, setAskQuit] = useState(false); // 中断の確認ダイアログ
   // 保存済みセッションの問題セットが現在の出題と一致する場合のみ進捗を復元する
   const [saved] = useState<RunState | null>(() => {
     if (!storageKey) return null;
@@ -137,16 +139,31 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
 
   if (finished) {
     const correct = results.filter(Boolean).length;
-    const rate = Math.round((correct / results.length) * 100);
-    const wrong = questions.filter((_, i) => !results[i]);
+    const rate = results.length > 0 ? Math.round((correct / results.length) * 100) : 0;
+    // 解答済みの問題だけを対象にする(中断時は未解答分を含めない)
+    const wrong = questions.filter((_, i) => i < results.length && !results[i]);
+    const quitEarly = results.length < questions.length;
     return (
       <div>
-        <h1 style={{ fontSize: 20, marginBottom: 12 }}>結果</h1>
+        <h1 style={{ fontSize: 20, marginBottom: 12 }}>
+          {quitEarly ? "中断しました" : "結果"}
+        </h1>
         <div className="card" style={{ textAlign: "center", marginBottom: 12 }}>
-          <p style={{ fontSize: 32, fontWeight: 700 }}>
-            {correct} / {results.length} 問正解
-          </p>
-          <p className="muted">正答率 {rate}%</p>
+          {results.length === 0 ? (
+            <p style={{ fontWeight: 600 }}>解答した問題はありません。</p>
+          ) : (
+            <>
+              <p style={{ fontSize: 32, fontWeight: 700 }}>
+                {correct} / {results.length} 問正解
+              </p>
+              <p className="muted">正答率 {rate}%</p>
+            </>
+          )}
+          {quitEarly && (
+            <p className="small" style={{ marginTop: 8, color: "var(--success-text)" }}>
+              ✓ ここまでの{results.length}問は記録済みです(全{questions.length}問中)
+            </p>
+          )}
         </div>
         {wrong.length > 0 && (
           <div className="card" style={{ marginBottom: 12 }}>
@@ -212,8 +229,22 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         }}
       >
         <span className="chip">{q.middle}</span>
-        <span className="muted small">
-          {idx + 1} / {questions.length} 問
+        <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="muted small">
+            {idx + 1} / {questions.length} 問
+          </span>
+          <button
+            className="small"
+            style={{
+              padding: "3px 9px",
+              borderRadius: 999,
+              border: "1px solid var(--border-strong)",
+              color: "var(--text-2)",
+            }}
+            onClick={() => setAskQuit(true)}
+          >
+            中断
+          </button>
         </span>
       </div>
       <div className="progress-track" style={{ marginBottom: 14 }}>
@@ -274,6 +305,67 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
             <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleNext}>
               {idx + 1 >= questions.length ? "結果を見る" : "次の問題へ"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {askQuit && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setAskQuit(false)}>
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="演習を中断する"
+            style={{ textAlign: "left" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>
+              演習を中断しますか?
+            </p>
+            <p className="small" style={{ lineHeight: 1.8, color: "var(--text-2)" }}>
+              {results.length > 0 ? (
+                <>
+                  解答済みの <strong>{results.length}問</strong> はすでに記録されています。
+                  中断しても成績や復習キューには反映されます。
+                </>
+              ) : (
+                "まだ解答した問題はありません。"
+              )}
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                marginTop: 16,
+              }}
+            >
+              <button
+                className="btn btn-primary btn-block"
+                onClick={() => {
+                  setAskQuit(false);
+                  setFinished(true); // ここまでの結果画面へ(保存済みセッションは破棄される)
+                }}
+              >
+                ここまでの結果を見て終了
+              </button>
+              <button
+                className="btn btn-block"
+                onClick={() => {
+                  setAskQuit(false);
+                  navigate("/"); // 進行状況は保持したままホームへ(あとで続きから再開)
+                }}
+              >
+                あとで続きから再開する
+              </button>
+              <button
+                className="small muted"
+                style={{ padding: "6px 0" }}
+                onClick={() => setAskQuit(false)}
+              >
+                キャンセル
+              </button>
+            </div>
           </div>
         </div>
       )}

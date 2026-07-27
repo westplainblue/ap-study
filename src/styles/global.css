@@ -548,7 +548,7 @@ a {
 }
 
 /* 実績の詳細ダイアログ */
-.achv-modal-backdrop {
+.modal-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -557,10 +557,10 @@ a {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: achv-fade 0.15s ease;
+  animation: modal-fade 0.15s ease;
 }
 
-.achv-modal {
+.modal {
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -571,10 +571,10 @@ a {
   padding: 22px 18px 18px;
   text-align: center;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
-  animation: achv-pop 0.18s ease;
+  animation: modal-pop 0.18s ease;
 }
 
-.achv-modal-close {
+.modal-close {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -584,12 +584,12 @@ a {
   line-height: 0;
 }
 
-@keyframes achv-fade {
+@keyframes modal-fade {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes achv-pop {
+@keyframes modal-pop {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to { opacity: 1; transform: none; }
 }
