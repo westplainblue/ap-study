@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
+import {
+  getAiMarks,
+  resolveMarks,
+  setAiMarks,
+  subscribeAiMarks,
+} from "../lib/aiHighlight";
 import { refreshAfterAnswer } from "../lib/achievements";
 import {
   displayedIndex,
@@ -56,6 +62,16 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
   );
   const kanaOf = (o: number) => KANA[order ? displayedIndex(order, o) : o];
   const remap = (t: string) => (order ? remapKanaLabels(t, order) : t);
+
+  // AIマーク: チャットが発行した生マークを現在の問題の文字範囲へ解決する
+  const rawMarks = useSyncExternalStore(subscribeAiMarks, getAiMarks, getAiMarks);
+  const aiMarks = useMemo(
+    () => (q ? resolveMarks(q, rawMarks) : []),
+    [q, rawMarks]
+  );
+  useEffect(() => {
+    setAiMarks([]); // 出題が変わったら前の問題のマークを消す
+  }, [currentId]);
 
   // 現在の問題をAIチャットに共有する
   useEffect(() => {
@@ -220,6 +236,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
         answered={answered}
         onSelect={handleSelect}
         order={order ?? undefined}
+        aiMarks={aiMarks}
       />
 
       {answered && (

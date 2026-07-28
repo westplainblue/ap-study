@@ -21,6 +21,8 @@
   --radius: 10px;
   --radius-lg: 14px;
   --tabbar-h: 56px;
+  --ai-mark-bg: rgba(250, 204, 21, 0.42);
+  --ai-mark-line: #d97706;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,6 +46,8 @@
     --danger-text: #f1988f;
     --warning-bg: #38290e;
     --warning-text: #e5b45c;
+    --ai-mark-bg: rgba(250, 204, 21, 0.26);
+    --ai-mark-line: #e5b45c;
   }
 }
 
@@ -616,4 +620,40 @@ body {
 @keyframes modal-pop {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to { opacity: 1; transform: none; }
+}
+
+/* AIマーキング(問題文・選択肢の重要箇所) */
+.ai-marker {
+  background: var(--ai-mark-bg);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.ai-underline {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--ai-mark-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.ai-marks-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 0;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-marks-toggle input {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  margin: 0;
 }
