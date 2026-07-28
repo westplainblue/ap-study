@@ -14,6 +14,8 @@ export interface AiConfig {
   models: Partial<Record<AiProvider, string>>;
   /** Codexローカルブリッジのベース URL(既定: http://127.0.0.1:8399/v1) */
   codexBaseUrl?: string;
+  /** AIが問題文・選択肢の重要箇所にマークを付ける機能(既定OFF) */
+  marks?: boolean;
 }
 
 const KEY = "ap-study:ai";

@@ -6,17 +6,26 @@ import {
   aiReady,
   loadAiConfig,
   PROVIDER_LABEL,
+  saveAiConfig,
 } from "../lib/aiConfig";
 import { getAiContext, subscribeAiContext } from "../lib/aiContext";
+import {
+  MARKS_PROMPT,
+  parseMarks,
+  setAiMarks,
+  stripMarksBlock,
+} from "../lib/aiHighlight";
 import { IconSend, IconSparkle, IconX } from "./Icons";
 
-function buildSystemPrompt(contextText: string | undefined): string {
+function buildSystemPrompt(contextText: string | undefined, marks: boolean): string {
   const base =
     "あなたは応用情報技術者試験(AP)の学習を支援するアシスタントです。" +
     "初学者にも分かる言葉で、正確かつ簡潔に説明してください。" +
     "専門用語には短い補足を添え、覚え方のコツがあれば紹介してください。" +
     "回答はプレーンテキストで、見出し記号や過度な箇条書きは使わず読みやすい長さにまとめてください。";
-  return contextText ? `${base}\n\n${contextText}` : base;
+  const withCtx = contextText ? `${base}\n\n${contextText}` : base;
+  // マーキングは問題を共有しているときだけ意味を持つ
+  return marks && contextText ? withCtx + "\n" + MARKS_PROMPT : withCtx;
 }
 
 /** 右上の起動ボタン+チャットパネル(PC: 右ドロワー / スマホ: 下シート) */
@@ -30,9 +39,19 @@ export default function AiChat() {
   const abortRef = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const ctx = useSyncExternalStore(subscribeAiContext, getAiContext, getAiContext);
+  const [marksOn, setMarksOn] = useState(() => loadAiConfig().marks === true);
 
   const config = loadAiConfig();
   const ready = aiReady(config);
+
+  const toggleMarks = () => {
+    const next = !marksOn;
+    setMarksOn(next);
+    const c = loadAiConfig();
+    c.marks = next;
+    saveAiConfig(c);
+    if (!next) setAiMarks([]); // OFFにしたら表示中のマークも消す
+  };
 
   useEffect(() => {
     if (listRef.current) {
@@ -56,16 +75,18 @@ export default function AiChat() {
     setBusy(true);
     const ac = new AbortController();
     abortRef.current = ac;
+    let full = ""; // マーク抽出用に返答全文を持つ
     try {
       await streamChat({
         provider: config.provider,
         apiKey: config.apiKeys[config.provider] ?? "",
         model: activeModel(config),
         baseUrl: config.codexBaseUrl,
-        system: buildSystemPrompt(ctx?.text),
+        system: buildSystemPrompt(ctx?.text, marksOn),
         messages: history,
         signal: ac.signal,
-        onDelta: (t) =>
+        onDelta: (t) => {
+          full += t;
           setMessages((cur) => {
             const copy = [...cur];
             const last = copy[copy.length - 1];
@@ -74,8 +95,11 @@ export default function AiChat() {
               content: last.content + t,
             };
             return copy;
-          }),
+          });
+        },
       });
+      // 返答が完了したらマークを解釈して発行(無ければ前回のマークを消す)
+      if (marksOn) setAiMarks(parseMarks(full));
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) {
         setError((e as Error).message);
@@ -124,6 +148,7 @@ export default function AiChat() {
               onClick={() => {
                 setMessages([]);
                 setError(null);
+                setAiMarks([]);
               }}
             >
               クリア
@@ -172,7 +197,7 @@ export default function AiChat() {
               key={i}
               className={m.role === "user" ? "ai-msg ai-msg-user" : "ai-msg ai-msg-assistant"}
             >
-              {m.content}
+              {m.role === "assistant" ? stripMarksBlock(m.content) : m.content}
               {busy && i === messages.length - 1 && m.role === "assistant" && (
                 <span className="ai-cursor">▍</span>
               )}
@@ -185,6 +210,12 @@ export default function AiChat() {
           )}
         </div>
 
+        {ready && ctx && (
+          <label className="ai-marks-toggle small" title="AIが解説時に問題文・選択肢の根拠箇所へ蛍光マーカー/下線を付けます">
+            <input type="checkbox" checked={marksOn} onChange={toggleMarks} />
+            重要箇所に印をつけてもらう
+          </label>
+        )}
         <div className="ai-input">
           <textarea
             rows={2}

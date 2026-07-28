@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { canShuffleChoices, KANA, sourceOf } from "../data";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
+import {
+  getAiMarks,
+  resolveMarks,
+  setAiMarks,
+  subscribeAiMarks,
+} from "../lib/aiHighlight";
 import { refreshAfterAnswer } from "../lib/achievements";
 import {
   displayedIndex,
@@ -70,6 +76,16 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   }, [shuffleOn, cur, restoredOrder]);
   const kanaOf = (o: number) => KANA[order ? displayedIndex(order, o) : o];
   const remap = (t: string) => (order ? remapKanaLabels(t, order) : t);
+
+  // AIマーク: チャットが発行した生マークを現在の問題の文字範囲へ解決する
+  const rawMarks = useSyncExternalStore(subscribeAiMarks, getAiMarks, getAiMarks);
+  const aiMarks = useMemo(
+    () => (cur ? resolveMarks(cur, rawMarks) : []),
+    [cur, rawMarks]
+  );
+  useEffect(() => {
+    setAiMarks([]); // 問題が変わったら前の問題のマークを消す
+  }, [cur?.id]);
 
   // 進行状況を保存(結果画面に到達したら破棄)。次回起動時に途中から再開できる。
   useEffect(() => {
@@ -296,6 +312,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         answered={answered}
         onSelect={handleSelect}
         order={order ?? undefined}
+        aiMarks={aiMarks}
       />
 
       {answered && (

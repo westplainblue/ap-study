@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import type { AmQuestion } from "../data/types";
 import { figureUrl, KANA, sourceOf } from "../data";
+import { segmentText, type ResolvedMark } from "../lib/aiHighlight";
 
 interface Props {
   question: AmQuestion;
@@ -14,6 +16,36 @@ interface Props {
    * 呼び出し側の正誤判定・記録は並び替えの影響を受けない。省略時は元の順。
    */
   order?: number[];
+  /** AIが付けた重要箇所マーク(問題文・選択肢の文字範囲) */
+  aiMarks?: ResolvedMark[];
+}
+
+/** マーク範囲を <mark> で包んで描画する(範囲が無ければ素のテキスト) */
+function MarkedText({
+  text,
+  marks,
+}: {
+  text: string;
+  marks: ResolvedMark[];
+}) {
+  if (marks.length === 0) return <>{text}</>;
+  return (
+    <>
+      {segmentText(text, marks).map((s, i) =>
+        s.mark ? (
+          <mark
+            key={i}
+            className={s.mark.style === "underline" ? "ai-underline" : "ai-marker"}
+            title={s.mark.note}
+          >
+            {s.text}
+          </mark>
+        ) : (
+          <Fragment key={i}>{s.text}</Fragment>
+        )
+      )}
+    </>
+  );
 }
 
 export default function QuestionCard({
@@ -23,11 +55,15 @@ export default function QuestionCard({
   onSelect,
   revealAnswer = true,
   order,
+  aiMarks = [],
 }: Props) {
   const displayOrder = order ?? q.choices.map((_, i) => i);
+  const textMarks = aiMarks.filter((m) => m.target === "text");
   return (
     <div>
-      <p style={{ whiteSpace: "pre-wrap", marginBottom: 12 }}>{q.text}</p>
+      <p style={{ whiteSpace: "pre-wrap", marginBottom: 12 }}>
+        <MarkedText text={q.text} marks={textMarks} />
+      </p>
       {q.figure && (
         <div
           style={{
@@ -49,6 +85,7 @@ export default function QuestionCard({
         {displayOrder.map((oi, di) => {
           // oi=元データの添字(正誤判定・記録用), di=表示位置(記号ア〜エ用)
           const choice = q.choices[oi];
+          const choiceMarks = aiMarks.filter((m) => m.target === oi);
           let cls = "choice";
           if (answered && revealAnswer) {
             if (oi === q.answer) cls += " choice-correct";
@@ -65,7 +102,9 @@ export default function QuestionCard({
               disabled={answered && revealAnswer}
             >
               <span className="choice-kana">{KANA[di]}</span>
-              <span style={{ flex: 1 }}>{choice}</span>
+              <span style={{ flex: 1 }}>
+                <MarkedText text={choice} marks={choiceMarks} />
+              </span>
             </button>
           );
         })}
