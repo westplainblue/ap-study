@@ -343,19 +343,14 @@ a {
   z-index: 70;
 }
 
-.ai-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s;
-  z-index: 75;
-}
-
-.ai-backdrop.show {
-  opacity: 1;
-  pointer-events: auto;
+/*
+ * AIパネルは背景を暗転させない(問題文の視認性を保ち、開いたまま問題を
+ * 読んだり解答したりできるようにする)。PCでは本文の横に並べ、スマホでは
+ * 下シートにして本文側に余白を足し、問題文を上にスクロールして読める。
+ */
+:root {
+  --ai-panel-w: min(400px, 92vw);
+  --ai-sheet-h: 58dvh;
 }
 
 .ai-panel {
@@ -372,13 +367,26 @@ a {
     top: 0;
     right: 0;
     bottom: 0;
-    width: min(400px, 92vw);
+    width: var(--ai-panel-w);
     border-left: 1px solid var(--border);
     transform: translateX(105%);
   }
 
   .ai-panel.open {
     transform: translateX(0);
+  }
+
+  /* 開いている間は右側を空けて本文と横並びにする(重ねない) */
+  body.ai-open {
+    padding-right: var(--ai-panel-w);
+  }
+
+  body.ai-open .tabbar {
+    right: var(--ai-panel-w);
+  }
+
+  body.ai-open .ai-fab {
+    right: calc(var(--ai-panel-w) + 14px);
   }
 }
 
@@ -387,9 +395,10 @@ a {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 62dvh;
+    height: var(--ai-sheet-h);
     border-top: 1px solid var(--border);
     border-radius: 16px 16px 0 0;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.16);
     transform: translateY(105%);
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -397,6 +406,21 @@ a {
   .ai-panel.open {
     transform: translateY(0);
   }
+
+  /* 横並びにできない幅なので、本文の下に余白を足して
+     問題文をシートの上へスクロールできるようにする */
+  body.ai-open .app-main {
+    padding-bottom: calc(var(--ai-sheet-h) + 24px);
+  }
+}
+
+body {
+  transition: padding-right 0.25s ease;
+}
+
+.tabbar,
+.ai-fab {
+  transition: right 0.25s ease;
 }
 
 .ai-header {

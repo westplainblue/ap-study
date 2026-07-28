@@ -40,6 +40,12 @@ export default function AiChat() {
     }
   }, [messages, open]);
 
+  // 開いている間は本文側にレイアウトを譲る(PCは横並び、スマホは下余白)
+  useEffect(() => {
+    document.body.classList.toggle("ai-open", open);
+    return () => document.body.classList.remove("ai-open");
+  }, [open]);
+
   const send = async () => {
     const text = input.trim();
     if (!text || busy || !ready) return;
@@ -101,11 +107,6 @@ export default function AiChat() {
       >
         <IconSparkle size={20} />
       </button>
-
-      <div
-        className={`ai-backdrop ${open ? "show" : ""}`}
-        onClick={() => setOpen(false)}
-      />
 
       <div className={`ai-panel ${open ? "open" : ""}`} role="dialog" aria-label="AIチャット">
         <div className="ai-header">
