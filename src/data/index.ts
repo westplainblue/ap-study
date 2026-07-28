@@ -165,6 +165,8 @@ export function canShuffleChoices(q: AmQuestion): boolean {
 
 interface QueryOptions {
   excludeCalc?: boolean; // 計算問題を除外する
+  /** 出題する試験回(examId)。未指定・空配列なら全回から出題 */
+  examIds?: string[];
 }
 
 export function questionsByMiddle(
@@ -172,17 +174,21 @@ export function questionsByMiddle(
   opts: QueryOptions = {}
 ): AmQuestion[] {
   const set = middles.length ? new Set(middles) : null;
+  const exams = opts.examIds?.length ? new Set(opts.examIds) : null;
   return AM_QUESTIONS.filter(
     (q) =>
       (!set || set.has(q.middle)) &&
+      (!exams || exams.has(q.examId)) &&
       (!opts.excludeCalc || !calcIds.has(q.id))
   );
 }
 
 export function countByMiddle(opts: QueryOptions = {}): Map<string, number> {
   const map = new Map<string, number>();
+  const exams = opts.examIds?.length ? new Set(opts.examIds) : null;
   for (const q of AM_QUESTIONS) {
     if (opts.excludeCalc && calcIds.has(q.id)) continue;
+    if (exams && !exams.has(q.examId)) continue;
     map.set(q.middle, (map.get(q.middle) ?? 0) + 1);
   }
   return map;

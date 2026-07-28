@@ -8,6 +8,7 @@ interface Config {
   middles: string[];
   count: number;
   excludeCalc?: boolean;
+  examIds?: string[]; // 出題する試験回(未指定なら全回)
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -30,7 +31,10 @@ export default function PracticeRun() {
     const stats = statsByQuestion();
     // 解答回数が少ない問題を優先しつつ、同回数内はシャッフル
     return shuffle(
-      questionsByMiddle(config.middles, { excludeCalc: config.excludeCalc })
+      questionsByMiddle(config.middles, {
+        excludeCalc: config.excludeCalc,
+        examIds: config.examIds,
+      })
     )
       .sort((a, b) => (stats.get(a.id)?.n ?? 0) - (stats.get(b.id)?.n ?? 0))
       .slice(0, config.count);
