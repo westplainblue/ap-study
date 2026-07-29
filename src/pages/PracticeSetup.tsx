@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { countByMiddle } from "../data";
+import { countByMiddle, EXAMS } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
 import { clearRun } from "../lib/run";
 
 const COUNTS = [5, 10, 20];
 
+/** チップ表示用の短い試験回名(例: 令和7年度 秋期 → 令和7秋期) */
+function shortExamLabel(label: string): string {
+  return label.replace("年度 ", "");
+}
+
 export default function PracticeSetup() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [examIds, setExamIds] = useState<Set<string>>(new Set());
   const [count, setCount] = useState(10);
   const [excludeCalc, setExcludeCalc] = useState(false);
-  const counts = countByMiddle({ excludeCalc });
+  const counts = countByMiddle({ excludeCalc, examIds: [...examIds] });
 
   const toggle = (middle: string) => {
     const next = new Set(selected);
@@ -20,11 +26,23 @@ export default function PracticeSetup() {
     setSelected(next);
   };
 
+  const toggleExam = (examId: string) => {
+    const next = new Set(examIds);
+    if (next.has(examId)) next.delete(examId);
+    else next.add(examId);
+    setExamIds(next);
+  };
+
   const start = () => {
     clearRun("practice"); // 新しい演習を始めるので、前回の途中状態は破棄する
     sessionStorage.setItem(
       "ap-practice",
-      JSON.stringify({ middles: [...selected], count, excludeCalc })
+      JSON.stringify({
+        middles: [...selected],
+        count,
+        excludeCalc,
+        examIds: [...examIds],
+      })
     );
     navigate("/practice/run");
   };
@@ -57,6 +75,24 @@ export default function PracticeSetup() {
           </div>
         </div>
       ))}
+
+      <div style={{ marginBottom: 14 }}>
+        <p style={{ fontWeight: 600, marginBottom: 6 }}>試験回</p>
+        <p className="muted small" style={{ marginBottom: 6 }}>
+          未選択なら全{EXAMS.length}回から出題。選ぶとその回の問題に絞られ、分野の問題数も連動します。
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {EXAMS.map((e) => (
+            <button
+              key={e.examId}
+              className={`chip-toggle ${examIds.has(e.examId) ? "on" : ""}`}
+              onClick={() => toggleExam(e.examId)}
+            >
+              {shortExamLabel(e.label)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="card" style={{ marginTop: 18 }}>
         <p style={{ fontWeight: 600, marginBottom: 8 }}>出題数</p>
