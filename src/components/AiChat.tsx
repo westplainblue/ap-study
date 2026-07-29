@@ -15,6 +15,13 @@ import {
   setAiMarks,
   stripMarksBlock,
 } from "../lib/aiHighlight";
+import {
+  isCaretOnFirstLine,
+  isCaretOnLastLine,
+  loadHistory,
+  pushInto,
+  saveHistory,
+} from "../lib/aiHistory";
 import { IconSend, IconSparkle, IconX } from "./Icons";
 
 function buildSystemPrompt(contextText: string | undefined, marks: boolean): string {
@@ -38,6 +45,11 @@ export default function AiChat() {
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  // ターミナル風のプロンプト履歴(↑↓でたどる)。histIdx=null は「最新(下書き)」
+  const [history, setHistory] = useState<string[]>(() => loadHistory());
+  const [histIdx, setHistIdx] = useState<number | null>(null);
+  const draftRef = useRef("");
   const ctx = useSyncExternalStore(subscribeAiContext, getAiContext, getAiContext);
   const [marksOn, setMarksOn] = useState(() => loadAiConfig().marks === true);
 
@@ -68,9 +80,16 @@ export default function AiChat() {
   const send = async () => {
     const text = input.trim();
     if (!text || busy || !ready) return;
+    const nextHist = pushInto(history, text);
+    if (nextHist !== history) {
+      setHistory(nextHist);
+      saveHistory(nextHist);
+    }
+    setHistIdx(null);
+    draftRef.current = "";
     setError(null);
-    const history = [...messages, { role: "user", content: text } as ChatMessage];
-    setMessages([...history, { role: "assistant", content: "" }]);
+    const chatMessages = [...messages, { role: "user", content: text } as ChatMessage];
+    setMessages([...chatMessages, { role: "assistant", content: "" }]);
     setInput("");
     setBusy(true);
     const ac = new AbortController();
@@ -83,7 +102,7 @@ export default function AiChat() {
         model: activeModel(config),
         baseUrl: config.codexBaseUrl,
         system: buildSystemPrompt(ctx?.text, marksOn),
-        messages: history,
+        messages: chatMessages,
         signal: ac.signal,
         onDelta: (t) => {
           full += t;
@@ -115,10 +134,49 @@ export default function AiChat() {
     }
   };
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
+  const caretToEnd = () => {
+    requestAnimationFrame(() => {
+      const ta = inputRef.current;
+      if (ta) {
+        const n = ta.value.length;
+        ta.setSelectionRange(n, n);
+      }
+    });
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       void send();
+      return;
+    }
+    // ↑↓でプロンプト履歴をたどる(ターミナルと同じ操作感)。
+    // 修飾キー付き・範囲選択中・複数行の中間行では通常のカーソル移動を邪魔しない。
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    const ta = e.currentTarget;
+    const collapsed = ta.selectionStart === ta.selectionEnd;
+    if (e.key === "ArrowUp") {
+      if (!collapsed || !isCaretOnFirstLine(input, ta.selectionStart)) return;
+      if (history.length === 0) return;
+      e.preventDefault();
+      const idx = histIdx === null ? history.length - 1 : histIdx - 1;
+      if (idx < 0) return; // 最古で停止
+      if (histIdx === null) draftRef.current = input; // 下書きを退避
+      setHistIdx(idx);
+      setInput(history[idx]);
+      caretToEnd();
+    } else if (e.key === "ArrowDown") {
+      if (histIdx === null) return; // 履歴をたどっていないときは通常動作
+      if (!collapsed || !isCaretOnLastLine(input, ta.selectionEnd)) return;
+      e.preventDefault();
+      if (histIdx < history.length - 1) {
+        setHistIdx(histIdx + 1);
+        setInput(history[histIdx + 1]);
+      } else {
+        setHistIdx(null);
+        setInput(draftRef.current); // 最新まで戻ったら下書きを復元
+      }
+      caretToEnd();
     }
   };
 
@@ -220,9 +278,13 @@ export default function AiChat() {
           <textarea
             rows={2}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            ref={inputRef}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (histIdx !== null) setHistIdx(null); // 編集したらそれを新しい下書きに
+            }}
             onKeyDown={onKeyDown}
-            placeholder={ready ? "質問を入力(⌘+Enterで送信)" : "APIキー未設定です"}
+            placeholder={ready ? "質問を入力(⌘+Enter送信 / ↑で履歴)" : "APIキー未設定です"}
             disabled={!ready}
             style={{ flex: 1, resize: "none" }}
           />
