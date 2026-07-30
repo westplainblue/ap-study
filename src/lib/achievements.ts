@@ -153,7 +153,8 @@ export function buildContext(state: ProgressState): EvalContext {
     const mo = ds.slice(0, 7);
     (monthDays.get(mo) ?? monthDays.set(mo, new Set()).get(mo)!).add(ds);
     if (q) uniqSet.add(a.q);
-    if (a.mode === "practice") hasPractice = true;
+    // 反復学習も「演習をやった」に数える(モード分離前は practice として記録していた)
+    if (a.mode === "practice" || a.mode === "drill") hasPractice = true;
     else if (a.mode === "review") hasReview = true;
     else if (a.mode === "mock") hasMock = true;
     if (a.ok) {

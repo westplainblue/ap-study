@@ -5,6 +5,15 @@ import AchievementGrid from "../components/AchievementGrid";
 import ContributionGraph from "../components/ContributionGraph";
 import { amQuestion } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
+import {
+  MODE_HINT,
+  MODE_LABEL,
+  MODE_ORDER,
+  modesWithData,
+  rateOf,
+  statsByGroupAndMode,
+  statsByMode,
+} from "../lib/modeStats";
 import { addDaysStr, loadState, todayStr } from "../lib/progress";
 import { delayedRetention } from "../lib/srs";
 
@@ -39,6 +48,8 @@ export default function Stats() {
     todayAgg,
     last7Agg,
     retention,
+    byMode,
+    byMajorMode,
   } = useMemo(() => {
       const state = loadState();
       const byMiddle = new Map<string, Agg>();
@@ -79,6 +90,12 @@ export default function Stats() {
         }
       }
       const retention = delayedRetention(state.attempts, 7);
+      const byMode = statsByMode(state.attempts);
+      // 分野の粒度は大分類。中分類をモードで割ると1桁件数のセルばかりになり読めない
+      const byMajorMode = statsByGroupAndMode(
+        state.attempts,
+        (qid) => amQuestion(qid)?.major
+      );
       return {
         byMiddle,
         byMajor,
@@ -89,6 +106,8 @@ export default function Stats() {
         todayAgg,
         last7Agg,
         retention,
+        byMode,
+        byMajorMode,
       };
     }, []);
 
@@ -118,6 +137,9 @@ export default function Stats() {
     );
     navigate("/practice/run");
   };
+
+  // 実施したモードが2つ以上あるときだけ、分野×モードの表を出す(1つなら上の表と同じ)
+  const modeCols = modesWithData(byMode);
 
   const weak = [...byMiddle.entries()]
     .filter(([, v]) => v.n >= 3 && v.ok / v.n < 0.6)
@@ -174,6 +196,125 @@ export default function Stats() {
         各点はその日に解いた問題の正解率です。破線は全体平均。
         {dailyRate.length === 1 && "(2日以上学習すると推移が線で表示されます)"}
       </p>
+
+      <p style={{ fontWeight: 600, marginBottom: 8 }}>モード別の正答率</p>
+      <div
+        className="card"
+        style={{ marginBottom: 8, display: "flex", flexDirection: "column", gap: 12 }}
+      >
+        {MODE_ORDER.map((m) => {
+          const agg = byMode.get(m);
+          const rate = rateOf(agg);
+          return (
+            <div key={m}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 8,
+                  marginBottom: 3,
+                }}
+              >
+                <span style={{ fontWeight: 600, fontSize: 13 }}>{MODE_LABEL[m]}</span>
+                {rate !== null ? (
+                  <span style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.1 }}>
+                    {rate}%
+                    <span
+                      className="muted small"
+                      style={{ fontWeight: 400, marginLeft: 5 }}
+                    >
+                      ({agg!.ok}/{agg!.n})
+                    </span>
+                  </span>
+                ) : (
+                  <span className="muted small">未実施</span>
+                )}
+              </div>
+              <div className="bar-track">
+                <div
+                  className={`bar-fill ${rate !== null && rate < 60 ? "warn" : ""}`}
+                  style={{ width: `${rate ?? 0}%` }}
+                />
+              </div>
+              <p className="muted small" style={{ marginTop: 3, lineHeight: 1.5 }}>
+                {MODE_HINT[m]}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+      <p className="muted small" style={{ marginBottom: 18, lineHeight: 1.6 }}>
+        どのモードも「1問につき1回」を記録した値なので横に並べて比べられます。ただし復習だけは母集団が
+        「一度つまずいた問題」なので、演習より低く出るのが普通です。
+        {byMode.has("practice") && " なお、反復学習をモードとして分けたのは今回からで、それ以前の反復ぶんは分野別演習に含まれています。"}
+      </p>
+
+      {modeCols.length > 1 && (
+        <>
+          <p style={{ fontWeight: 600, marginBottom: 8 }}>大分類 × モード</p>
+          <div style={{ overflowX: "auto", marginBottom: 6 }}>
+            <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left", padding: "4px 6px" }}>分野</th>
+                  {modeCols.map((m) => (
+                    <th
+                      key={m}
+                      style={{ textAlign: "right", padding: "4px 6px", whiteSpace: "nowrap" }}
+                    >
+                      {MODE_LABEL[m]}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(Object.keys(MAJOR_LABEL) as Major[]).map((major) => {
+                  const inner = byMajorMode.get(major);
+                  return (
+                    <tr key={major} style={{ borderTop: "1px solid var(--border)" }}>
+                      <td style={{ padding: "6px", whiteSpace: "nowrap" }}>
+                        {MAJOR_LABEL[major]}
+                      </td>
+                      {modeCols.map((m) => {
+                        const agg = inner?.get(m);
+                        const r = rateOf(agg);
+                        return (
+                          <td
+                            key={m}
+                            style={{
+                              textAlign: "right",
+                              padding: "6px",
+                              whiteSpace: "nowrap",
+                              color:
+                                r !== null && r < 60 ? "var(--warning-text)" : undefined,
+                              fontWeight: r !== null && r < 60 ? 600 : undefined,
+                            }}
+                          >
+                            {r !== null ? (
+                              <>
+                                {r}%
+                                <span className="muted" style={{ fontSize: 11, marginLeft: 3 }}>
+                                  ({agg!.n})
+                                </span>
+                              </>
+                            ) : (
+                              <span className="muted">—</span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="muted small" style={{ marginBottom: 18, lineHeight: 1.6 }}>
+            括弧内は解答数。中分類はモードで割ると1桁件数のセルばかりになって読めないため、大分類でまとめています(中分類は下の「分野別の成績」＝全モード合算)。
+          </p>
+        </>
+      )}
 
       <p style={{ fontWeight: 600, marginBottom: 8 }}>大分類別の正答率</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>

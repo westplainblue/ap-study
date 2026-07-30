@@ -183,7 +183,7 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
     triesRef.current.set(q.id, (triesRef.current.get(q.id) ?? 0) + 1);
     // 初回の解答だけ履歴に記録する(反復ぶんは記録しない)
     if (!recorded.has(q.id)) {
-      recordAnswer(q.id, ok, "practice");
+      recordAnswer(q.id, ok, "drill");
       refreshAfterAnswer();
       setRecorded((s) => new Set(s).add(q.id));
       if (ok) setFirstTryOk((n) => n + 1);
