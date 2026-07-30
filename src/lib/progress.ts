@@ -1,4 +1,9 @@
-export type Mode = "practice" | "review" | "mock";
+/**
+ * 解答を記録したときの出題モード。
+ * drill(反復学習)は 2026-07 まで practice として記録していたため、それ以前の
+ * 反復ぶんは分野別演習に含まれる(履歴は書き換えない方針)。
+ */
+export type Mode = "practice" | "review" | "drill" | "mock";
 
 export interface Attempt {
   q: string; // questionId
