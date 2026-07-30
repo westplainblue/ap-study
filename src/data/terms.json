@@ -1,0 +1,4719 @@
+[
+ {
+  "id": "apiエコノミー",
+  "term": "APIエコノミー",
+  "def": "企業をまたいだAPI連携で新サービス創出",
+  "defQid": "2022r04a-am-70",
+  "source": "point-pair",
+  "point": "APIエコノミー＝企業をまたいだAPI連携で新サービス創出。自社内利用はエコノミーとは呼ばない。",
+  "qids": [
+   "2022r04a-am-70"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "arp",
+  "term": "arp",
+  "def": "IPとMACの対応表",
+  "defQid": "2024r06a-am-36",
+  "source": "point-pair",
+  "point": "arp=IPとMACの対応表。同一LAN上の相手のMACを調べるならarp。",
+  "qids": [
+   "2023r05a-am-35",
+   "2024r06a-am-36"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "bcp",
+  "term": "BCP",
+  "def": "事業の中断・阻害に対応し，事業を復旧し，再開し，あらかじめ定められたレベルに回復するように組織を導く手順を文書化したもの",
+  "defQid": "2022r04a-am-61",
+  "source": "text-def",
+  "point": "BCP＝事業中断時の復旧・再開手順を文書化。BSC・BPM・BPOと頭文字で区別。",
+  "qids": [
+   "2022r04a-am-61",
+   "2022r04h-am-58"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "bpo",
+  "term": "BPO",
+  "def": "社内業務のうちコアビジネスでない事業に関わる業務の一部又は全部を,外部の専門的な企業に委託すること",
+  "defQid": "2022r04h-am-63",
+  "source": "text-def",
+  "point": "BPO=業務プロセスの外部委託(非コア業務を専門企業に丸ごと)。BCP(事業継続)・MRP(資材所要量計画)と混同しない。",
+  "qids": [
+   "2022r04h-am-63"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "bprノ金額効果",
+  "term": "BPRの金額効果",
+  "def": "人件費削減+空き時間の付加価値利益−外部委託費",
+  "defQid": "2024r06a-am-64",
+  "source": "point-pair",
+  "point": "BPRの金額効果=人件費削減+空き時間の付加価値利益−外部委託費。各シナリオを漏れなく計算して比較。",
+  "qids": [
+   "2024r06a-am-64"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "c0",
+  "term": "C₀",
+  "def": "命令網羅（全命令を通る）",
+  "defQid": "2022r04a-am-48",
+  "source": "point-pair",
+  "point": "C₀=命令網羅（全命令を通る）、C₁=分岐網羅（全分岐の真偽を通る）。C₁の方が厳しい。",
+  "qids": [
+   "2022r04a-am-48",
+   "2024r06h-am-04",
+   "2025r07a-am-19"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "c1",
+  "term": "C₁",
+  "def": "分岐網羅（全分岐の真偽を通る）",
+  "defQid": "2022r04a-am-48",
+  "source": "point-pair",
+  "point": "C₀=命令網羅（全命令を通る）、C₁=分岐網羅（全分岐の真偽を通る）。C₁の方が厳しい。",
+  "qids": [
+   "2022r04a-am-48",
+   "2024r06h-am-04",
+   "2025r07a-am-19"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "caat",
+  "term": "CAAT",
+  "def": "コンピュータを使った監査(専用ソフトに限定されない)",
+  "defQid": "2023r05h-am-59",
+  "source": "point-pair",
+  "point": "インタビュー法=監査人が口頭で質問し回答を得る。CAAT=コンピュータを使った監査(専用ソフトに限定されない)。チェックリスト法の作成主体は監査人。",
+  "qids": [
+   "2023r05h-am-59"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "cap定理",
+  "term": "CAP定理",
+  "def": "C・A・Pのうち2つまで",
+  "defQid": "2022r04h-am-26",
+  "source": "point-pair",
+  "point": "CAP定理=C・A・Pのうち2つまで。A+P選択なら整合性を諦める(結果整合性)。何を選ぶと何が犠牲になるかをセットで覚える。",
+  "qids": [
+   "2022r04h-am-26"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "cidr",
+  "term": "CIDR",
+  "def": "IPv4のアドレス割当てを行う際に,クラスA〜Cといった区分にとらわれずに,ネットワークアドレス部とホストアドレス部を任意のブロック単位に区切り,IPアドレスを無駄なく効率的に割り当てる方式",
+  "defQid": "2025r07a-am-32",
+  "source": "choice-def",
+  "point": "「192.168.1.0/28」のようなスラッシュ表記がCIDR。クラスA/B/Cの固定区切りを廃した方式です。",
+  "qids": [
+   "2025r07a-am-32"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "DHCP",
+   "DNS",
+   "NAPT"
+  ]
+ },
+ {
+  "id": "cpi",
+  "term": "CPI",
+  "def": "クロック周波数÷1秒あたりの命令実行数",
+  "defQid": "2023r05h-am-08",
+  "source": "point-pair",
+  "point": "CPI=クロック周波数÷1秒あたりの命令実行数。単位に注意(GHz=10^9)。逆にMIPS=周波数/CPI。",
+  "qids": [
+   "2023r05h-am-08",
+   "2025r07h-am-08",
+   "2025r07h-am-52"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "cps",
+  "term": "CPS",
+  "def": "現実世界のデータを仮想世界で分析し現実にフィードバック",
+  "defQid": "2022r04a-am-73",
+  "source": "point-pair",
+  "point": "CPS＝現実世界のデータを仮想世界で分析し現実にフィードバック。IoT・デジタルツインの基盤概念。",
+  "qids": [
+   "2022r04a-am-73",
+   "2023r05a-am-71"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "crl",
+  "term": "CRL",
+  "def": "期限内なのに失効した証明書のブラックリスト",
+  "defQid": "2025r07a-am-39",
+  "source": "point-pair",
+  "point": "CRL=「期限内なのに失効した証明書のブラックリスト」。有効期限切れの管理とは別物です。",
+  "qids": [
+   "2025r07a-am-39"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "csirtマテリアル",
+  "term": "CSIRTマテリアル",
+  "def": "組織的なインシデント対応体制の構築を支援する目的でJPCERTコーディネーションセンターが作成したもの",
+  "defQid": "2022r04a-am-39",
+  "source": "choice-def",
+  "point": "CSIRTマテリアル＝JPCERT/CCによる組織内CSIRT構築支援資料。",
+  "qids": [
+   "2022r04a-am-39"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "ISMSユーザーズガイド",
+   "証拠保全ガイドライン",
+   "組織における内部不正防止ガイドライン"
+  ]
+ },
+ {
+  "id": "csma-cd",
+  "term": "CSMA/CD",
+  "def": "空いていたら送る,ぶつかったら待って再送",
+  "defQid": "2024r06h-am-30",
+  "source": "point-pair",
+  "point": "CSMA/CD=「空いていたら送る,ぶつかったら待って再送」。イーサネットの基本方式。トークン方式との違いを押さえる。",
+  "qids": [
+   "2024r06h-am-30"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "cve",
+  "term": "CVE",
+  "def": "個々の脆弱性の一意な識別番号",
+  "defQid": "2023r05h-am-40",
+  "source": "point-pair",
+  "point": "CVE=個々の脆弱性の一意な識別番号。CVSS=深刻度スコア。CWE=脆弱性の種類分類。CCE=設定項目。SCAPの構成要素として整理。",
+  "qids": [
+   "2023r05h-am-40",
+   "2024r06a-am-41"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "d-a変換ノ出力",
+  "term": "D/A変換の出力",
+  "def": "デジタル値(10進)×1LSB当たりの電圧",
+  "defQid": "2025r07h-am-18",
+  "source": "point-pair",
+  "point": "D/A変換の出力=デジタル値(10進)×1LSB当たりの電圧。まず基数変換,それから掛け算,の2ステップです。",
+  "qids": [
+   "2025r07h-am-18"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "da",
+  "term": "DA",
+  "def": "データの論理設計・標準化(上流・全社的なデータ資源管理)",
+  "defQid": "2022r04h-am-57",
+  "source": "point-pair",
+  "point": "DA=データの論理設計・標準化(上流・全社的なデータ資源管理)。DBA=DBの物理運用・性能・復旧(実装・運用)。論理はDA,物理はDBA。",
+  "qids": [
+   "2022r04h-am-57"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "dkim",
+  "term": "DKIM",
+  "def": "電子メールの送信時に,送信側メールサーバでデジタル署名を電子メールヘッダーに付与し,受信側メールサーバでそれを検証することで,送信元ドメインのなりすましや電子メールの改ざんを検知できる技術",
+  "defQid": "2025r07a-am-45",
+  "source": "choice-def",
+  "point": "送信ドメイン認証の2大方式:SPF=IPアドレスで確認,DKIM=デジタル署名で確認。「署名」と来たらDKIMです。",
+  "qids": [
+   "2023r05a-am-44",
+   "2025r07a-am-45"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "OP25B",
+   "S/MIME",
+   "SPF"
+  ]
+ },
+ {
+  "id": "dma",
+  "term": "DMA",
+  "def": "CPUを介さない直接転送",
+  "defQid": "2025r07h-am-09",
+  "source": "point-pair",
+  "point": "DMA=「CPUを介さない直接転送」。Direct(直接)という名前がそのまま答えです。",
+  "qids": [
+   "2025r07h-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "dmaコントローラー",
+  "term": "DMAコントローラー",
+  "def": "メモリと入出力装置,又はメモリとメモリとの間のデータ転送を,MPUを介さずに行う。",
+  "defQid": "2025r07h-am-09",
+  "source": "text-def",
+  "point": "DMA=「CPUを介さない直接転送」。Direct(直接)という名前がそのまま答えです。",
+  "qids": [
+   "2025r07h-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "dnssec",
+  "term": "DNSSEC",
+  "def": "公開鍵暗号のデジタル署名でDNS応答の正当性を保証",
+  "defQid": "2023r05a-am-45",
+  "source": "point-pair",
+  "point": "DNSSEC=公開鍵暗号のデジタル署名でDNS応答の正当性を保証。キャッシュポイズニング対策。",
+  "qids": [
+   "2023r05a-am-45",
+   "2024r06a-am-44",
+   "2024r06h-am-37"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "dnsキャッシュポイズニング",
+  "term": "DNSキャッシュポイズニング",
+  "def": "DNSの名前解決結果を偽装→利用者を偽サイトへ誘導",
+  "defQid": "2024r06h-am-36",
+  "source": "point-pair",
+  "point": "DNSキャッシュポイズニング=DNSの名前解決結果を偽装→利用者を偽サイトへ誘導。フィッシングや情報窃取につながる。",
+  "qids": [
+   "2022r04a-am-42",
+   "2024r06h-am-36",
+   "2024r06h-am-41"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "dnsキャッシュポイズニング対策",
+  "term": "DNSキャッシュポイズニング対策",
+  "def": "問合せIDと送信元ポートをランダム化して偽応答を推測困難にする",
+  "defQid": "2024r06a-am-42",
+  "source": "point-pair",
+  "point": "DNSキャッシュポイズニング対策=問合せIDと送信元ポートをランダム化して偽応答を推測困難にする。",
+  "qids": [
+   "2024r06a-am-42"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "docker",
+  "term": "Docker",
+  "def": "コンテナ型仮想化の環境であって,アプリケーションソフトウェアの構築,実行,管理を行うためのプラットフォームを提供するOSS",
+  "defQid": "2023r05h-am-20",
+  "source": "choice-def",
+  "point": "コンテナ型=OSカーネル共有で軽量(Docker,Kubernetes)。ハイパーバイザ型=VMごとにOS(KVM,Xen,QEMU,VMware)。",
+  "qids": [
+   "2023r05h-am-20"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T",
+  "distractors": [
+   "KVM",
+   "QEMU",
+   "Xen"
+  ]
+ },
+ {
+  "id": "eac",
+  "term": "EAC",
+  "def": "BAC/CPI(効率が今後も続く前提)",
+  "defQid": "2022r04h-am-51",
+  "source": "point-pair",
+  "point": "EVM:CPI=EV/AC(コスト効率)。EAC=BAC/CPI(効率が今後も続く前提)。CPI<1なら予算超過を意味しEACはBACより大きくなる。",
+  "qids": [
+   "2022r04h-am-51"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "ecrs",
+  "term": "ECRS",
+  "def": "Eliminate(なくす)・Combine(まとめる)・Rearrange(順序を変える)・Simplify(簡単にする)",
+  "defQid": "2024r06a-am-63",
+  "source": "point-pair",
+  "point": "ECRS=Eliminate(なくす)・Combine(まとめる)・Rearrange(順序を変える)・Simplify(簡単にする)。",
+  "qids": [
+   "2024r06a-am-63"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "ems",
+  "term": "EMS",
+  "def": "電子機器の「受託製造」に特化した事業",
+  "defQid": "2024r06h-am-65",
+  "source": "point-pair",
+  "point": "EMS=電子機器の「受託製造」に特化した事業。発注側は生産設備を持たない(ファブレス)。両者の関係をセットで押さえる。",
+  "qids": [
+   "2024r06h-am-65"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "fc",
+  "term": "FC",
+  "def": "電気/光の両方の媒体が使える高速シリアルのストレージ接続規格",
+  "defQid": "2024r06a-am-11",
+  "source": "point-pair",
+  "point": "FC=電気/光の両方の媒体が使える高速シリアルのストレージ接続規格。",
+  "qids": [
+   "2024r06a-am-11"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "fifo",
+  "term": "FIFO",
+  "def": "入った順が古いページから追い出す",
+  "defQid": "2023r05h-am-17",
+  "source": "point-pair",
+  "point": "FIFO=入った順が古いページから追い出す。ヒット(参照ページが枠内にある)時は入替えなし=入った順序も変わらないのがポイント(LRUと違い,参照してもそのページは新しく扱われない)。",
+  "qids": [
+   "2023r05h-am-17",
+   "2025r07a-am-19"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "fpga",
+  "term": "FPGA",
+  "def": "論理回路を基板上に実装した後で再プログラムできる集積回路",
+  "defQid": "2022r04h-am-20",
+  "source": "text-def",
+  "point": "FPGA=現場(Field)で書き換え可能な論理回路。対してASICは製造時に回路が固定される。「後から再プログラムできる」がキーワード。",
+  "qids": [
+   "2022r04h-am-20",
+   "2023r05a-am-20",
+   "2025r07h-am-20"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "fta",
+  "term": "FTA",
+  "def": "障害と，その中間的な原因から基本的な原因までの全ての原因とを列挙し，それらをゲート（論理を表す図記号）で関連付けた樹形図で表す。",
+  "defQid": "2022r04a-am-47",
+  "source": "text-def",
+  "point": "FTA＝障害を頂点にトップダウンで原因を論理ゲートの樹形図に展開。FMEAは故障モードからのボトムアップ。",
+  "qids": [
+   "2022r04a-am-47",
+   "2025r07a-am-55"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "ftp",
+  "term": "FTP",
+  "def": "TCP/IPネットワークで，データ転送用と制御用とに異なるウェルノウンポート番号が割り当てられているプロトコル",
+  "defQid": "2022r04a-am-32",
+  "source": "choice-def",
+  "point": "FTPは制御(21)とデータ(20)で2つのポートを使う。制御とデータのコネクションが別なのが特徴。",
+  "qids": [
+   "2022r04a-am-32",
+   "2022r04h-am-33",
+   "2025r07h-am-33"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "POP3",
+   "SMTP",
+   "SNMP"
+  ]
+ },
+ {
+  "id": "git",
+  "term": "Git",
+  "def": "分散開発環境において,各開発者のローカル環境に全履歴を含んだ中央リポジトリの完全な複製をもつことによって,中央リポジトリにアクセスできないときでも履歴の調査や変更の記録を可能にする,バージョン管理ツール",
+  "defQid": "2024r06a-am-19",
+  "source": "choice-def",
+  "point": "Git=分散型VCS。ローカルに全履歴を持つのでオフラインでコミット・履歴調査が可能。SVN/CVSは集中型。",
+  "qids": [
+   "2024r06a-am-19"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T",
+  "distractors": [
+   "Apache Subversion",
+   "CVS",
+   "RCS"
+  ]
+ },
+ {
+  "id": "gpu",
+  "term": "GPU",
+  "def": "多数のコアで行列演算を並列高速化",
+  "defQid": "2022r04a-am-08",
+  "source": "point-pair",
+  "point": "GPU＝多数のコアで行列演算を並列高速化。ディープラーニングと相性が良い。",
+  "qids": [
+   "2022r04a-am-08",
+   "2025r07a-am-57"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "h-264-mpeg-4-avc",
+  "term": "H.264/MPEG-4 AVC",
+  "def": "ワンセグやインターネットで用いられる動画データの圧縮符号化方式",
+  "defQid": "2022r04a-am-25",
+  "source": "text-def",
+  "point": "H.264＝動画の圧縮符号化方式（コーデック）。高圧縮率でワンセグ・ネット動画に採用。",
+  "qids": [
+   "2022r04a-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "hdl",
+  "term": "HDL",
+  "def": "FPGAなどに実装するデジタル回路を記述し,論理合成するために使用される言語",
+  "defQid": "2025r07h-am-20",
+  "source": "choice-def",
+  "point": "HDLのH=Hardware。「回路を書く言語」はHDL,と名前で覚えられます。FPGAとセットで頻出です。",
+  "qids": [
+   "2025r07h-am-20"
+  ],
+  "middle": "ハードウェア",
+  "major": "T",
+  "distractors": [
+   "DDL",
+   "UML",
+   "XML"
+  ]
+ },
+ {
+  "id": "iac",
+  "term": "IaC",
+  "aliases": [
+   "Infrastructure as Code"
+  ],
+  "def": "システムの構成,設定などをプログラムとして記述し,専用のソフトウェアがその内容に従って自動的にシステムに適用する。",
+  "defQid": "2025r07a-am-12",
+  "source": "text-def",
+  "point": "「as Code=コードとして」の名前どおり,インフラ構成をコード化して自動適用,がIaCの本質です。",
+  "qids": [
+   "2023r05a-am-14",
+   "2025r07a-am-12"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "icmp",
+  "term": "ICMP",
+  "def": "TCP/IP 環境において,ping によってホストの接続確認をするときに使用されるプロトコル",
+  "defQid": "2023r05a-am-33",
+  "source": "choice-def",
+  "point": "ping=ICMPのエコー要求/応答。ネットワーク層の到達性確認に使う。",
+  "qids": [
+   "2022r04a-am-34",
+   "2022r04a-am-36",
+   "2023r05a-am-33",
+   "2023r05h-am-34",
+   "2024r06a-am-34",
+   "2024r06a-am-45",
+   "2025r07a-am-43"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "CHAP",
+   "SMTP",
+   "SNMP"
+  ]
+ },
+ {
+  "id": "ide",
+  "term": "IDE",
+  "def": "エディタ,コンパイラ,リンカ,デバッガなどが一体となったツール",
+  "defQid": "2022r04h-am-50",
+  "source": "text-def",
+  "point": "IDE=統合開発環境。エディタ+コンパイラ+デバッガ等を一つにまとめたツール。「一体となった」がキーワード。",
+  "qids": [
+   "2022r04h-am-50",
+   "2023r05a-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "ipsec",
+  "term": "IPsec",
+  "def": "PCからサーバに対し,IPv6を利用した通信を行う場合,ネットワーク層で暗号化を行うときに利用するもの",
+  "defQid": "2024r06h-am-42",
+  "source": "choice-def",
+  "point": "層と暗号化プロトコルの対応:ネットワーク層=IPsec,トランスポート層=TLS,アプリケーション層=SSH。IPsecはVPNでも定番。",
+  "qids": [
+   "2022r04h-am-44",
+   "2024r06h-am-42",
+   "2025r07h-am-43"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "PPP",
+   "SSH",
+   "TLS"
+  ]
+ },
+ {
+  "id": "ismap",
+  "term": "ISMAP",
+  "def": "政府調達向けクラウドサービスのセキュリティ評価・登録制度",
+  "defQid": "2023r05h-am-39",
+  "source": "point-pair",
+  "point": "ISMAP=政府調達向けクラウドサービスのセキュリティ評価・登録制度。「政府×クラウド調達」のキーワードで判断。",
+  "qids": [
+   "2023r05h-am-39"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "json",
+  "term": "JSON",
+  "def": "JavaScript のオブジェクトの表記法などを基にして規定したものであって,\"名前と値との組みの集まり\"と\"値の順序付きリスト\"の二つの構造に基づいてオブジェクトを表現する,データ記述の仕様",
+  "defQid": "2023r05a-am-07",
+  "source": "choice-def",
+  "point": "JSON=名前と値の組(オブジェクト)+順序付きリスト(配列)。JavaScript由来の軽量データ形式。",
+  "qids": [
+   "2023r05a-am-07",
+   "2023r05h-am-26"
+  ],
+  "middle": "アルゴリズムとプログラミング",
+  "major": "T",
+  "distractors": [
+   "DOM",
+   "SOAP",
+   "XML"
+  ]
+ },
+ {
+  "id": "jvn",
+  "term": "JVN",
+  "def": "脆弱性関連情報と対策情報を提供するポータル",
+  "defQid": "2022r04a-am-40",
+  "source": "point-pair",
+  "point": "JVN＝脆弱性関連情報と対策情報を提供するポータル。CVSS=評価手法、CWE=分類基準と区別。",
+  "qids": [
+   "2022r04a-am-40",
+   "2024r06a-am-41"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "kpt",
+  "term": "KPT",
+  "def": "Keep(続ける)・Problem(問題)・Try(次に試す改善策)",
+  "defQid": "2022r04a-am-50",
+  "source": "point-pair",
+  "point": "KPT＝Keep(続ける)・Problem(問題)・Try(次に試す改善策)。Tは改善アクション。",
+  "qids": [
+   "2022r04a-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "lidar",
+  "term": "LiDAR",
+  "def": "レーザー光をパルス状に照射し,その反射光を測定することによって,対象物の方向,距離及び形状を計測する。",
+  "defQid": "2023r05h-am-23",
+  "source": "text-def",
+  "point": "LiDAR=レーザー光で距離・形状を測る(光のレーダー)。ソナー=超音波,レーダー=電波(ミリ波)。自動運転で3D点群を得るのがLiDAR。",
+  "qids": [
+   "2023r05h-am-23"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "lifecycle",
+  "term": "Lifecycle",
+  "def": "ゆりかごから墓場まで",
+  "defQid": "2025r07a-am-72",
+  "source": "point-pair",
+  "point": "Lifecycle=「ゆりかごから墓場まで」。製品情報を一生分まとめて管理するのがPLMです。MRP・SCM・FMSとの区別は頻出。",
+  "qids": [
+   "2025r07a-am-72"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "linux-カーネル",
+  "term": "Linux カーネル",
+  "def": "プロセス管理やメモリ管理などの,アプリケーションソフトウェアが動作するための基本機能を提供する。",
+  "defQid": "2023r05a-am-19",
+  "source": "text-def",
+  "point": "カーネル=OSの中核。プロセス/メモリ/入出力の基本管理を担う。シェルやGUIは別コンポーネント。",
+  "qids": [
+   "2023r05a-am-19"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "lru",
+  "term": "LRU",
+  "def": "最も長く使われていないページを追い出す(直近参照を重視)",
+  "defQid": "2023r05h-am-18",
+  "source": "point-pair",
+  "point": "LRU=最も長く使われていないページを追い出す(直近参照を重視)。ページフォールト=必要ページが実記憶にない→ページイン。",
+  "qids": [
+   "2023r05h-am-18",
+   "2025r07a-am-19",
+   "2025r07h-am-15"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "mos-トランジスタ",
+  "term": "MOS トランジスタ",
+  "def": "金属と半導体との間に酸化物絶縁体を挟んだ構造をもつことが特徴の半導体素子",
+  "defQid": "2023r05a-am-21",
+  "source": "text-def",
+  "point": "MOS=金属-酸化物-半導体の3層構造。名称そのものが構造を表す。",
+  "qids": [
+   "2023r05a-am-21"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "mrp",
+  "term": "MRP",
+  "def": "展開して総所要量を出し在庫を差し引く",
+  "defQid": "2024r06a-am-73",
+  "source": "point-pair",
+  "point": "MRP=展開して総所要量を出し在庫を差し引く。中間品(a)の在庫も忘れず差し引く。",
+  "qids": [
+   "2024r06a-am-73"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "mvcc",
+  "term": "MVCC",
+  "def": "RDBMSにおいて,同じデータ項目の異なる版を用意することによって,トランザクションの同時実行性を高める仕組み",
+  "defQid": "2025r07a-am-29",
+  "source": "choice-def",
+  "point": "MVCCのM=Multi,V=Version。「版(バージョン)」という言葉が出たらMVCCを選びましょう。PostgreSQLなどで実際に使われています。",
+  "qids": [
+   "2025r07a-am-29"
+  ],
+  "middle": "データベース",
+  "major": "T",
+  "distractors": [
+   "2相ロッキングプロトコル",
+   "WALプロトコル",
+   "共有ロック"
+  ]
+ },
+ {
+  "id": "nas",
+  "term": "NAS",
+  "def": "LAN経由でNFS/CIFSのファイル共有",
+  "defQid": "2023r05a-am-12",
+  "source": "point-pair",
+  "point": "SAN=ファイバチャネル等の専用網でブロックアクセス。NAS=LAN経由でNFS/CIFSのファイル共有。",
+  "qids": [
+   "2023r05a-am-12"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "nfc",
+  "term": "NFC",
+  "aliases": [
+   "Near Field Communication"
+  ],
+  "def": "ピアツーピアで通信する機能を備えている。",
+  "defQid": "2023r05h-am-24",
+  "source": "text-def",
+  "point": "NFC=かざす近距離無線(通信距離約10cm)。非接触ICカード(Suica,FeliCa等),P2P,リーダ/ライタの3モードをもつ。",
+  "qids": [
+   "2023r05h-am-24"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "not-exists",
+  "term": "NOT EXISTS",
+  "def": "相関副問合せの条件を満たす行が存在しない主問合せ行を選ぶ",
+  "defQid": "2023r05a-am-29",
+  "source": "point-pair",
+  "point": "NOT EXISTS=相関副問合せの条件を満たす行が存在しない主問合せ行を選ぶ。「30超の在庫を持たない製品」を探す。",
+  "qids": [
+   "2023r05a-am-29"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "npv",
+  "term": "NPV",
+  "def": "現金流入の現在価値−流出の現在価値(金額)",
+  "defQid": "2023r05h-am-61",
+  "source": "point-pair",
+  "point": "ROI=利益÷投資額(投資利益率)。効率を示す割合。NPV=現金流入の現在価値−流出の現在価値(金額)。両者を区別する。",
+  "qids": [
+   "2022r04h-am-64",
+   "2023r05a-am-64",
+   "2023r05h-am-61",
+   "2025r07a-am-64"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "ntp",
+  "term": "NTP",
+  "def": "UDPを使用しているもの",
+  "defQid": "2022r04h-am-33",
+  "source": "choice-def",
+  "fact": true,
+  "point": "UDPを使う代表例:NTP・DNS(通常)・DHCP・SNMP・ストリーミング。リアルタイム性・軽量性重視のものはUDP。FTP/POP3/SMTP/TELNET/HTTPはTCP。",
+  "qids": [
+   "2022r04h-am-33"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "FTP",
+   "POP3",
+   "TELNET"
+  ]
+ },
+ {
+  "id": "ocsp",
+  "term": "OCSP",
+  "def": "デジタル証明書が失効しているかどうかをオンラインで確認するためのプロトコル",
+  "defQid": "2022r04a-am-38",
+  "source": "choice-def",
+  "point": "OCSP＝証明書の失効確認をオンラインで即時に行う。CRL（失効リスト）のリアルタイム版。",
+  "qids": [
+   "2022r04a-am-38",
+   "2025r07h-am-38"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "CHAP",
+   "LDAP",
+   "SNMP"
+  ]
+ },
+ {
+  "id": "on-delete-cascade",
+  "term": "ON DELETE CASCADE",
+  "def": "親削除で子も連鎖削除",
+  "defQid": "2023r05h-am-30",
+  "source": "point-pair",
+  "point": "ON DELETE CASCADE=親削除で子も連鎖削除。RESTRICT/NO ACTION=子があれば親削除を拒否。SET NULL=子の外部キーをNULLに。",
+  "qids": [
+   "2023r05h-am-30"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "paas",
+  "term": "PaaS",
+  "def": "さらにOS・ミドルウェアも事業者管理→パッチ適用等が不要",
+  "defQid": "2023r05h-am-57",
+  "source": "point-pair",
+  "point": "責任分界:IaaS=ハードウェア(物理サーバ・NW)を事業者が管理→物理運用が不要。PaaS=さらにOS・ミドルウェアも事業者管理→パッチ適用等が不要。アプリ・業務運用は利用者に残る。",
+  "qids": [
+   "2023r05h-am-57",
+   "2025r07h-am-56"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "pbp",
+  "term": "PBP",
+  "aliases": [
+   "Pay Back Period"
+  ],
+  "def": "IT投資効果の評価方法において,キャッシュフローベースで初年度の投資によるキャッシュアウトを何年後に回収できるかという指標",
+  "defQid": "2022r04h-am-64",
+  "source": "choice-def",
+  "point": "PBP=回収期間(何年で元が取れるか)。IRR(収益率)・NPV(現在価値)・ROI(利益率)と役割を区別。「何年後に回収」はPBP。",
+  "qids": [
+   "2022r04h-am-64",
+   "2023r05a-am-64",
+   "2024r06h-am-64",
+   "2025r07a-am-64"
+  ],
+  "middle": "システム戦略",
+  "major": "S",
+  "distractors": [
+   "IRR(Internal Rate of Return)",
+   "NPV(Net Present Value)",
+   "ROI(Return On Investment)"
+  ]
+ },
+ {
+  "id": "plc",
+  "term": "PLC",
+  "def": "電力線を通信回線として利用する技術",
+  "defQid": "2023r05h-am-31",
+  "source": "text-def",
+  "point": "PLC=電力線(コンセント配線)でデータ通信。既存配線を使え配線工事が不要。",
+  "qids": [
+   "2023r05h-am-31",
+   "2025r07h-am-19",
+   "2025r07h-am-29"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "pm理論",
+  "term": "PM理論",
+  "def": "P(目標達成)とM(集団維持)の2軸",
+  "defQid": "2022r04h-am-75",
+  "source": "point-pair",
+  "point": "PM理論=P(目標達成)とM(集団維持)の2軸。PM型が理想。「二つの次元」がヒント。SL理論(部下の成熟度)と区別。",
+  "qids": [
+   "2022r04h-am-75"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "poe",
+  "term": "PoE",
+  "def": "無線LANのアクセスポイントやIP電話機などに,LANケーブルを利用して給電も行う仕組み",
+  "defQid": "2025r07h-am-29",
+  "source": "choice-def",
+  "point": "PoE=「Ethernetで給電」,PLC=「電力線で通信」。名前が似た逆方向の技術として対で覚えましょう。",
+  "qids": [
+   "2025r07h-am-29"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "PLC",
+   "UPS",
+   "USB"
+  ]
+ },
+ {
+  "id": "pppoe",
+  "term": "PPPoE",
+  "def": "シリアル回線で使用するものと同じデータリンクのコネクション確立やデータ転送を,LAN上で実現するプロトコル",
+  "defQid": "2022r04h-am-32",
+  "source": "choice-def",
+  "point": "PPPoE=PPP over Ethernet。名前のとおりPPPをEthernet上で動かす。ADSL/光回線の認証接続でおなじみ。「LAN上でPPP」がキーワード。",
+  "qids": [
+   "2022r04a-am-43",
+   "2022r04h-am-32"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "MPLS",
+   "PPP",
+   "PPTP"
+  ]
+ },
+ {
+  "id": "psirt",
+  "term": "PSIRT",
+  "def": "自社製品の脆弱性に起因するリスクに対応するための社内機能",
+  "defQid": "2024r06h-am-39",
+  "source": "choice-def",
+  "point": "PSIRT=自社「製品(Product)」の脆弱性対応。CSIRT=組織内インシデント対応。SOC=監視。Pが製品を表すと覚える。",
+  "qids": [
+   "2024r06h-am-39",
+   "2025r07a-am-40"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "CSIRT",
+   "SOC",
+   "WHOISデータベースの技術連絡担当"
+  ]
+ },
+ {
+  "id": "restrict-no-action",
+  "term": "RESTRICT/NO ACTION",
+  "def": "子があれば親削除を拒否",
+  "defQid": "2023r05h-am-30",
+  "source": "point-pair",
+  "point": "ON DELETE CASCADE=親削除で子も連鎖削除。RESTRICT/NO ACTION=子があれば親削除を拒否。SET NULL=子の外部キーをNULLに。",
+  "qids": [
+   "2023r05h-am-30"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "rfi",
+  "term": "RFI",
+  "def": "調達者から供給者候補に対して,システム化の目的や業務内容などを示し,必要な情報の提供を依頼すること",
+  "defQid": "2023r05h-am-65",
+  "source": "text-def",
+  "point": "RFI=情報提供依頼(情報収集が目的,調達の初期)。RFP=提案依頼(提案書を求める,ベンダー選定)。RFI→RFPの順で進む。",
+  "qids": [
+   "2023r05h-am-65"
+  ],
+  "middle": "システム企画",
+  "major": "S"
+ },
+ {
+  "id": "rfp",
+  "term": "RFP",
+  "def": "提案依頼(提案書を求める,ベンダー選定)",
+  "defQid": "2023r05h-am-65",
+  "source": "point-pair",
+  "point": "RFI=情報提供依頼(情報収集が目的,調達の初期)。RFP=提案依頼(提案書を求める,ベンダー選定)。RFI→RFPの順で進む。",
+  "qids": [
+   "2023r05h-am-65"
+  ],
+  "middle": "システム企画",
+  "major": "S"
+ },
+ {
+  "id": "rlo",
+  "term": "RLO",
+  "def": "どのレベルまで復旧するか",
+  "defQid": "2024r06a-am-55",
+  "source": "point-pair",
+  "point": "RTO=いつまでに(時間)、RPO=どの時点のデータまで、RLO=どのレベルまで復旧するか。",
+  "qids": [
+   "2024r06a-am-55"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "roc曲線",
+  "term": "ROC曲線",
+  "def": "真陽性率と偽陽性率の関係を示す曲線である。",
+  "defQid": "2023r05h-am-03",
+  "source": "text-def",
+  "point": "ROC曲線:縦軸=真陽性率,横軸=偽陽性率。AUC(曲線下面積)が1に近いほど高性能。",
+  "qids": [
+   "2023r05h-am-03",
+   "2025r07a-am-03"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "roi",
+  "term": "ROI",
+  "def": "売上増やコスト削減などによって創出された利益額を投資額で割ったもの",
+  "defQid": "2023r05h-am-61",
+  "source": "text-def",
+  "point": "ROI=利益÷投資額(投資利益率)。効率を示す割合。NPV=現金流入の現在価値−流出の現在価値(金額)。両者を区別する。",
+  "qids": [
+   "2022r04h-am-64",
+   "2023r05a-am-64",
+   "2023r05h-am-61"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "rpo",
+  "term": "RPO",
+  "def": "どこまでデータを失ってよいか(バックアップ間隔を決める)",
+  "defQid": "2022r04h-am-55",
+  "source": "point-pair",
+  "point": "RPO=どこまでデータを失ってよいか(バックアップ間隔を決める)。RTO=どれだけ早く復旧するか(復旧時間)。バックアップ頻度に効くのはRPO。",
+  "qids": [
+   "2022r04h-am-55",
+   "2024r06a-am-55"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "rto",
+  "term": "RTO",
+  "def": "どれだけ早く復旧するか(復旧時間)",
+  "defQid": "2022r04h-am-55",
+  "source": "point-pair",
+  "point": "RPO=どこまでデータを失ってよいか(バックアップ間隔を決める)。RTO=どれだけ早く復旧するか(復旧時間)。バックアップ頻度に効くのはRPO。",
+  "qids": [
+   "2022r04h-am-55",
+   "2024r06a-am-55"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "saml",
+  "term": "SAML",
+  "def": "認証・認可情報の交換仕様,SSOの基盤",
+  "defQid": "2022r04h-am-36",
+  "source": "point-pair",
+  "point": "SAML=認証・認可情報の交換仕様,SSOの基盤。名前のAssertion(表明)が認証情報の受け渡しを示す。SSO=SAMLと結びつけて覚える。",
+  "qids": [
+   "2022r04h-am-36",
+   "2024r06a-am-37"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "san",
+  "term": "SAN",
+  "def": "ファイバチャネル等の専用網でブロックアクセス",
+  "defQid": "2023r05a-am-12",
+  "source": "point-pair",
+  "point": "SAN=ファイバチャネル等の専用網でブロックアクセス。NAS=LAN経由でNFS/CIFSのファイル共有。",
+  "qids": [
+   "2023r05a-am-12"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "scm",
+  "term": "SCM",
+  "def": "調達から販売まで企業間の供給連鎖を統合管理",
+  "defQid": "2024r06a-am-67",
+  "source": "point-pair",
+  "point": "SCM=調達から販売まで企業間の供給連鎖を統合管理。CRM(顧客)・SFA(営業)・ERP(基幹統合)と区別。",
+  "qids": [
+   "2023r05a-am-62",
+   "2024r06a-am-67",
+   "2025r07h-am-62"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "sdn",
+  "term": "SDN",
+  "def": "制御機能と転送機能を分離し,ソフトで集中制御",
+  "defQid": "2022r04h-am-35",
+  "source": "point-pair",
+  "point": "SDN=制御機能と転送機能を分離し,ソフトで集中制御。OpenFlowは制御プロトコル。「データ転送と制御の分離」がキーフレーズ。",
+  "qids": [
+   "2022r04h-am-35",
+   "2024r06h-am-34"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "set-null",
+  "term": "SET NULL",
+  "def": "子の外部キーをNULLに",
+  "defQid": "2023r05h-am-30",
+  "source": "point-pair",
+  "point": "ON DELETE CASCADE=親削除で子も連鎖削除。RESTRICT/NO ACTION=子があれば親削除を拒否。SET NULL=子の外部キーをNULLに。",
+  "qids": [
+   "2023r05h-am-30",
+   "2025r07h-am-27"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "sip",
+  "term": "SiP",
+  "def": "複数チップを1パッケージに封入",
+  "defQid": "2024r06a-am-22",
+  "source": "point-pair",
+  "point": "SoC=1チップに集積。SiP=複数チップを1パッケージに封入。",
+  "qids": [
+   "2024r06a-am-22",
+   "2025r07a-am-34"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "sl理論",
+  "term": "SL理論",
+  "def": "教示的，説得的，参加的，委任的の四つに，部下の成熟度レベルによって，リーダーシップスタイルを分類した理論",
+  "defQid": "2022r04a-am-74",
+  "source": "text-def",
+  "point": "SL理論＝部下の成熟度でリーダーシップを4つに使い分ける。教示的→説得的→参加的→委任的。",
+  "qids": [
+   "2022r04a-am-74"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "soa",
+  "term": "SOA",
+  "def": "利用者の視点から業務システムの機能を幾つかの独立した部品に分けることによって,業務プロセスとの対応付けや他ソフトウェアとの連携を容易にする手法",
+  "defQid": "2022r04h-am-62",
+  "source": "text-def",
+  "point": "SOA=業務機能を再利用可能な独立サービスに分割し組み合わせる。「独立した部品(サービス)に分ける」がキーワード。ERP(一元管理)と区別。",
+  "qids": [
+   "2022r04h-am-62",
+   "2023r05a-am-63",
+   "2024r06h-am-63",
+   "2025r07a-am-62"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "soc",
+  "term": "SoC",
+  "def": "複数のチップで構成していたコンピュータシステムを,一つのチップで実現した LSI",
+  "defQid": "2024r06a-am-22",
+  "source": "text-def",
+  "point": "SoC=1チップに集積。SiP=複数チップを1パッケージに封入。",
+  "qids": [
+   "2024r06a-am-22",
+   "2024r06h-am-39"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "spf",
+  "term": "SPF",
+  "def": "送信元ドメインのDNSに登録したIPと実送信IPを照合",
+  "defQid": "2022r04a-am-44",
+  "source": "point-pair",
+  "point": "SPF＝送信元ドメインのDNSに登録したIPと実送信IPを照合。DKIM=デジタル署名方式と区別。",
+  "qids": [
+   "2022r04a-am-44",
+   "2023r05h-am-44",
+   "2024r06h-am-43",
+   "2025r07a-am-45"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "svg",
+  "term": "SVG",
+  "def": "W3Cで仕様が定義され,矩形や円,直線,文字列などの図形オブジェクトをXML形式で記述し,Webページでの図形描画にも使うことができる画像フォーマット",
+  "defQid": "2025r07h-am-23",
+  "source": "choice-def",
+  "point": "「XMLで書く画像=SVG」。ベクター(計算で描く)とラスター(点の集まり)の区別も頻出です。",
+  "qids": [
+   "2025r07h-am-23"
+  ],
+  "middle": "マルチメディア",
+  "major": "T",
+  "distractors": [
+   "OpenGL",
+   "PNG",
+   "TIFF"
+  ]
+ },
+ {
+  "id": "swagger",
+  "term": "Swagger",
+  "def": "OpenAPI Specificationに従ったAPIの定義・開発を支援する機能を提供するOSS",
+  "defQid": "2025r07h-am-17",
+  "source": "choice-def",
+  "point": "OpenAPI(旧称Swagger仕様)とツールのSwaggerはセットで覚えましょう。「APIの仕様書を書く標準」と押さえれば十分です。",
+  "qids": [
+   "2025r07h-am-17"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "curl",
+   "OpenAM",
+   "Serverspec"
+  ]
+ },
+ {
+  "id": "tcp",
+  "term": "TCP",
+  "def": "コネクション型・信頼性あり",
+  "defQid": "2022r04a-am-34",
+  "source": "point-pair",
+  "point": "UDP＝コネクションレス・高速・信頼性なし。TCP＝コネクション型・信頼性あり。対で覚える。",
+  "qids": [
+   "2022r04a-am-32",
+   "2022r04a-am-34",
+   "2023r05a-am-33",
+   "2023r05h-am-33",
+   "2024r06a-am-11",
+   "2025r07a-am-33",
+   "2025r07a-am-34",
+   "2025r07h-am-30",
+   "2025r07h-am-33"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "tlo",
+  "term": "TLO",
+  "def": "大学の技術を企業へ移転する機関",
+  "defQid": "2023r05h-am-70",
+  "source": "point-pair",
+  "point": "共同研究=対等な立場で協働。発明者は必ず個人(自然人),法人は権利の帰属先。TLO=大学の技術を企業へ移転する機関。",
+  "qids": [
+   "2023r05h-am-70"
+  ],
+  "middle": "技術戦略",
+  "major": "S"
+ },
+ {
+  "id": "tpm",
+  "term": "TPM",
+  "aliases": [
+   "Trusted Platform Module"
+  ],
+  "def": "PCなどの機器に搭載され,鍵生成,ハッシュ演算及び暗号処理を行うセキュリティチップ",
+  "defQid": "2023r05h-am-41",
+  "source": "text-def",
+  "point": "TPM=PC搭載のセキュリティチップ(鍵生成・暗号処理・耐タンパ)。BitLocker等のディスク暗号化の鍵保管に使われる。",
+  "qids": [
+   "2023r05h-am-41"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "udp",
+  "term": "UDP",
+  "def": "IPの上位階層のプロトコルとして，コネクションレスのデータグラム通信を実現し，信頼性のための確認応答や順序制御などの機能をもたないプロトコル",
+  "defQid": "2022r04a-am-34",
+  "source": "choice-def",
+  "point": "UDP＝コネクションレス・高速・信頼性なし。TCP＝コネクション型・信頼性あり。対で覚える。",
+  "qids": [
+   "2022r04a-am-34",
+   "2022r04h-am-33",
+   "2023r05h-am-34",
+   "2025r07a-am-33",
+   "2025r07a-am-43"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "ICMP",
+   "PPP",
+   "TCP"
+  ]
+ },
+ {
+  "id": "umlノ黒ヒシ形",
+  "term": "UMLの黒ひし形",
+  "def": "コンポジション(部分は全体に従属)",
+  "defQid": "2025r07h-am-25",
+  "source": "point-pair",
+  "point": "UMLの黒ひし形=コンポジション(部分は全体に従属)。DB実装では「多側の表が1側への外部キーをもつ」と機械的に読み替えましょう。",
+  "qids": [
+   "2025r07h-am-25"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "utf-16",
+  "term": "UTF-16",
+  "def": "XMLにおいて，XML宣言中で符号化宣言を省略できる文字コード",
+  "defQid": "2022r04a-am-07",
+  "source": "choice-def",
+  "point": "XMLで符号化宣言を省略できるのはUTF-8とUTF-16のみ（既定の符号化）。",
+  "qids": [
+   "2022r04a-am-07"
+  ],
+  "middle": "アルゴリズムとプログラミング",
+  "major": "T",
+  "distractors": [
+   "EUC-JP",
+   "ISO-2022-JP",
+   "Shift-JIS"
+  ]
+ },
+ {
+  "id": "uxデザイン",
+  "term": "UXデザイン",
+  "def": "使い勝手だけでなく体験価値(快適さ・楽しさ)全体を重視する",
+  "defQid": "2024r06a-am-65",
+  "source": "point-pair",
+  "point": "UXデザイン=使い勝手だけでなく体験価値(快適さ・楽しさ)全体を重視する。UIより広い概念。",
+  "qids": [
+   "2024r06a-am-65"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "vliw",
+  "term": "VLIW",
+  "def": "プロセッサの高速化技法の一つとして,同時に実行可能な複数の動作を,コンパイルの段階でまとめて一つの複合命令とし,高速化を図る方式",
+  "defQid": "2022r04h-am-08",
+  "source": "choice-def",
+  "point": "VLIW=コンパイラが並列命令を長い1命令に詰め込む。並列性の判断をハード(スーパースカラ)ではなくソフト(コンパイラ)が担う点が対比ポイント。",
+  "qids": [
+   "2022r04h-am-08",
+   "2025r07a-am-08"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T",
+  "distractors": [
+   "CISC",
+   "MIMD",
+   "RISC"
+  ]
+ },
+ {
+  "id": "vrrp",
+  "term": "VRRP",
+  "def": "ルータを冗長化するために用いられるプロトコル",
+  "defQid": "2024r06h-am-32",
+  "source": "choice-def",
+  "point": "ルータ冗長化=VRRP。仮想ルータ(仮想IP)を複数ルータで共有し,故障時に自動切替する。名前のRedundancyがヒント。",
+  "qids": [
+   "2024r06h-am-32"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "PPP",
+   "RARP",
+   "SNMP"
+  ]
+ },
+ {
+  "id": "waf",
+  "term": "WAF",
+  "def": "Webアプリ層(HTTP)の攻撃を防御",
+  "defQid": "2022r04a-am-42",
+  "source": "point-pair",
+  "point": "WAF＝Webアプリ層(HTTP)の攻撃を防御。SQLインジェクション・XSS・API攻撃などが対象。DNS・メールは対象外。",
+  "qids": [
+   "2022r04a-am-42",
+   "2024r06h-am-41"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "wbsノ作成",
+  "term": "WBSの作成",
+  "def": "プロジェクトマネジメントにおいて,スコープを対象とするプロセスを集めた対象群“スコープ”に含まれるプロセス",
+  "defQid": "2025r07a-am-51",
+  "source": "choice-def",
+  "point": "WBS=作業範囲(スコープ)の分解図。「スコープと言えばWBS」はPM分野の頻出パターンです。",
+  "qids": [
+   "2025r07a-am-51"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M",
+  "distractors": [
+   "活動期間の見積り",
+   "コストの見積り",
+   "予算の作成"
+  ]
+ },
+ {
+  "id": "アイコンノ習得性",
+  "term": "アイコンの習得性",
+  "def": "アイコンによって表現されたシステム機能が,それが理解された後に,どれだけ容易に思い出すことができるかを示す。",
+  "defQid": "2023r05a-am-24",
+  "source": "text-def",
+  "point": "習得性=一度覚えた後の思い出しやすさ。親近性=過去の経験による識別,弁別性=他と区別できるか。",
+  "qids": [
+   "2023r05a-am-24"
+  ],
+  "middle": "ユーザーインタフェース",
+  "major": "T"
+ },
+ {
+  "id": "アウトライン",
+  "term": "アウトライン",
+  "def": "輪郭を数式化→拡大縮小に強い(なめらか)",
+  "defQid": "2024r06h-am-24",
+  "source": "point-pair",
+  "point": "アウトライン=輪郭を数式化→拡大縮小に強い(なめらか)。ビットマップ=点の集合→表示は速いが拡大に弱い。",
+  "qids": [
+   "2024r06h-am-24"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "アクチュエータ",
+  "term": "アクチュエータ",
+  "aliases": [
+   "アクチュエーター"
+  ],
+  "def": "エネルギー源からのパワーを,回転,直進などの動きに変換する。",
+  "defQid": "2022r04h-am-22",
+  "source": "text-def",
+  "point": "センサ=物理量を電気信号に変換(入力側)。アクチュエータ=電気などを動きに変換(出力側)。この2つは対の関係。",
+  "qids": [
+   "2022r04h-am-22",
+   "2024r06a-am-23"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "アクティビティ図",
+  "term": "アクティビティ図",
+  "def": "UMLの図のうち,業務要件定義において,業務フローを記述する際に使用する,処理の分岐や並行処理,処理の同期などを表現できる図",
+  "defQid": "2022r04h-am-66",
+  "source": "choice-def",
+  "point": "アクティビティ図=業務・処理のフロー(分岐・並行・同期)。フローチャートに近い。状態マシン図(状態遷移)との違いに注意。",
+  "qids": [
+   "2022r04h-am-66",
+   "2024r06a-am-66",
+   "2025r07a-am-47"
+  ],
+  "middle": "システム企画",
+  "major": "S",
+  "distractors": [
+   "クラス図",
+   "状態マシン図",
+   "ユースケース図"
+  ]
+ },
+ {
+  "id": "アボイダンス",
+  "term": "アボイダンス",
+  "def": "故障を避ける（高品質化）",
+  "defQid": "2022r04a-am-13",
+  "source": "point-pair",
+  "point": "アボイダンス＝故障を避ける（高品質化）。トレランス＝故障を許容して稼働継続。フールプルーフ＝誤操作対策。",
+  "qids": [
+   "2022r04a-am-13",
+   "2023r05h-am-15"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "アンゾフ",
+  "term": "アンゾフ",
+  "def": "製品×市場の2軸で4戦略(市場浸透・市場開拓・製品開発・多角化)",
+  "defQid": "2022r04h-am-68",
+  "source": "point-pair",
+  "point": "アンゾフ=製品×市場の2軸で4戦略(市場浸透・市場開拓・製品開発・多角化)。SWOT・BSC・PLCと混同しない。「4つのタイプに分類」がヒント。",
+  "qids": [
+   "2022r04h-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "アンゾフノ成長マトリクス",
+  "term": "アンゾフの成長マトリクス",
+  "def": "事業戦略を,市場浸透,市場拡大,製品開発,多角化という四つのタイプに分類し,事業の方向性を検討する際に用いる手法である。",
+  "defQid": "2022r04h-am-68",
+  "source": "text-def",
+  "point": "アンゾフ=製品×市場の2軸で4戦略(市場浸透・市場開拓・製品開発・多角化)。SWOT・BSC・PLCと混同しない。「4つのタイプに分類」がヒント。",
+  "qids": [
+   "2022r04h-am-68",
+   "2024r06a-am-68",
+   "2025r07a-am-70"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "アンゾフ成長マトリクス",
+  "term": "アンゾフ成長マトリクス",
+  "def": "製品×市場の2軸で成長戦略を分類",
+  "defQid": "2023r05a-am-67",
+  "source": "point-pair",
+  "point": "アンゾフ成長マトリクス=製品×市場の2軸で成長戦略を分類。市場浸透・新製品・新市場・多角化。",
+  "qids": [
+   "2023r05a-am-67"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "インスペクション",
+  "term": "インスペクション",
+  "def": "文書・成果物を目視で精査する検証",
+  "defQid": "2023r05a-am-65",
+  "source": "point-pair",
+  "point": "インスペクション=文書・成果物を目視で精査する検証。動作を伴うテストやデモとは異なる。",
+  "qids": [
+   "2023r05a-am-65"
+  ],
+  "middle": "システム企画",
+  "major": "S"
+ },
+ {
+  "id": "インセプションデッキ",
+  "term": "インセプションデッキ",
+  "def": "アジャイル開発の初期段階において,プロジェクトの目的,スコープなどに対する共通認識を得るために,あらかじめ設定されている設問と課題について関係者が集まって確認し合い,その成果を共有する手法",
+  "defQid": "2024r06a-am-49",
+  "source": "choice-def",
+  "point": "インセプションデッキ=10の問いでプロジェクトの目的・スコープの認識合わせをする。",
+  "qids": [
+   "2024r06a-am-49"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "アジャイルモデリング",
+   "プランニングポーカー",
+   "ユーザーストーリーマッピング"
+  ]
+ },
+ {
+  "id": "インタビュー法",
+  "term": "インタビュー法",
+  "def": "監査人が口頭で質問し回答を得る",
+  "defQid": "2023r05h-am-59",
+  "source": "point-pair",
+  "point": "インタビュー法=監査人が口頭で質問し回答を得る。CAAT=コンピュータを使った監査(専用ソフトに限定されない)。チェックリスト法の作成主体は監査人。",
+  "qids": [
+   "2023r05h-am-59"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "インバータ",
+  "term": "インバータ",
+  "def": "直流電力を交流電力に変換する。",
+  "defQid": "2024r06h-am-20",
+  "source": "text-def",
+  "point": "インバータ=直流→交流。コンバータ(整流)=交流→直流。逆(inverse)にする=インバータと覚える。",
+  "qids": [
+   "2024r06h-am-20"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "ウェアレベリング",
+  "term": "ウェアレベリング",
+  "def": "各ブロックの書込み回数がなるべく均等になるように,物理的な書込み位置を選択する。",
+  "defQid": "2023r05h-am-11",
+  "source": "text-def",
+  "point": "ウェアレベリング=wear(摩耗)をleveling(平準化)。書込みを分散して寿命を延ばすSSD/フラッシュの技術。",
+  "qids": [
+   "2023r05a-am-10",
+   "2023r05h-am-11"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "ウォークスルー",
+  "term": "ウォークスルー",
+  "def": "仕様書やソースコードといった成果物について，作成者を含めた複数人で，記述されたシステムやソフトウェアの振る舞いを机上でシミュレートして，問題点を発見する手法",
+  "defQid": "2022r04a-am-46",
+  "source": "choice-def",
+  "point": "ウォークスルー＝作成者主体で複数人が机上でレビューする手法。インスペクションと並ぶレビュー技法。",
+  "qids": [
+   "2022r04a-am-46",
+   "2022r04h-am-24",
+   "2024r06a-am-58",
+   "2025r07h-am-22",
+   "2025r07h-am-58"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "サンドイッチテスト",
+   "トップダウンテスト",
+   "並行シミュレーション"
+  ]
+ },
+ {
+  "id": "ウォークスルー法",
+  "term": "ウォークスルー法",
+  "def": "データの生成から入力,処理,出力,利活用までのプロセス,及び組み込まれている一連のコントロールを確認する。",
+  "defQid": "2025r07h-am-58",
+  "source": "text-def",
+  "point": "監査技法は「何を証拠として入手するか」で区別します。ウォークスルー=流れをたどる,がそのままの意味です。",
+  "qids": [
+   "2022r04h-am-24",
+   "2024r06a-am-58",
+   "2025r07h-am-22",
+   "2025r07h-am-58"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "エクスプロイトコード",
+  "term": "エクスプロイトコード",
+  "def": "攻撃コードとも呼ばれ,ソフトウェアの脆弱性を悪用するコードのことであり,使い方によっては脆弱性の検証に役立つこともある。",
+  "defQid": "2024r06a-am-46",
+  "source": "text-def",
+  "point": "エクスプロイトコード=脆弱性を突く攻撃コード。PoCとして脆弱性検証にも使われる。",
+  "qids": [
+   "2024r06a-am-46"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "エッジコンピューティング",
+  "term": "エッジコンピューティング",
+  "def": "演算処理のリソースをセンサー端末の近傍に置くことによって,アプリケーション処理の低遅延化や通信トラフィックの最適化を行う。",
+  "defQid": "2024r06h-am-72",
+  "source": "text-def",
+  "point": "エッジコンピューティング=データの発生源(端末)近くで処理→低遅延・通信量削減。クラウドに集約する集中処理との対比で覚える。",
+  "qids": [
+   "2024r06h-am-72"
+  ],
+  "middle": "技術戦略",
+  "major": "S"
+ },
+ {
+  "id": "エネルギーハーベスティング",
+  "term": "エネルギーハーベスティング",
+  "def": "周囲の環境から振動,熱,光,電磁波などの微小なエネルギーを集めて電力に変換して,IoTデバイスに供給する技術",
+  "defQid": "2023r05h-am-71",
+  "source": "text-def",
+  "point": "エネルギーハーベスティング=環境中の微小エネルギー(光・熱・振動等)を収穫して発電。電池レスのIoTセンサーを実現する。",
+  "qids": [
+   "2023r05h-am-71"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "エラーログ取得機能",
+  "term": "エラーログ取得機能",
+  "def": "MTBFを長くするよりも,MTTRを短くするのに役立つもの",
+  "defQid": "2022r04h-am-14",
+  "source": "choice-def",
+  "point": "MTBF=故障しにくさ(信頼性),MTTR=直しやすさ(保守性)。ログ取得は原因特定を助けMTTRを短縮。",
+  "qids": [
+   "2022r04h-am-14"
+  ],
+  "middle": "システム構成要素",
+  "major": "T",
+  "distractors": [
+   "記憶装置のビット誤り訂正機能",
+   "命令再試行機能",
+   "予防保全"
+  ]
+ },
+ {
+  "id": "エンタープライズアーキテクチャ",
+  "term": "エンタープライズアーキテクチャ",
+  "aliases": [
+   "EA"
+  ],
+  "def": "各業務や情報システムなどを，ビジネスアーキテクチャ，データアーキテクチャ，アプリケーションアーキテクチャ，テクノロジアーキテクチャの四つの体系で分析し，全体最適化の観点から見直すものである。",
+  "defQid": "2022r04a-am-63",
+  "source": "text-def",
+  "point": "EAの4体系＝ビジネス・データ・アプリケーション・テクノロジ。全体最適が目的。",
+  "qids": [
+   "2022r04a-am-63"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "オブジェクトストレージ",
+  "term": "オブジェクトストレージ",
+  "def": "データ+メタデータを一意IDでフラットに管理(例:Amazon S3)",
+  "defQid": "2024r06a-am-13",
+  "source": "point-pair",
+  "point": "オブジェクトストレージ=データ+メタデータを一意IDでフラットに管理(例:Amazon S3)。",
+  "qids": [
+   "2024r06a-am-13",
+   "2024r06h-am-13"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "オブジェクト図",
+  "term": "オブジェクト図",
+  "def": "UMLのダイアグラムのうち,インスタンス間の関係を表現するもの",
+  "defQid": "2025r07a-am-47",
+  "source": "choice-def",
+  "point": "「クラス=設計図,オブジェクト(インスタンス)=実物」。インスタンスと来たらオブジェクト図です。",
+  "qids": [
+   "2024r06a-am-29",
+   "2025r07a-am-47"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "アクティビティ図",
+   "コンポーネント図",
+   "ユースケース図"
+  ]
+ },
+ {
+  "id": "オープンイノベーション",
+  "term": "オープンイノベーション",
+  "def": "自社と外部組織の技術やアイディアなどを組み合わせることで創出した価値を,さらに外部組織へ提供する。",
+  "defQid": "2023r05a-am-70",
+  "source": "text-def",
+  "point": "オープンイノベーション=自社と外部の技術・知識を組み合わせて価値創出。自前主義(クローズド)の対義。",
+  "qids": [
+   "2023r05a-am-70"
+  ],
+  "middle": "技術戦略",
+  "major": "S"
+ },
+ {
+  "id": "オープンデータバイデザイン",
+  "term": "オープンデータバイデザイン",
+  "def": "最初から公開前提で設計",
+  "defQid": "2024r06a-am-62",
+  "source": "point-pair",
+  "point": "オープンデータバイデザイン=最初から公開前提で設計。二次利用可・機械判読可・無償公開が原則。",
+  "qids": [
+   "2024r06a-am-62"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "カスタマーエクスペリエンス",
+  "term": "カスタマーエクスペリエンス",
+  "def": "顧客が商品,サービスを購入・使用・利用する際の,満足や感動",
+  "defQid": "2023r05h-am-62",
+  "source": "text-def",
+  "point": "カスタマーエクスペリエンス=顧客が体験を通じて感じる満足・感動(体験価値)。機能や価格以上の情緒的価値を重視するのがCEMの考え方。",
+  "qids": [
+   "2023r05h-am-62"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "カメラ",
+  "term": "カメラ",
+  "def": "色・標識に強いが天候に弱い",
+  "defQid": "2024r06a-am-04",
+  "source": "point-pair",
+  "point": "カメラ=色・標識に強いが天候に弱い。ミリ波レーダー=天候に強いが色判別不可。",
+  "qids": [
+   "2024r06a-am-04"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "カルーセル",
+  "term": "カルーセル",
+  "def": "横に画像を回転表示",
+  "defQid": "2024r06a-am-25",
+  "source": "point-pair",
+  "point": "カルーセル=横に画像を回転表示。回転木馬(carousel)が語源。",
+  "qids": [
+   "2024r06a-am-25"
+  ],
+  "middle": "ユーザーインタフェース",
+  "major": "T"
+ },
+ {
+  "id": "カンバン方式",
+  "term": "かんばん方式",
+  "def": "中間在庫を極力減らすために,生産ラインにおいて,後工程が必要とする部品を自工程で生産できるように,必要な部品だけを前工程から調達する。",
+  "defQid": "2022r04h-am-72",
+  "source": "text-def",
+  "point": "かんばん方式=後工程引取り(ジャストインタイム)で在庫最小化。「後工程が必要な部品を必要なだけ前工程から」がキーワード。",
+  "qids": [
+   "2022r04h-am-72"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "ガバナンス",
+  "term": "ガバナンス",
+  "def": "システム監査基準(令和5年)によれば,システム監査において,監査人が一定の基準に基づいて総合的に点検・評価を行う対象とするものは,情報システムのマネジメント,コントロールと,あと一つ",
+  "defQid": "2024r06h-am-59",
+  "source": "choice-def",
+  "point": "システム監査の対象3つ=ガバナンス・マネジメント・コントロール。組織の統治(ガバナンス)まで含める点が令和5年基準のポイント。",
+  "qids": [
+   "2024r06h-am-59",
+   "2025r07a-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M",
+  "distractors": [
+   "コンプライアンス",
+   "サイバーレジリエンス",
+   "モニタリング"
+  ]
+ },
+ {
+  "id": "キャッシュメモリノライトスルー",
+  "term": "キャッシュメモリのライトスルー",
+  "def": "CPUがメモリに書込み動作をするとき，キャッシュメモリと主記憶の両方に同時にデータを書き込む。",
+  "defQid": "2022r04a-am-09",
+  "source": "text-def",
+  "point": "ライトスルー＝キャッシュと主記憶に同時書込み。ライトバック＝追い出し時に主記憶へ書込み。",
+  "qids": [
+   "2022r04a-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "ギグエコノミー",
+  "term": "ギグエコノミー",
+  "def": "個人が,インターネットを介して提示された単発の仕事を受託する働き方や,それによって形成される経済形態を表すもの",
+  "defQid": "2023r05a-am-72",
+  "source": "choice-def",
+  "point": "ギグエコノミー=ネット経由の単発・短期の仕事による経済。フリーランスの働き方と結びつく。",
+  "qids": [
+   "2023r05a-am-72"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S",
+  "distractors": [
+   "API エコノミー",
+   "シャドーエコノミー",
+   "トークンエコノミー"
+  ]
+ },
+ {
+  "id": "クラッシング",
+  "term": "クラッシング",
+  "def": "プロジェクトの外部から要員を調達し,クリティカルパス上の作業に投入する。",
+  "defQid": "2025r07h-am-53",
+  "source": "text-def",
+  "point": "クラッシング=「資源を足す(コスト増)」,ファストトラッキング=「並行にする(リスク増)」。トレードオフとセットで覚えましょう。",
+  "qids": [
+   "2022r04h-am-52",
+   "2025r07h-am-53"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "クリアランス",
+  "term": "クリアランス",
+  "def": "人への機密取扱い資格の審査",
+  "defQid": "2025r07h-am-39",
+  "source": "point-pair",
+  "point": "クリアランス=「人への機密取扱い資格の審査」。日本でも重要経済安保情報の制度が始まり,時事的に狙われやすい用語です。",
+  "qids": [
+   "2025r07h-am-39"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "クロスコンパイラ",
+  "term": "クロスコンパイラ",
+  "def": "開発機と実行機のCPUが異なる",
+  "defQid": "2023r05a-am-18",
+  "source": "point-pair",
+  "point": "クロスコンパイラ=開発機と実行機のCPUが異なる。組込み・マイコン開発で必須。",
+  "qids": [
+   "2023r05a-am-18"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "コ-クリエーション",
+  "term": "コ・クリエーション",
+  "def": "顧客や外部と協働して価値を共創",
+  "defQid": "2024r06a-am-69",
+  "source": "point-pair",
+  "point": "コ・クリエーション=顧客や外部と協働して価値を共創。経験価値まで含めて差別化する。",
+  "qids": [
+   "2024r06a-am-69"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "コミュニケーション",
+  "term": "コミュニケーション",
+  "aliases": [
+   "Communication"
+  ],
+  "def": "4Pの一つであるプロモーションに対応する4Cの構成要素",
+  "defQid": "2025r07a-am-67",
+  "source": "choice-def",
+  "point": "4P→4Cは頭文字の対応表を丸ごと覚えるのが早道。Promotion↔Communicationは「伝える↔対話する」の関係です。",
+  "qids": [
+   "2023r05h-am-24",
+   "2025r07a-am-67"
+  ],
+  "middle": "経営戦略",
+  "major": "S",
+  "distractors": [
+   "顧客価値(Customer Value)",
+   "顧客コスト(Cost)",
+   "利便性(Convenience)"
+  ]
+ },
+ {
+  "id": "コロケーション",
+  "term": "コロケーション",
+  "def": "同じ場所に集める",
+  "defQid": "2024r06a-am-53",
+  "source": "point-pair",
+  "point": "コロケーション=同じ場所に集める。バーチャルチーム(分散)の対義的な概念。",
+  "qids": [
+   "2024r06a-am-53"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "コンジョイント分析",
+  "term": "コンジョイント分析",
+  "def": "商品がもつ価格，デザイン，使いやすさなど，購入者が重視している複数の属性の組合せを分析する手法",
+  "defQid": "2022r04a-am-69",
+  "source": "text-def",
+  "point": "コンジョイント分析＝複数属性の組合せから顧客の重視度・選好を分析。商品企画に活用。",
+  "qids": [
+   "2022r04a-am-69"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "コンティンジェンシープラン",
+  "term": "コンティンジェンシープラン",
+  "def": "リスクが実際に起きたときの対応計画",
+  "defQid": "2022r04a-am-65",
+  "source": "point-pair",
+  "point": "コンティンジェンシープラン＝リスクが実際に起きたときの対応計画。事前の発生確率低減策とは区別。",
+  "qids": [
+   "2022r04a-am-65",
+   "2024r06h-am-66"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "コンティンジェンシー計画",
+  "term": "コンティンジェンシー計画",
+  "def": "リスク顕在化時の備え",
+  "defQid": "2023r05a-am-54",
+  "source": "point-pair",
+  "point": "コンティンジェンシー計画=リスク顕在化時の備え。リスク対応プロセスで策定する。",
+  "qids": [
+   "2023r05a-am-54"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "コンティンジェンシ計画",
+  "term": "コンティンジェンシ計画",
+  "def": "リスク顕在化時の「発動条件付き」対応策を事前準備",
+  "defQid": "2022r04h-am-54",
+  "source": "point-pair",
+  "point": "コンティンジェンシ計画=リスク顕在化時の「発動条件付き」対応策を事前準備。「ある条件のときにだけ実行」がキーワード。",
+  "qids": [
+   "2022r04h-am-54"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "コンテナ型",
+  "term": "コンテナ型",
+  "def": "ゲストOSなし、ホストOSカーネル共有で軽量",
+  "defQid": "2022r04a-am-12",
+  "source": "point-pair",
+  "point": "コンテナ型＝ゲストOSなし、ホストOSカーネル共有で軽量。Docker が代表例。",
+  "qids": [
+   "2022r04a-am-12",
+   "2023r05h-am-20"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "コンテナ型仮想化",
+  "term": "コンテナ型仮想化",
+  "def": "物理サーバのホストOSと仮想化ソフトウェアによって，プログラムの実行環境を仮想化するので，仮想サーバに個別のゲストOSをもたない。",
+  "defQid": "2022r04a-am-12",
+  "source": "text-def",
+  "point": "コンテナ型＝ゲストOSなし、ホストOSカーネル共有で軽量。Docker が代表例。",
+  "qids": [
+   "2022r04a-am-12",
+   "2023r05h-am-20"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "コンピテンシーモデル",
+  "term": "コンピテンシーモデル",
+  "def": "人材の評価や育成の基準とするために,恒常的に成果に結び付けることができる個人の行動や思考特性を定義したもの",
+  "defQid": "2025r07h-am-73",
+  "source": "text-def",
+  "point": "組織・人材理論は提唱者と一言キーワードのセットで整理(マズロー=欲求5段階,マクレガー=X理論Y理論,コンピテンシー=成果に結び付く行動特性)。",
+  "qids": [
+   "2025r07h-am-73"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "コードサイニング証明書",
+  "term": "コードサイニング証明書",
+  "def": "デジタル署名が付与されたソフトウェアをインストールするときに,そのソフトウェアの発行元を確認するために使用する証明書",
+  "defQid": "2025r07a-am-37",
+  "source": "choice-def",
+  "point": "「コード(プログラム)に署名する」からコードサイニング。証明書は「何を証明する対象か」で使い分けます。",
+  "qids": [
+   "2025r07a-am-37"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "EV SSL証明書",
+   "クライアント証明書",
+   "サーバ証明書"
+  ]
+ },
+ {
+  "id": "コールドスタンバイ",
+  "term": "コールドスタンバイ",
+  "def": "切替に時間、中断あり",
+  "defQid": "2024r06a-am-12",
+  "source": "point-pair",
+  "point": "セッション共有クラスタ=無停止でフェイルオーバー可。コールドスタンバイ=切替に時間、中断あり。",
+  "qids": [
+   "2024r06a-am-12"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "サイドチャネル攻撃",
+  "term": "サイドチャネル攻撃",
+  "def": "暗号アルゴリズムを実装した攻撃対象の物理デバイスから得られる物理量（処理時間，消費電力など）やエラーメッセージから，攻撃対象の秘密情報を得る。",
+  "defQid": "2022r04a-am-37",
+  "source": "text-def",
+  "point": "サイドチャネル攻撃＝処理時間・消費電力など「横からの物理情報」で秘密を推測。暗号自体は破らない。",
+  "qids": [
+   "2022r04a-am-37",
+   "2023r05a-am-41",
+   "2025r07a-am-38",
+   "2025r07h-am-37"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "サイバーフィジカルシステム",
+  "term": "サイバーフィジカルシステム",
+  "aliases": [
+   "CPS"
+  ],
+  "def": "現実世界のデータを収集し，仮想世界で分析・加工して，現実世界側にリアルタイムにフィードバックすることによって，付加価値を創造する仕組み",
+  "defQid": "2022r04a-am-73",
+  "source": "text-def",
+  "point": "CPS＝現実世界のデータを仮想世界で分析し現実にフィードバック。IoT・デジタルツインの基盤概念。",
+  "qids": [
+   "2022r04a-am-73",
+   "2023r05a-am-71"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "サードパーティcookie",
+  "term": "サードパーティcookie",
+  "def": "他ドメイン発行で行動追跡(広告トラッキング)に利用",
+  "defQid": "2022r04h-am-40",
+  "source": "point-pair",
+  "point": "サードパーティcookie=他ドメイン発行で行動追跡(広告トラッキング)に利用。ブロックでトラッキング防止。ファーストパーティcookieは閲覧中サイト自身が発行。",
+  "qids": [
+   "2022r04h-am-40"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "サービスレベル管理",
+  "term": "サービスレベル管理",
+  "def": "SLA(合意文書)を結び,合意した品質を維持・改善する活動",
+  "defQid": "2024r06h-am-56",
+  "source": "point-pair",
+  "point": "サービスレベル管理=SLA(合意文書)を結び,合意した品質を維持・改善する活動。容量管理・継続管理など他のプロセスと区別する。",
+  "qids": [
+   "2024r06h-am-56"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "シミュレーション",
+  "term": "シミュレーション",
+  "def": "解析的に解けない複雑なモデルを数値的に近似する手法",
+  "defQid": "2024r06h-am-15",
+  "source": "point-pair",
+  "point": "シミュレーション=解析的に解けない複雑なモデルを数値的に近似する手法。計算量は多いが適用範囲が広い。",
+  "qids": [
+   "2022r04a-am-46",
+   "2023r05a-am-59",
+   "2024r06h-am-15"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "シーケンス番号",
+  "term": "シーケンス番号",
+  "def": "UDPのヘッダーフィールドにはないが,TCPのヘッダーフィールドには含まれる情報",
+  "defQid": "2025r07a-am-33",
+  "source": "choice-def",
+  "point": "UDPヘッダーは8バイトの最小構成。「順序保証・再送=TCPだけ」の機能に関わるフィールドはTCPにしかありません。",
+  "qids": [
+   "2025r07a-am-33"
+  ],
+  "middle": "ネットワーク",
+  "major": "T",
+  "distractors": [
+   "宛先ポート番号",
+   "送信元ポート番号",
+   "チェックサム"
+  ]
+ },
+ {
+  "id": "スケールイン",
+  "term": "スケールイン",
+  "def": "想定されるシステムの処理量に対して,サーバの台数が過剰なとき,サーバの台数を減らすこと",
+  "defQid": "2023r05h-am-13",
+  "source": "text-def",
+  "point": "スケール○の整理:アウト=台数増,イン=台数減(水平)。アップ=能力増,ダウン=能力減(垂直)。「イン=中に絞る=減らす」。",
+  "qids": [
+   "2023r05h-am-13"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "スコープ管理",
+  "term": "スコープ管理",
+  "def": "プロジェクトの作業範囲（何を作るか）の定義・変更管理",
+  "defQid": "2022r04a-am-51",
+  "source": "point-pair",
+  "point": "スコープ管理＝プロジェクトの作業範囲（何を作るか）の定義・変更管理。コスト・スケジュール・資源と区別。",
+  "qids": [
+   "2022r04a-am-51",
+   "2024r06a-am-51"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "スタースキーマ",
+  "term": "スタースキーマ",
+  "def": "中心のファクト(事実・数値)+周囲のディメンジョン(軸)",
+  "defQid": "2024r06h-am-28",
+  "source": "point-pair",
+  "point": "スタースキーマ=中心のファクト(事実・数値)+周囲のディメンジョン(軸)。分析される「事実データ」がファクトテーブル。",
+  "qids": [
+   "2024r06h-am-28"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "ストレッチング",
+  "term": "ストレッチング",
+  "def": "パスワードの照合のためのハッシュ値を,パスワードに対してハッシュ化を繰り返して,求める。",
+  "defQid": "2025r07h-am-44",
+  "source": "text-def",
+  "point": "パスワード保存の2大対策:「ソルト=付加する」「ストレッチング=繰り返す」。stretch(引き伸ばす)=計算時間を引き伸ばす,と覚えましょう。",
+  "qids": [
+   "2025r07h-am-44"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "スプリントレビュー",
+  "term": "スプリントレビュー",
+  "def": "スクラムにおいて繰り返し実行するイベントのうち,ステークホルダに作業の結果をプレゼンテーションして,プロダクトゴールに対する進捗について話し合い,必要に応じてスコープを調整するイベント",
+  "defQid": "2025r07h-am-50",
+  "source": "choice-def",
+  "point": "レビュー=「成果物」の検査,レトロスペクティブ=「プロセス」の検査。どちらを振り返るかで区別しましょう。",
+  "qids": [
+   "2023r05h-am-48",
+   "2025r07h-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "スプリントプランニング",
+   "デイリースクラム",
+   "レトロスペクティブ"
+  ]
+ },
+ {
+  "id": "スラッシング",
+  "term": "スラッシング",
+  "def": "ページ置換えが多発して性能が急落",
+  "defQid": "2024r06a-am-17",
+  "source": "point-pair",
+  "point": "スラッシング=ページ置換えが多発して性能が急落。多重度を上げすぎると起こる。",
+  "qids": [
+   "2024r06a-am-17"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "スレッドセーフ",
+  "term": "スレッドセーフ",
+  "def": "アプリケーションを複数のスレッドで並列に実行しても,問題が生じない。",
+  "defQid": "2025r07a-am-17",
+  "source": "text-def",
+  "point": "「〜セーフ」=「〜しても安全」。スレッドセーフは並列実行しても安全,という意味です。",
+  "qids": [
+   "2025r07a-am-17"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "セキュアブート",
+  "term": "セキュアブート",
+  "def": "PC の起動時に OS のプログラムやドライバのデジタル署名を検証し,デジタル署名が有効なものだけを実行することによって,OS 起動完了前のマルウェアの実行を防ぐ技術",
+  "defQid": "2023r05a-am-42",
+  "source": "text-def",
+  "point": "セキュアブート=起動時にデジタル署名を検証し正規のものだけ実行。OS起動前のマルウェアを防ぐ。",
+  "qids": [
+   "2023r05a-am-42"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "セグメンテーション",
+  "term": "セグメンテーション",
+  "def": "論理単位で保護・共用しやすい",
+  "defQid": "2024r06a-am-18",
+  "source": "point-pair",
+  "point": "ページング=固定長で外部断片化なし(内部断片化はあり)。セグメンテーション=論理単位で保護・共用しやすい。",
+  "qids": [
+   "2022r04a-am-67",
+   "2024r06a-am-18"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "センサ",
+  "term": "センサ",
+  "def": "物理量を電気信号に変換(入力側)",
+  "defQid": "2022r04h-am-22",
+  "source": "point-pair",
+  "point": "センサ=物理量を電気信号に変換(入力側)。アクチュエータ=電気などを動きに変換(出力側)。この2つは対の関係。",
+  "qids": [
+   "2022r04h-am-22"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "ターゲットリターン価格設定",
+  "term": "ターゲットリターン価格設定",
+  "def": "目標とする投資収益率を実現するように価格を決定する。",
+  "defQid": "2022r04a-am-68",
+  "source": "text-def",
+  "point": "ターゲットリターン価格設定＝目標投資収益率から逆算して価格を決める（コスト志向型の一種）。",
+  "qids": [
+   "2022r04a-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "ダイオード",
+  "term": "ダイオード",
+  "def": "整流作用をもつ素子",
+  "defQid": "2022r04a-am-21",
+  "source": "choice-def",
+  "point": "整流作用＝一方向にだけ電流を流す＝ダイオード。交流→直流変換に使う。",
+  "qids": [
+   "2022r04a-am-21"
+  ],
+  "middle": "ハードウェア",
+  "major": "T",
+  "distractors": [
+   "コイル",
+   "コンデンサ",
+   "抵抗器"
+  ]
+ },
+ {
+  "id": "ダイレクトマップ",
+  "term": "ダイレクトマップ",
+  "def": "置き場所固定(高速だが競合多い)",
+  "defQid": "2022r04h-am-10",
+  "source": "point-pair",
+  "point": "ダイレクトマップ=置き場所固定(高速だが競合多い)。フルアソシアティブ=どこでも置ける(柔軟だが検索コスト大)。セットアソシアティブ=両者の中間。",
+  "qids": [
+   "2022r04h-am-10"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "チェックポイント",
+  "term": "チェックポイント",
+  "def": "バッファをディスクに書き出す同期点",
+  "defQid": "2024r06a-am-31",
+  "source": "point-pair",
+  "point": "チェックポイント=バッファをディスクに書き出す同期点。回復範囲を狭めて高速化する。",
+  "qids": [
+   "2024r06a-am-31"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "チャレンジレスポンス",
+  "term": "チャレンジレスポンス",
+  "def": "サーバが出す乱数(チャレンジ)+パスワードで計算した応答(レスポンス)を返す",
+  "defQid": "2022r04h-am-38",
+  "source": "point-pair",
+  "point": "チャレンジレスポンス=サーバが出す乱数(チャレンジ)+パスワードで計算した応答(レスポンス)を返す。パスワードそのものは流れないのが利点。",
+  "qids": [
+   "2022r04h-am-38"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "チャレンジレスポンス認証方式",
+  "term": "チャレンジレスポンス認証方式",
+  "def": "利用者が入力したパスワードと,サーバから受け取ったランダムなデータとをクライアントで演算し,その結果をサーバに送信して,サーバで検証する。",
+  "defQid": "2022r04h-am-38",
+  "source": "text-def",
+  "point": "チャレンジレスポンス=サーバが出す乱数(チャレンジ)+パスワードで計算した応答(レスポンス)を返す。パスワードそのものは流れないのが利点。",
+  "qids": [
+   "2022r04h-am-38"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "テクスチャマッピング",
+  "term": "テクスチャマッピング",
+  "def": "表面に模様を貼る",
+  "defQid": "2023r05h-am-25",
+  "source": "point-pair",
+  "point": "ラジオシティ=面間の相互反射を計算(柔らかい陰影)。レイトレーシング=視線を逆追跡し交点を求める(反射・屈折・隠面消去)。テクスチャマッピング=表面に模様を貼る。",
+  "qids": [
+   "2023r05h-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "テスト駆動開発",
+  "term": "テスト駆動開発",
+  "def": "テストを先に書いてから実装",
+  "defQid": "2022r04a-am-49",
+  "source": "point-pair",
+  "point": "テスト駆動開発＝テストを先に書いてから実装。Red→Green→Refactorのサイクル。",
+  "qids": [
+   "2022r04a-am-49",
+   "2022r04a-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "ディープフェイク",
+  "term": "ディープフェイク",
+  "def": "AIで合成した偽の音声・映像",
+  "defQid": "2024r06a-am-39",
+  "source": "point-pair",
+  "point": "ディープフェイク=AIで合成した偽の音声・映像。なりすまし電話・動画による詐欺が典型。",
+  "qids": [
+   "2024r06a-am-39"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "デジタルガバナンス-コード",
+  "term": "デジタルガバナンス・コード",
+  "def": "経済産業省がまとめた「企業のDX推進のため経営者に求める対応」",
+  "defQid": "2024r06h-am-62",
+  "source": "point-pair",
+  "point": "デジタルガバナンス・コード=経済産業省がまとめた「企業のDX推進のため経営者に求める対応」。DX・経営者・経済産業省がキーワード。",
+  "qids": [
+   "2024r06h-am-62",
+   "2025r07h-am-61"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "デジタルガバナンス-コード2-0",
+  "term": "デジタルガバナンス・コード2.0",
+  "def": "企業の自主的なDX推進を促すために,デジタル技術による社会変革を踏まえた経営ビジョン策定など経営者に求められる対応を,経済産業省がまとめたもの",
+  "defQid": "2024r06h-am-62",
+  "source": "text-def",
+  "point": "デジタルガバナンス・コード=経済産業省がまとめた「企業のDX推進のため経営者に求める対応」。DX・経営者・経済産業省がキーワード。",
+  "qids": [
+   "2024r06h-am-62"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "デジタルツイン",
+  "term": "デジタルツイン",
+  "def": "デジタル空間に現実世界と同等な世界を,様々なセンサーで収集したデータを用いて構築し,現実世界では実施できないようなシミュレーションを行うこと",
+  "defQid": "2024r06h-am-70",
+  "source": "text-def",
+  "point": "デジタルツイン=現実の「双子」を仮想空間に作り,センサーデータで同期させてシミュレーションする。IoTデータの活用が前提。",
+  "qids": [
+   "2023r05h-am-73",
+   "2024r06h-am-70"
+  ],
+  "middle": "技術戦略",
+  "major": "S"
+ },
+ {
+  "id": "デジタル社会形成基本法",
+  "term": "デジタル社会形成基本法",
+  "def": "誰もがICTの恵みを享受、情報の自由・安全な流通の確保が基本理念",
+  "defQid": "2024r06a-am-80",
+  "source": "point-pair",
+  "point": "デジタル社会形成基本法=誰もがICTの恵みを享受、情報の自由・安全な流通の確保が基本理念。",
+  "qids": [
+   "2024r06a-am-80"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "デジタル署名",
+  "term": "デジタル署名",
+  "def": "送信者の秘密鍵で署名,公開鍵で検証",
+  "defQid": "2022r04h-am-39",
+  "source": "point-pair",
+  "point": "デジタル署名=送信者の秘密鍵で署名,公開鍵で検証。目的は本人確認と改ざん検知(有無であって位置ではない)。機密性(暗号化)とは別物。",
+  "qids": [
+   "2022r04h-am-39",
+   "2023r05a-am-42",
+   "2023r05h-am-44",
+   "2025r07a-am-37"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "デッドロック防止",
+  "term": "デッドロック防止",
+  "def": "資源獲得順序を全タスクで統一（循環待ちを断つ）",
+  "defQid": "2022r04a-am-16",
+  "source": "point-pair",
+  "point": "デッドロック防止＝資源獲得順序を全タスクで統一（循環待ちを断つ）。",
+  "qids": [
+   "2022r04a-am-16"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "デューデリジェンス",
+  "term": "デューデリジェンス",
+  "def": "M&Aの際に，買収対象企業の経営実態，資産や負債，期待収益性といった企業価値などを買手が詳細に調査する行為",
+  "defQid": "2022r04a-am-67",
+  "source": "choice-def",
+  "point": "デューデリジェンス＝M&A前の買収対象企業の詳細な精査（財務・法務・事業など）。",
+  "qids": [
+   "2022r04a-am-67"
+  ],
+  "middle": "経営戦略",
+  "major": "S",
+  "distractors": [
+   "株主総会招集請求",
+   "公開買付開始公告",
+   "セグメンテーション"
+  ]
+ },
+ {
+  "id": "デルファイ法",
+  "term": "デルファイ法",
+  "def": "複数の専門家へのアンケートの繰返しによる回答の収束によって将来を予測する。",
+  "defQid": "2022r04a-am-75",
+  "source": "text-def",
+  "point": "デルファイ法＝専門家へのアンケートを繰り返し意見を収束させる予測手法。匿名性が特徴。",
+  "qids": [
+   "2022r04a-am-75",
+   "2023r05h-am-54"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "データマイニング",
+  "term": "データマイニング",
+  "def": "蓄積されたデータを分析し,単なる検索だけでは分からない隠れた規則や相関関係を見つけ出すこと",
+  "defQid": "2022r04h-am-30",
+  "source": "text-def",
+  "point": "データマイニング=データの「発掘」。隠れたパターン・相関を見つけるのが本質。データマート(切り出し)やレプリケーション(複製)と混同しない。",
+  "qids": [
+   "2022r04h-am-30"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "データ結合",
+  "term": "データ結合",
+  "def": "モジュールの独立性が最も高い結合",
+  "defQid": "2022r04h-am-46",
+  "source": "choice-def",
+  "point": "結合度の強い→弱い順:内容→共通→外部→制御→スタンプ→データ。弱い(データ結合)ほど独立性が高く良い設計。順番を語呂で覚える。",
+  "qids": [
+   "2022r04h-am-46"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "外部結合",
+   "共通結合",
+   "スタンプ結合"
+  ]
+ },
+ {
+  "id": "データ部",
+  "term": "データ部",
+  "def": "MTU−40バイトは定番の計算です",
+  "defQid": "2025r07h-am-30",
+  "source": "point-pair",
+  "point": "「MTU=IPパケットの上限(イーサネットヘッダーは含まない)」がひっかけどころ。データ部=MTU−40バイトは定番の計算です。",
+  "qids": [
+   "2025r07h-am-30"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "トレランス",
+  "term": "トレランス",
+  "def": "故障を許容して稼働継続",
+  "defQid": "2022r04a-am-13",
+  "source": "point-pair",
+  "point": "アボイダンス＝故障を避ける（高品質化）。トレランス＝故障を許容して稼働継続。フールプルーフ＝誤操作対策。",
+  "qids": [
+   "2022r04a-am-13",
+   "2023r05h-am-15"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "トレーサビリティ",
+  "term": "トレーサビリティ",
+  "def": "要求と成果物の対応を前後にたどれること",
+  "defQid": "2023r05h-am-64",
+  "source": "point-pair",
+  "point": "トレーサビリティ=要求と成果物の対応を前後にたどれること。仕様変更時の影響分析や,要求の実現漏れチェックに役立つ。",
+  "qids": [
+   "2023r05h-am-64"
+  ],
+  "middle": "システム企画",
+  "major": "S"
+ },
+ {
+  "id": "ドキュメンテーションジェネレーター",
+  "term": "ドキュメンテーションジェネレーター",
+  "def": "ソースコード中にある,フォーマットに従って記述されたコメント文などから,プログラムのドキュメントを生成するソフトウェア",
+  "defQid": "2024r06h-am-50",
+  "source": "text-def",
+  "point": "ドキュメンテーションジェネレーター=ソースコードのコメントから仕様書/APIドキュメントを自動生成(Javadoc,Doxygenなど)。",
+  "qids": [
+   "2024r06h-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "ドップラー効果",
+  "term": "ドップラー効果",
+  "def": "動くものによる周波数の変化",
+  "defQid": "2023r05h-am-04",
+  "source": "point-pair",
+  "point": "ドップラー効果=動くものによる周波数の変化。速度・流量の測定に利用(気象レーダー,速度計,血流計)。",
+  "qids": [
+   "2023r05h-am-04"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "ナッシュ均衡",
+  "term": "ナッシュ均衡",
+  "def": "非協力ゲームのモデルであり,相手の行動に対して最適な行動をとる行動原理の中で,どのプレイヤーも自分だけが戦略を変更しても利得を増やせない戦略の組合せ状態",
+  "defQid": "2024r06h-am-73",
+  "source": "text-def",
+  "point": "ナッシュ均衡=「誰も一人だけ戦略を変える動機がない」安定状態。ゼロサム(利得の総和ゼロ)やマクシミン戦略と区別する。",
+  "qids": [
+   "2024r06a-am-75",
+   "2024r06h-am-73"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "ネットワークアドレス",
+  "term": "ネットワークアドレス",
+  "def": "IPアドレスとサブネットマスクの論理積(AND)",
+  "defQid": "2023r05a-am-34",
+  "source": "point-pair",
+  "point": "ネットワークアドレス=IPアドレスとサブネットマスクの論理積(AND)。マスクが0のビットは0にする。",
+  "qids": [
+   "2023r05a-am-34",
+   "2025r07a-am-32"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "ノンプリエンプティブ",
+  "term": "ノンプリエンプティブ",
+  "def": "OSは横取りしない(タスクが自発的に手放す)",
+  "defQid": "2024r06h-am-16",
+  "source": "point-pair",
+  "point": "ノンプリエンプティブ=OSは横取りしない(タスクが自発的に手放す)。プリエンプティブ=OSが強制的に切り替える。この対比が核心。",
+  "qids": [
+   "2024r06h-am-16"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "ハイパーバイザ型",
+  "term": "ハイパーバイザ型",
+  "def": "VMごとにOS(KVM,Xen,QEMU,VMware)",
+  "defQid": "2023r05h-am-20",
+  "source": "point-pair",
+  "point": "コンテナ型=OSカーネル共有で軽量(Docker,Kubernetes)。ハイパーバイザ型=VMごとにOS(KVM,Xen,QEMU,VMware)。",
+  "qids": [
+   "2023r05h-am-20"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "ハンドオーバー",
+  "term": "ハンドオーバー",
+  "def": "移動中の基地局切替え(接続維持)",
+  "defQid": "2023r05h-am-35",
+  "source": "point-pair",
+  "point": "ハンドオーバー=移動中の基地局切替え(接続維持)。ローミング=他事業者網の利用(海外等)。混同注意。",
+  "qids": [
+   "2023r05h-am-35"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "ハンバーガーメニュー",
+  "term": "ハンバーガーメニュー",
+  "def": "画面サイズの制約によって,レイアウト上,常にメニューを表示しておくことが難しいときに使用する仕組みであって,三本線のアイコンを選択するとメニューが表示されるもの",
+  "defQid": "2025r07a-am-24",
+  "source": "choice-def",
+  "point": "スマホアプリでおなじみの「≡」アイコン=ハンバーガーメニュー。見た目と名前をそのまま結びつけて覚えましょう。",
+  "qids": [
+   "2025r07a-am-24"
+  ],
+  "middle": "ユーザーインタフェース",
+  "major": "T",
+  "distractors": [
+   "アコーディオンメニュー",
+   "ドロップダウンメニュー",
+   "ポップアップメニュー"
+  ]
+ },
+ {
+  "id": "バイラルマーケティング",
+  "term": "バイラルマーケティング",
+  "def": "人から人へ,プラスの評価が口コミで爆発的に広まりやすいインターネットの特長を生かす手法",
+  "defQid": "2022r04h-am-69",
+  "source": "text-def",
+  "point": "バイラル=viral(ウイルス性)。口コミが感染的に広がる仕組みを狙う。「人から人へ口コミで拡散」がキーワード。",
+  "qids": [
+   "2022r04h-am-69",
+   "2023r05a-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "バックキャスティング",
+  "term": "バックキャスティング",
+  "def": "前提として認識すべき制約を受け入れた上で未来のありたい姿を描き,予想される課題や可能性を洗い出し解決策を検討することによって,ありたい姿に近づける思考方法",
+  "defQid": "2023r05a-am-61",
+  "source": "text-def",
+  "point": "バックキャスティング=ありたい未来から逆算。現状延長で考えるフォアキャスティングの対義。",
+  "qids": [
+   "2023r05a-am-61"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "バリューストリームマップ",
+  "term": "バリューストリームマップ",
+  "def": "リーンソフトウェア開発において,ソフトウェア開発のプロセスとプロセスの所要時間とを可視化し,ボトルネックや無駄がないかどうかを確認するのに用いるもの",
+  "defQid": "2024r06h-am-48",
+  "source": "choice-def",
+  "point": "バリューストリームマップ=工程と所要時間を可視化して「無駄(ムダ)」を洗い出すリーンの道具。バーンダウンは残作業の進捗管理用。",
+  "qids": [
+   "2024r06h-am-48"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "ストーリーカード",
+   "スプリントバックログ",
+   "バーンダウンチャート"
+  ]
+ },
+ {
+  "id": "パスワードリスト攻撃",
+  "term": "パスワードリスト攻撃",
+  "def": "どこかの Web サイトから流出した利用者 ID とパスワードのリストを用いて,他の Web サイトに対してログインを試行する。",
+  "defQid": "2024r06a-am-40",
+  "source": "text-def",
+  "point": "パスワードリスト攻撃=流出したID/PWの使い回しを突く。対策はパスワードを使い回さないこと。",
+  "qids": [
+   "2024r06a-am-40"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "パレート図",
+  "term": "パレート図",
+  "def": "発生した故障について,発生要因ごとの件数の記録を基に,故障発生件数で上位を占める主な要因を明確に表現するのに適している図法",
+  "defQid": "2023r05a-am-76",
+  "source": "choice-def",
+  "point": "パレート図=件数の多い順+累積比率。「重要な少数(上位要因)」を特定するのに最適。",
+  "qids": [
+   "2023r05a-am-76",
+   "2024r06h-am-74"
+  ],
+  "middle": "企業活動",
+  "major": "S",
+  "distractors": [
+   "特性要因図",
+   "マトリックス図",
+   "連関図"
+  ]
+ },
+ {
+  "id": "パーミッションマーケティング",
+  "term": "パーミッションマーケティング",
+  "def": "顧客から得る同意の範囲を段階的に広げながら,プロモーションを行うことが特徴的なマーケティング手法",
+  "defQid": "2023r05a-am-68",
+  "source": "choice-def",
+  "point": "パーミッションマーケティング=顧客の許可を得て段階的に関係を深める。押し付け型と対照的。",
+  "qids": [
+   "2023r05a-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S",
+  "distractors": [
+   "アフィリエイトマーケティング",
+   "差別型マーケティング",
+   "バイラルマーケティング"
+  ]
+ },
+ {
+  "id": "ビットマップ",
+  "term": "ビットマップ",
+  "def": "点の集合→表示は速いが拡大に弱い",
+  "defQid": "2024r06h-am-24",
+  "source": "point-pair",
+  "point": "アウトライン=輪郭を数式化→拡大縮小に強い(なめらか)。ビットマップ=点の集合→表示は速いが拡大に弱い。",
+  "qids": [
+   "2024r06h-am-24"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "ファイブフォース",
+  "term": "ファイブフォース",
+  "def": "業界の「5つの競争要因」で収益構造を分析(ポーター)",
+  "defQid": "2024r06h-am-68",
+  "source": "point-pair",
+  "point": "ファイブフォース=業界の「5つの競争要因」で収益構造を分析(ポーター)。5つの力の顔ぶれで判別する。PEST(外部環境)と混同しない。",
+  "qids": [
+   "2024r06h-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "ファイブフォース分析",
+  "term": "ファイブフォース分析",
+  "def": "企業が属する業界の競争状態と収益構造を,\"新規参入の脅威\",\"供給者の支配力\",\"買い手の交渉力\",\"代替製品・サービスの脅威\",\"既存競合者同士の敵対関係\"の要素に分類して,分析するフレームワーク",
+  "defQid": "2024r06h-am-68",
+  "source": "choice-def",
+  "point": "ファイブフォース=業界の「5つの競争要因」で収益構造を分析(ポーター)。5つの力の顔ぶれで判別する。PEST(外部環境)と混同しない。",
+  "qids": [
+   "2024r06h-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S",
+  "distractors": [
+   "PEST分析",
+   "VRIO分析",
+   "バリューチェーン分析"
+  ]
+ },
+ {
+  "id": "ファインチューニング",
+  "term": "ファインチューニング",
+  "def": "基盤モデルに独自データを追加学習して特化させる",
+  "defQid": "2024r06a-am-71",
+  "source": "point-pair",
+  "point": "ファインチューニング=基盤モデルに独自データを追加学習して特化させる。プロンプト工夫とは別。",
+  "qids": [
+   "2024r06a-am-71"
+  ],
+  "middle": "技術戦略",
+  "major": "S"
+ },
+ {
+  "id": "ファウンドリーサービス",
+  "term": "ファウンドリーサービス",
+  "def": "他社からの製造委託を受けて,半導体製品の製造を行う。",
+  "defQid": "2023r05a-am-66",
+  "source": "text-def",
+  "point": "ファウンドリー=製造受託専門。ファブレス=設計専門で製造設備を持たない。両者は補完関係。",
+  "qids": [
+   "2023r05a-am-66"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "ファクトテーブル",
+  "term": "ファクトテーブル",
+  "def": "データウェアハウスのテーブル構成をスタースキーマとする場合,分析対象のトランザクションデータを格納するテーブル",
+  "defQid": "2024r06h-am-28",
+  "source": "choice-def",
+  "point": "スタースキーマ=中心のファクト(事実・数値)+周囲のディメンジョン(軸)。分析される「事実データ」がファクトテーブル。",
+  "qids": [
+   "2024r06h-am-28"
+  ],
+  "middle": "データベース",
+  "major": "T",
+  "distractors": [
+   "サマリテーブル",
+   "ディメンジョンテーブル",
+   "ルックアップテーブル"
+  ]
+ },
+ {
+  "id": "ファジング",
+  "term": "ファジング",
+  "def": "ソフトウェアに対し，問題を起こしそうな様々な種類のデータを入力し，そのソフトウェアの動作状態を監視して脆弱性を発見する。",
+  "defQid": "2022r04a-am-45",
+  "source": "text-def",
+  "point": "ファジング＝異常データを大量入力して脆弱性を炙り出す検査手法。",
+  "qids": [
+   "2022r04a-am-45",
+   "2022r04h-am-45",
+   "2023r05a-am-46"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "ファストトラッキング",
+  "term": "ファストトラッキング",
+  "def": "作業を並行実施して短縮",
+  "defQid": "2024r06a-am-54",
+  "source": "point-pair",
+  "point": "ファストトラッキング=作業を並行実施して短縮。クラッシング=資源投入で短縮(コスト増)。",
+  "qids": [
+   "2022r04h-am-52",
+   "2024r06a-am-54"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "ファブレス",
+  "term": "ファブレス",
+  "def": "生産設備である工場をもたないので，固定費を圧縮することができ，需給変動などにも迅速に対応可能であり，企画・開発に注力することができる。",
+  "defQid": "2022r04a-am-71",
+  "source": "text-def",
+  "point": "ファブレス＝工場をもたず製造は外部委託、企画・開発に特化。ファウンドリ（受託製造）と対の関係。",
+  "qids": [
+   "2022r04a-am-71",
+   "2022r04h-am-70",
+   "2023r05a-am-66"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "フィージビリティスタディ",
+  "term": "フィージビリティスタディ",
+  "def": "企業が新規事業立ち上げや海外進出する際の検証,公共事業の採算性検証,情報システムの導入手段の検証など,実現性を調査・検証する投資前評価のこと",
+  "defQid": "2024r06h-am-69",
+  "source": "text-def",
+  "point": "フィージビリティスタディ=実現可能性の「事前(投資前)評価」。デルファイ法(未来予測),ブレスト(発想法),PLC(製品寿命)と区別する。",
+  "qids": [
+   "2024r06h-am-69",
+   "2025r07a-am-69"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "フィードラーノコンティンジェンシー理論",
+  "term": "フィードラーのコンティンジェンシー理論",
+  "def": "リーダーの資質と状況の統制度の適合で有効性が決まる",
+  "defQid": "2023r05a-am-75",
+  "source": "point-pair",
+  "point": "フィードラーのコンティンジェンシー理論=リーダーの資質と状況の統制度の適合で有効性が決まる。",
+  "qids": [
+   "2023r05a-am-75"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "フォローアップ",
+  "term": "フォローアップ",
+  "def": "システム監査人が,監査報告書に記載した改善提案の実施状況に関する情報を収集し,改善状況をモニタリングすること",
+  "defQid": "2024r06a-am-60",
+  "source": "text-def",
+  "point": "フォローアップ=監査人が改善提案の実施状況を追跡・モニタリングして改善を促す。",
+  "qids": [
+   "2024r06a-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "フラッシュメモリ",
+  "term": "フラッシュメモリ",
+  "def": "消去してから書込み、不揮発、書込み回数に上限あり",
+  "defQid": "2022r04a-am-22",
+  "source": "point-pair",
+  "point": "フラッシュメモリ＝消去してから書込み、不揮発、書込み回数に上限あり。SSD・USBメモリに使用。",
+  "qids": [
+   "2022r04a-am-22"
+  ],
+  "middle": "ハードウェア",
+  "major": "T"
+ },
+ {
+  "id": "フルアソシアティブ",
+  "term": "フルアソシアティブ",
+  "def": "どこでも置ける(柔軟だが検索コスト大)",
+  "defQid": "2022r04h-am-10",
+  "source": "point-pair",
+  "point": "ダイレクトマップ=置き場所固定(高速だが競合多い)。フルアソシアティブ=どこでも置ける(柔軟だが検索コスト大)。セットアソシアティブ=両者の中間。",
+  "qids": [
+   "2022r04h-am-10"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "プリエンプティブ",
+  "term": "プリエンプティブ",
+  "def": "OSが強制的に切り替える",
+  "defQid": "2024r06h-am-16",
+  "source": "point-pair",
+  "point": "ノンプリエンプティブ=OSは横取りしない(タスクが自発的に手放す)。プリエンプティブ=OSが強制的に切り替える。この対比が核心。",
+  "qids": [
+   "2024r06h-am-16"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "プログレッシブwebアプリ",
+  "term": "プログレッシブWebアプリ",
+  "def": "ブラウザが実行するサービスワーカーの機能を用いて,Webアプリケーションをオフラインで起動させたり,バックグラウンドでデータを同期させたりして,ネイティブアプリケーションであるかのようにWebアプリケーションを使えるようにする。",
+  "defQid": "2025r07a-am-49",
+  "source": "text-def",
+  "point": "PWAのキーワードは「サービスワーカー」「オフライン」「ネイティブアプリのように」。この3点セットで覚えましょう。",
+  "qids": [
+   "2025r07a-am-49"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "プロジェクトノ除外事項",
+  "term": "プロジェクトの除外事項",
+  "def": "PMBOK ガイド 第7版によれば,プロジェクト・スコープ記述書に記述する項目",
+  "defQid": "2023r05a-am-51",
+  "source": "choice-def",
+  "point": "スコープ記述書には「含むもの」と「除外事項(含まないもの)」を書き,範囲を明確化する。",
+  "qids": [
+   "2023r05a-am-51"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M",
+  "distractors": [
+   "WBS",
+   "コスト見積額",
+   "ステークホルダー分類"
+  ]
+ },
+ {
+  "id": "プロジェクト憲章",
+  "term": "プロジェクト憲章",
+  "def": "プロジェクトを正式に認可するために,ビジネスニーズ,目標,成果物,プロジェクトマネージャ,及びプロジェクトマネージャの責任・権限を記した文書",
+  "defQid": "2023r05h-am-51",
+  "source": "text-def",
+  "point": "プロジェクト憲章=プロジェクトを公式に認可し,PMに権限を与える最初の文書。スコープ記述書やWBSより前に作成される。",
+  "qids": [
+   "2023r05h-am-51",
+   "2025r07h-am-51"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "プロビジョニング",
+  "term": "プロビジョニング",
+  "def": "構成を記述して自動構築(Ansible,Terraform等)",
+  "defQid": "2023r05h-am-50",
+  "source": "point-pair",
+  "point": "プロビジョニング=構成を記述して自動構築(Ansible,Terraform等)。IaC(Infrastructure as Code)の考え方。監視や資産管理とは目的が別。",
+  "qids": [
+   "2023r05h-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "プロファイラ",
+  "term": "プロファイラ",
+  "def": "プログラムを構成するモジュールや関数の実行回数,実行時間など,性能改善のための分析に役立つ情報を収集するツール",
+  "defQid": "2024r06h-am-19",
+  "source": "choice-def",
+  "point": "プロファイラ=性能分析(どこが遅いかを計測)。デバッガ=バグ発見,エミュレータ/シミュレータ=模倣・模擬。目的で区別する。",
+  "qids": [
+   "2024r06h-am-19"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T",
+  "distractors": [
+   "エミュレーター",
+   "シミュレーター",
+   "デバッガ"
+  ]
+ },
+ {
+  "id": "ヘテロジニアスマルチコアプロセッサ",
+  "term": "ヘテロジニアスマルチコアプロセッサ",
+  "def": "スマートフォンなどで高い処理性能と低消費電力の両立のために,異なる目的に適した複数の種類のコアを搭載したプロセッサ",
+  "defQid": "2023r05a-am-08",
+  "source": "choice-def",
+  "point": "ヘテロ=異なる種類のコア(big.LITTLE等),ホモ=同一種類のコア。",
+  "qids": [
+   "2023r05a-am-08"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T",
+  "distractors": [
+   "スーパースカラプロセッサ",
+   "ソフトコアプロセッサ",
+   "ホモジニアスマルチコアプロセッサ"
+  ]
+ },
+ {
+  "id": "ベイズノ定理",
+  "term": "ベイズの定理",
+  "def": "結果を見てから原因の確率を更新する",
+  "defQid": "2024r06h-am-01",
+  "source": "point-pair",
+  "point": "ベイズの定理=「結果を見てから原因の確率を更新する」。事後確率=P(原因|結果)と覚える。",
+  "qids": [
+   "2024r06h-am-01"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "ベイズ統計",
+  "term": "ベイズ統計",
+  "def": "事前分布・事後分布といった確率に関する考え方に基づいて体系化されたものであり,機械学習,迷惑メールフィルターなどに利用されている統計理論",
+  "defQid": "2024r06a-am-76",
+  "source": "text-def",
+  "point": "ベイズ統計=事前確率をデータで更新し事後確率を求める。スパムフィルターなどに応用。",
+  "qids": [
+   "2024r06a-am-76"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "ベキ等-idempotent-ナ操作",
+  "term": "べき等(idempotent)な操作",
+  "def": "同一の操作を複数回実行した結果と,一回しか実行しなかった結果が同一になる操作",
+  "defQid": "2023r05h-am-28",
+  "source": "text-def",
+  "point": "べき等=何回やっても結果が同じ(例:x=5の代入,DELETE)。原子性=全部かゼロか。直列化可能性=同時実行と順次実行が同結果。",
+  "qids": [
+   "2023r05h-am-28"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "ベロシティ",
+  "term": "ベロシティ",
+  "def": "アジャイル開発の手法の一つであるスクラムにおいて,決められた期間におけるスクラムチームの生産量を相対的に表現するとき,尺度として用いるもの",
+  "defQid": "2022r04h-am-49",
+  "source": "choice-def",
+  "point": "ベロシティ=スプリントあたりの消化ポイント(生産量の尺度)。スプリント(期間)・バックログ(作業一覧)・レトロスペクティブ(振り返り)と用語を区別。",
+  "qids": [
+   "2022r04h-am-49"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "スプリント",
+   "スプリントレトロスペクティブ",
+   "バックログ"
+  ]
+ },
+ {
+  "id": "ペアプログラミング",
+  "term": "ペアプログラミング",
+  "def": "XP(Extreme Programming)のプラクティスの一つであるもの",
+  "defQid": "2025r07h-am-48",
+  "source": "choice-def",
+  "point": "XPのプラクティスは「ペアプロ・TDD・リファクタリング・CI」の4点セットで覚えましょう。",
+  "qids": [
+   "2025r07h-am-48"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "構造化プログラミング",
+   "コンポーネント指向プログラミング",
+   "ビジュアルプログラミング"
+  ]
+ },
+ {
+  "id": "ページフォールト",
+  "term": "ページフォールト",
+  "def": "必要ページが実記憶にない→ページイン",
+  "defQid": "2023r05h-am-18",
+  "source": "point-pair",
+  "point": "LRU=最も長く使われていないページを追い出す(直近参照を重視)。ページフォールト=必要ページが実記憶にない→ページイン。",
+  "qids": [
+   "2023r05a-am-16",
+   "2023r05h-am-18",
+   "2024r06a-am-17"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "ページング",
+  "term": "ページング",
+  "def": "固定長で外部断片化なし(内部断片化はあり)",
+  "defQid": "2024r06a-am-18",
+  "source": "point-pair",
+  "point": "ページング=固定長で外部断片化なし(内部断片化はあり)。セグメンテーション=論理単位で保護・共用しやすい。",
+  "qids": [
+   "2023r05a-am-16",
+   "2024r06a-am-17",
+   "2024r06a-am-18"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "マイクロサービス",
+  "term": "マイクロサービス",
+  "def": "独立した小サービスの集合",
+  "defQid": "2024r06a-am-47",
+  "source": "point-pair",
+  "point": "マイクロサービス=独立した小サービスの集合。個別に変更・デプロイしやすいが、サービス間通信と整合性管理は課題。",
+  "qids": [
+   "2024r06a-am-47"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "マシンビジョン",
+  "term": "マシンビジョン",
+  "def": "カメラ+AI画像認識で目視検査を自動化",
+  "defQid": "2023r05a-am-73",
+  "source": "point-pair",
+  "point": "マシンビジョン=カメラ+AI画像認識で目視検査を自動化。外観検査・不良品検出に使う。",
+  "qids": [
+   "2023r05a-am-73"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "マスカスタマイゼーション",
+  "term": "マスカスタマイゼーション",
+  "def": "大量生産の効率で「一人ひとり向けの個別仕様」を実現",
+  "defQid": "2024r06h-am-71",
+  "source": "point-pair",
+  "point": "マスカスタマイゼーション=大量生産の効率で「一人ひとり向けの個別仕様」を実現。個別設計+効率的な量産の両立がキーワード。",
+  "qids": [
+   "2024r06h-am-71"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S"
+ },
+ {
+  "id": "マルチキャスト",
+  "term": "マルチキャスト",
+  "def": "特定グループへの同時配信",
+  "defQid": "2023r05a-am-35",
+  "source": "point-pair",
+  "point": "マルチキャスト=特定グループへの同時配信。RIP-2やOSPFの経路広告が代表例。ブロードキャストは全端末宛て。",
+  "qids": [
+   "2023r05a-am-35",
+   "2024r06a-am-35"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "ミリ波レーダー",
+  "term": "ミリ波レーダー",
+  "def": "天候に強いが色判別不可",
+  "defQid": "2024r06a-am-04",
+  "source": "point-pair",
+  "point": "カメラ=色・標識に強いが天候に弱い。ミリ波レーダー=天候に強いが色判別不可。",
+  "qids": [
+   "2024r06a-am-04"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "メディアクエリ",
+  "term": "メディアクエリ",
+  "def": "レスポンシブ Web デザインを実現するに当たって,単一の HTML 文書を用いて,Web コンテンツを各種端末のディスプレイの大きさに合わせた形式で表示するために使用する機能",
+  "defQid": "2024r06a-am-50",
+  "source": "choice-def",
+  "point": "レスポンシブWebデザイン=CSSのメディアクエリで画面幅に応じてレイアウトを切り替える。",
+  "qids": [
+   "2024r06a-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "User-Agent",
+   "WebSocket",
+   "マッシュアップ"
+  ]
+ },
+ {
+  "id": "ライトスルー",
+  "term": "ライトスルー",
+  "def": "キャッシュと主記憶に同時書込み",
+  "defQid": "2022r04a-am-09",
+  "source": "point-pair",
+  "point": "ライトスルー＝キャッシュと主記憶に同時書込み。ライトバック＝追い出し時に主記憶へ書込み。",
+  "qids": [
+   "2022r04a-am-09",
+   "2023r05h-am-10"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "ライトバック",
+  "term": "ライトバック",
+  "def": "追い出し時に主記憶へ書込み",
+  "defQid": "2022r04a-am-09",
+  "source": "point-pair",
+  "point": "ライトスルー＝キャッシュと主記憶に同時書込み。ライトバック＝追い出し時に主記憶へ書込み。",
+  "qids": [
+   "2022r04a-am-09",
+   "2023r05h-am-10"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "ラグ",
+  "term": "ラグ",
+  "def": "遅延（後ろにずらす）",
+  "defQid": "2022r04a-am-52",
+  "source": "point-pair",
+  "point": "リード＝先行作業（前倒し可能）、ラグ＝遅延（後ろにずらす）。終了-開始/開始-開始関係を丁寧に計算。",
+  "qids": [
+   "2022r04a-am-52"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "ラジオシティ",
+  "term": "ラジオシティ",
+  "def": "面間の相互反射を計算(柔らかい陰影)",
+  "defQid": "2023r05h-am-25",
+  "source": "point-pair",
+  "point": "ラジオシティ=面間の相互反射を計算(柔らかい陰影)。レイトレーシング=視線を逆追跡し交点を求める(反射・屈折・隠面消去)。テクスチャマッピング=表面に模様を貼る。",
+  "qids": [
+   "2023r05h-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "リスクレベル",
+  "term": "リスクレベル",
+  "def": "結果(影響度)×起こりやすさ(発生確率)で表すリスクの大きさ",
+  "defQid": "2022r04h-am-43",
+  "source": "point-pair",
+  "point": "リスクレベル=結果(影響度)×起こりやすさ(発生確率)で表すリスクの大きさ。脆弱性・リスク基準との定義の違いを区別する。",
+  "qids": [
+   "2022r04h-am-43"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "リバースプロキシ",
+  "term": "リバースプロキシ",
+  "def": "インターネットから内部ネットワークの公開Webサーバへの通信を,中継するために利用される。",
+  "defQid": "2025r07a-am-31",
+  "source": "text-def",
+  "point": "プロキシは「内→外」の代理,リバースプロキシは「外→内」の代理。通信の向きで区別しましょう。",
+  "qids": [
+   "2025r07a-am-31"
+  ],
+  "middle": "ネットワーク",
+  "major": "T"
+ },
+ {
+  "id": "レイトレーシング",
+  "term": "レイトレーシング",
+  "def": "光線を1本ずつ追跡し反射・屈折・透明を計算するため写実的だが重い",
+  "defQid": "2022r04h-am-25",
+  "source": "point-pair",
+  "point": "レイトレーシング=光線を1本ずつ追跡し反射・屈折・透明を計算するため写実的だが重い。Zバッファ法との違い(距離最小の面選択のみか,光の挙動まで追うか)を区別。",
+  "qids": [
+   "2022r04h-am-25",
+   "2023r05h-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "レイトレーシング法",
+  "term": "レイトレーシング法",
+  "def": "スクリーンの全ての画素について,視線と描画の対象となる物体との交点を反射属性や透明属性なども含めて計算し,その中から視点に最も近い交点を選択する。",
+  "defQid": "2022r04h-am-25",
+  "source": "text-def",
+  "point": "レイトレーシング=光線を1本ずつ追跡し反射・屈折・透明を計算するため写実的だが重い。Zバッファ法との違い(距離最小の面選択のみか,光の挙動まで追うか)を区別。",
+  "qids": [
+   "2022r04h-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "レインボーテーブル",
+  "term": "レインボーテーブル",
+  "def": "ハッシュ値から平文を逆引きする事前計算表",
+  "defQid": "2023r05a-am-36",
+  "source": "point-pair",
+  "point": "レインボーテーブル=ハッシュ値から平文を逆引きする事前計算表。ソルト付与で対策できる。",
+  "qids": [
+   "2023r05a-am-36"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "レインボーテーブル攻撃",
+  "term": "レインボーテーブル攻撃",
+  "def": "平文のパスワードとハッシュ値をチェーンによって管理するテーブルを準備しておき,それを用いて,不正に入手したハッシュ値からパスワードを解読する。",
+  "defQid": "2023r05a-am-36",
+  "source": "text-def",
+  "point": "レインボーテーブル=ハッシュ値から平文を逆引きする事前計算表。ソルト付与で対策できる。",
+  "qids": [
+   "2023r05a-am-36"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "レインボー攻撃",
+  "term": "レインボー攻撃",
+  "def": "平文のパスワードとハッシュ値をチェーンによって管理するテーブルを準備しておき,それを用いて,不正に入手したハッシュ値からパスワードを解読する。",
+  "defQid": "2022r04h-am-42",
+  "source": "text-def",
+  "point": "レインボー攻撃=ハッシュ値→平文の逆引きテーブル(チェーンで圧縮)を使う。対策はソルトの付与。「ハッシュ値から解読」がキーワード。",
+  "qids": [
+   "2022r04h-am-42"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "レジリエンス",
+  "term": "レジリエンス",
+  "def": "障害からの回復力・復元力",
+  "defQid": "2023r05a-am-74",
+  "source": "point-pair",
+  "point": "レジリエンス=障害からの回復力・復元力。BCMでは「起きても立ち直る力」を重視する。",
+  "qids": [
+   "2023r05a-am-74"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "レスポンシブwebデザイン",
+  "term": "レスポンシブWebデザイン",
+  "def": "CSSのメディアクエリで画面幅に応じてレイアウトを切り替える",
+  "defQid": "2024r06a-am-50",
+  "source": "point-pair",
+  "point": "レスポンシブWebデザイン=CSSのメディアクエリで画面幅に応じてレイアウトを切り替える。",
+  "qids": [
+   "2024r06a-am-50"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "レンダリング",
+  "term": "レンダリング",
+  "def": "仮想世界の情報をディスプレイに描画可能な形式の画像に変換する処理",
+  "defQid": "2023r05a-am-25",
+  "source": "text-def",
+  "point": "レンダリング=データを描画可能な画像に変換。3DCGでは形状・光源・材質から最終画像を生成する。",
+  "qids": [
+   "2023r05a-am-25"
+  ],
+  "middle": "マルチメディア",
+  "major": "T"
+ },
+ {
+  "id": "ローコード開発",
+  "term": "ローコード開発",
+  "def": "アプリケーションソフトウェアの開発環境上で,用意された部品やテンプレートを GUI による操作で組み合わせたり,必要に応じて一部の処理のソースコードを記述したりして,ソフトウェアを開発する手法",
+  "defQid": "2023r05a-am-47",
+  "source": "choice-def",
+  "point": "ローコード=最小限のコードを書く,ノーコード=コードを全く書かない。GUI中心の開発。",
+  "qids": [
+   "2023r05a-am-47"
+  ],
+  "middle": "開発技術",
+  "major": "T",
+  "distractors": [
+   "継続的インテグレーション",
+   "ノーコード開発",
+   "プロトタイピング"
+  ]
+ },
+ {
+  "id": "ロールフォワード",
+  "term": "ロールフォワード",
+  "def": "チェックポイント後にコミット完了したトランザクション",
+  "defQid": "2022r04a-am-29",
+  "source": "point-pair",
+  "point": "ロールフォワード＝チェックポイント後にコミット完了したトランザクション。未コミットはロールバック。",
+  "qids": [
+   "2022r04a-am-29",
+   "2024r06h-am-27"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "ワイドカラム",
+  "term": "ワイドカラム",
+  "def": "大量のIoTデバイスから送信される大量で,かつ様々な形式のデータを格納可能なデータモデルのうち,行ごとに任意の列数をもち,かつ列ごとに複数の値をもつことによって,柔軟なデータ格納を実現しているデータモデル",
+  "defQid": "2025r07h-am-24",
+  "source": "choice-def",
+  "point": "NoSQLの4分類(キーバリュー/ドキュメント/ワイドカラム/グラフ)は,それぞれのキーワードと代表製品をセットで覚えましょう。",
+  "qids": [
+   "2025r07h-am-24"
+  ],
+  "middle": "データベース",
+  "major": "T",
+  "distractors": [
+   "グラフ",
+   "ドキュメント",
+   "リレーショナル"
+  ]
+ },
+ {
+  "id": "主成分分析",
+  "term": "主成分分析",
+  "def": "次元削減(変数を減らす)",
+  "defQid": "2023r05a-am-02",
+  "source": "point-pair",
+  "point": "主成分分析=次元削減(変数を減らす)。因子分析=背後の共通因子,クラスター分析=分類,回帰分析=予測。",
+  "qids": [
+   "2023r05a-am-02"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "予備調査",
+  "term": "予備調査",
+  "def": "本調査の前に対象の概要把握(規程・マニュアル・体制の理解)",
+  "defQid": "2023r05h-am-58",
+  "source": "point-pair",
+  "point": "予備調査=本調査の前に対象の概要把握(規程・マニュアル・体制の理解)。本調査=監査証拠を集めて結論を裏付ける。両者の役割を区別する。",
+  "qids": [
+   "2022r04h-am-60",
+   "2023r05h-am-58",
+   "2024r06a-am-59"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "事業部制組織",
+  "term": "事業部制組織",
+  "def": "製品,地域などで構成された組織単位に,利益責任をもたせる。",
+  "defQid": "2023r05h-am-74",
+  "source": "text-def",
+  "point": "事業部制組織=製品・地域別に事業部を分け,各事業部が利益責任をもつ(分権化)。職能別組織(機能別分業)やプロジェクト組織と区別する。",
+  "qids": [
+   "2023r05h-am-74"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "交差検証",
+  "term": "交差検証",
+  "def": "分割して入れ替えながら評価",
+  "defQid": "2024r06a-am-02",
+  "source": "point-pair",
+  "point": "交差検証=分割して入れ替えながら評価。正則化・アンサンブル・マルチタスクとの区別を押さえる。",
+  "qids": [
+   "2024r06a-am-02"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "企業ノ財務情報",
+  "term": "企業の財務情報",
+  "def": "XBRLで主要な取扱いの対象とされている情報",
+  "defQid": "2022r04h-am-71",
+  "source": "choice-def",
+  "point": "XBRL=財務報告用のXML言語(Business Reporting)。決算書・財務諸表の電子開示に使う。名前のBusiness Reportingが財務情報を示す。",
+  "qids": [
+   "2022r04h-am-71"
+  ],
+  "middle": "経営戦略",
+  "major": "S",
+  "distractors": [
+   "医療機関のカルテ情報",
+   "企業の顧客情報",
+   "自治体の住民情報"
+  ]
+ },
+ {
+  "id": "使用性",
+  "term": "使用性",
+  "def": "使いやすさ・習得しやすさ",
+  "defQid": "2024r06a-am-48",
+  "source": "point-pair",
+  "point": "使用性=使いやすさ・習得しやすさ。信頼性/保守性/機能性との品質特性の違いを押さえる。",
+  "qids": [
+   "2022r04h-am-65",
+   "2024r06a-am-48"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "保守性",
+  "term": "保守性",
+  "def": "直しやすさ→回復時間で測る(MTRS/MTTR)",
+  "defQid": "2022r04h-am-56",
+  "source": "point-pair",
+  "point": "保守性=直しやすさ→回復時間で測る(MTRS/MTTR)。信頼性=壊れにくさ→故障間隔で測る(MTBF)。「回復時間」は保守性。",
+  "qids": [
+   "2022r04h-am-56",
+   "2025r07h-am-47"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "信頼性",
+  "term": "信頼性",
+  "def": "壊れにくさ→故障間隔で測る(MTBF)",
+  "defQid": "2022r04h-am-56",
+  "source": "point-pair",
+  "point": "保守性=直しやすさ→回復時間で測る(MTRS/MTTR)。信頼性=壊れにくさ→故障間隔で測る(MTBF)。「回復時間」は保守性。",
+  "qids": [
+   "2022r04a-am-13",
+   "2022r04a-am-34",
+   "2022r04a-am-47",
+   "2022r04a-am-60",
+   "2022r04h-am-56",
+   "2023r05h-am-15",
+   "2024r06a-am-12",
+   "2024r06a-am-80",
+   "2024r06h-am-12",
+   "2025r07a-am-13",
+   "2025r07a-am-41"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "偽装請負",
+  "term": "偽装請負",
+  "def": "請負契約なのに発注者が受託者の従業員を直接指揮命令",
+  "defQid": "2022r04h-am-79",
+  "source": "point-pair",
+  "point": "偽装請負=請負契約なのに発注者が受託者の従業員を直接指揮命令。判断軸は「誰が誰を指揮命令するか」。受託者従業員を発注者が指揮したらアウト。",
+  "qids": [
+   "2022r04h-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "入出力データ管理",
+  "term": "入出力データ管理",
+  "def": "授受記録で受渡しを確実に",
+  "defQid": "2024r06a-am-57",
+  "source": "point-pair",
+  "point": "入出力データ管理=授受記録で受渡しを確実に。停止・修正・廃棄は担当部門の承認と証跡が必要。",
+  "qids": [
+   "2024r06a-am-57"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "全般統制",
+  "term": "全般統制",
+  "def": "開発・運用・アクセス管理などシステム共通の土台",
+  "defQid": "2024r06h-am-60",
+  "source": "point-pair",
+  "point": "業務処理統制=個々のアプリの処理の正確性(入力チェック等)。全般統制=開発・運用・アクセス管理などシステム共通の土台。",
+  "qids": [
+   "2023r05a-am-60",
+   "2024r06h-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "内部断片化",
+  "term": "内部断片化",
+  "def": "ページ内の無駄な空き",
+  "defQid": "2022r04a-am-17",
+  "source": "point-pair",
+  "point": "内部断片化＝ページ内の無駄な空き。ページを小さくすると断片化が減り主記憶を有効利用。",
+  "qids": [
+   "2022r04a-am-17"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "内部監査人",
+  "term": "内部監査人",
+  "def": "モニタリングで評価・改善を促す",
+  "defQid": "2023r05h-am-60",
+  "source": "point-pair",
+  "point": "内部統制の役割分担:経営者=整備・運用の最終責任と基本方針決定。監査役=独立した立場から監視・検証。内部監査人=モニタリングで評価・改善を促す。",
+  "qids": [
+   "2023r05h-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "判定条件網羅",
+  "term": "判定条件網羅",
+  "def": "各分岐の真・偽を最低1回ずつ通す",
+  "defQid": "2022r04h-am-47",
+  "source": "point-pair",
+  "point": "判定条件網羅=各分岐の真・偽を最低1回ずつ通す。全条件の組合せまでは不要。2判定なら真偽を効率よくカバーする2ケースで足りることが多い。",
+  "qids": [
+   "2022r04h-am-47"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "加重総和法",
+  "term": "加重総和法",
+  "def": "各項目の評価点×重みの総和",
+  "defQid": "2022r04a-am-54",
+  "source": "point-pair",
+  "point": "加重総和法＝各項目の評価点×重みの総和。全製品を計算して最大を選ぶ。",
+  "qids": [
+   "2022r04a-am-54"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "動乱期",
+  "term": "動乱期",
+  "aliases": [
+   "Storming"
+  ],
+  "def": "チームの発展段階を五つに区分したタックマンモデルによれば,メンバーの異なる考え方や価値観が明確になり,メンバーがそれぞれの意見を主張し合う段階",
+  "defQid": "2025r07a-am-52",
+  "source": "choice-def",
+  "point": "Storming=嵐=意見の衝突,とイメージで覚えましょう。順番(Forming→Storming→Norming→Performing)も問われます。",
+  "qids": [
+   "2025r07a-am-52"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M",
+  "distractors": [
+   "安定期(Norming)",
+   "遂行期(Performing)",
+   "成立期(Forming)"
+  ]
+ },
+ {
+  "id": "合流-フィーディング-バッファ",
+  "term": "合流(フィーディング)バッファ",
+  "def": "支流がクリティカルチェーンに合流する手前に配置",
+  "defQid": "2023r05h-am-52",
+  "source": "point-pair",
+  "point": "クリティカルチェーン法:プロジェクトバッファ=全体の最後尾に1つ。合流(フィーディング)バッファ=支流がクリティカルチェーンに合流する手前に配置。",
+  "qids": [
+   "2023r05h-am-52"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "合流バッファ",
+  "term": "合流バッファ",
+  "def": "クリティカルチェーン上にないアクティビティが遅延してもクリティカルチェーン上のアクティビティに影響しないように,クリティカルチェーンにつながっていくアクティビティの直後に設けるバッファ",
+  "defQid": "2023r05h-am-52",
+  "source": "choice-def",
+  "point": "クリティカルチェーン法:プロジェクトバッファ=全体の最後尾に1つ。合流(フィーディング)バッファ=支流がクリティカルチェーンに合流する手前に配置。",
+  "qids": [
+   "2023r05h-am-52"
+  ],
+  "middle": "プロジェクトマネジメント",
+  "major": "M",
+  "distractors": [
+   "資源バッファ",
+   "フレームバッファ",
+   "プロジェクトバッファ"
+  ]
+ },
+ {
+  "id": "問題管理",
+  "term": "問題管理",
+  "def": "根本原因を特定して再発防止",
+  "defQid": "2022r04a-am-55",
+  "source": "point-pair",
+  "point": "問題管理＝根本原因を特定して再発防止。インシデント管理＝暫定復旧を迅速に、と対で覚える。",
+  "qids": [
+   "2022r04a-am-55",
+   "2025r07a-am-56"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "外部キー",
+  "term": "外部キー",
+  "def": "ある関係の候補キーを参照する属性,又は属性の組",
+  "defQid": "2023r05a-am-27",
+  "source": "text-def",
+  "point": "外部キー=他表の候補キーを参照する属性。参照整合性制約の基礎。",
+  "qids": [
+   "2023r05a-am-27"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "外部フラグメンテーション",
+  "term": "外部フラグメンテーション",
+  "def": "空きが分散して大きな連続領域が取れない",
+  "defQid": "2022r04h-am-18",
+  "source": "point-pair",
+  "point": "外部フラグメンテーション=空きが分散して大きな連続領域が取れない。固定長ブロック方式は外部断片化に強い(代わりに内部断片化が起きうる)。",
+  "qids": [
+   "2022r04h-am-18"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T"
+ },
+ {
+  "id": "多重度",
+  "term": "多重度",
+  "def": "同時に処理できるタスク数",
+  "defQid": "2024r06h-am-18",
+  "source": "point-pair",
+  "point": "多重度=同時に処理できるタスク数。到着時刻と空き待ちを時系列で丁寧に追う。多重度2でも空きがなければ待たされる点に注意。",
+  "qids": [
+   "2022r04a-am-17",
+   "2022r04h-am-16",
+   "2022r04h-am-19",
+   "2023r05h-am-29",
+   "2024r06h-am-18",
+   "2025r07a-am-15"
+  ],
+  "middle": "システム構成要素",
+  "major": "T"
+ },
+ {
+  "id": "子2ツノノード削除",
+  "term": "子2つのノード削除",
+  "def": "左部分木の最大 or 右部分木の最小で置き換える",
+  "defQid": "2024r06a-am-05",
+  "source": "point-pair",
+  "point": "子2つのノード削除=左部分木の最大 or 右部分木の最小で置き換える。",
+  "qids": [
+   "2024r06a-am-05"
+  ],
+  "middle": "アルゴリズムとプログラミング",
+  "major": "T"
+ },
+ {
+  "id": "完全化保守",
+  "term": "完全化保守",
+  "def": "障害はないが保守性・性能を改善",
+  "defQid": "2023r05a-am-48",
+  "source": "point-pair",
+  "point": "完全化保守=障害はないが保守性・性能を改善。予防保守は潜在的な故障を未然に修正する点で区別する。",
+  "qids": [
+   "2022r04h-am-48",
+   "2023r05a-am-48"
+  ],
+  "middle": "開発技術",
+  "major": "T"
+ },
+ {
+  "id": "実行可能状態",
+  "term": "実行可能状態",
+  "def": "リアルタイムOSにおいて,実行中のタスクがプリエンプションによって遷移する状態",
+  "defQid": "2025r07h-am-14",
+  "source": "choice-def",
+  "point": "タスクの3状態遷移で「実行→実行可能」はプリエンプション,「実行→待ち」は入出力待ちなど。矢印の向きと理由をセットで覚えましょう。",
+  "qids": [
+   "2023r05h-am-14",
+   "2025r07h-am-14"
+  ],
+  "middle": "ソフトウェア",
+  "major": "T",
+  "distractors": [
+   "休止状態",
+   "終了状態",
+   "待ち状態"
+  ]
+ },
+ {
+  "id": "実行層",
+  "term": "実行層",
+  "def": "生産事業所のシステムを,生産計画などの計画層,各指示や工程管理・製造管理などの実行層,機械・機器の制御を行う制御層の三つの層に大きく分けたとき,MESが運用される層",
+  "defQid": "2025r07a-am-71",
+  "source": "choice-def",
+  "point": "MESのE=Execution(実行)。名前がそのまま答えになるパターンです。計画(ERP)→実行(MES)→制御(PLC)の3層構造を覚えましょう。",
+  "qids": [
+   "2025r07a-am-71"
+  ],
+  "middle": "ビジネスインダストリ",
+  "major": "S",
+  "distractors": [
+   "計画層",
+   "制御層",
+   "計画層・実行層・制御層"
+  ]
+ },
+ {
+  "id": "差集合a-b",
+  "term": "差集合A−B",
+  "def": "Aにあり、Bにない行",
+  "defQid": "2022r04a-am-27",
+  "source": "point-pair",
+  "point": "差集合A−B＝Aにあり、Bにない行。ここでは従業員から異動対象を除いた残り。",
+  "qids": [
+   "2022r04a-am-27"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "情報銀行",
+  "term": "情報銀行",
+  "def": "本人の同意・指示のもとで個人データを預かり第三者提供する仲介事業者",
+  "defQid": "2023r05h-am-63",
+  "source": "point-pair",
+  "point": "情報銀行=本人の同意・指示のもとで個人データを預かり第三者提供する仲介事業者。「個人が自分のデータの提供先を制御」がキーワード。",
+  "qids": [
+   "2023r05h-am-63"
+  ],
+  "middle": "システム戦略",
+  "major": "S"
+ },
+ {
+  "id": "意匠法",
+  "term": "意匠法",
+  "def": "デザイン(見た目)の保護",
+  "defQid": "2025r07a-am-79",
+  "source": "point-pair",
+  "point": "意匠法=デザイン(見た目)の保護。GUIも画像意匠として保護対象,は改正後の頻出ポイントです。",
+  "qids": [
+   "2025r07a-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "成長マトリクス",
+  "term": "成長マトリクス",
+  "def": "既存製品か新製品かという製品軸と既存市場か新市場かという市場軸の両軸で捉え,事業成長戦略を考える。",
+  "defQid": "2023r05a-am-67",
+  "source": "text-def",
+  "point": "アンゾフ成長マトリクス=製品×市場の2軸で成長戦略を分類。市場浸透・新製品・新市場・多角化。",
+  "qids": [
+   "2023r05a-am-67",
+   "2025r07a-am-70"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "戦略マップ",
+  "term": "戦略マップ",
+  "def": "財務,顧客,内部ビジネスプロセス,学習と成長という四つの視点を基に,課題,施策,目標の因果関係を表現したもの",
+  "defQid": "2023r05h-am-68",
+  "source": "text-def",
+  "point": "BSCの4視点=財務・顧客・内部ビジネスプロセス・学習と成長。戦略マップはこの4視点の因果関係を可視化する。",
+  "qids": [
+   "2023r05h-am-68",
+   "2025r07a-am-68"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "投機実行",
+  "term": "投機実行",
+  "def": "パイプラインの性能を向上させるための技法の一つで,分岐条件の結果が決定する前に,分岐先を予測して命令を実行するもの",
+  "defQid": "2023r05a-am-09",
+  "source": "choice-def",
+  "point": "投機実行=分岐予測して先に実行。予測が外れたら結果を破棄する。",
+  "qids": [
+   "2023r05a-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T",
+  "distractors": [
+   "アウトオブオーダー実行",
+   "遅延分岐",
+   "レジスタリネーミング"
+  ]
+ },
+ {
+  "id": "故障ノ木解析",
+  "term": "故障の木解析",
+  "aliases": [
+   "FTA"
+  ],
+  "def": "サービスマネジメントのサービス可用性管理において,インシデント又は将来インシデントとなる可能性のある事象について,その発生経路及び発生原因を分析し,発生確率の算出に使用できる技法",
+  "defQid": "2025r07a-am-55",
+  "source": "choice-def",
+  "point": "FTA=結果から原因へ「木」を掘り下げ,確率計算ができる。FMEA=部品の故障モードから影響へ,の向きの違いを押さえましょう。",
+  "qids": [
+   "2022r04a-am-47",
+   "2025r07a-am-55"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M",
+  "distractors": [
+   "故障モード・影響解析(FMEA)",
+   "コンポーネント障害インパクト分析(CFIA)",
+   "単一障害点分析(SPOF分析)"
+  ]
+ },
+ {
+  "id": "是正処置",
+  "term": "是正処置",
+  "def": "検出された不適合又はほかの望ましくない状況の原因を除去する,又は再発の起こりやすさを低減するための処置",
+  "defQid": "2023r05a-am-55",
+  "source": "text-def",
+  "point": "是正処置=原因を除去し再発を防ぐ。予防処置(潜在的な不適合の未然防止)と区別する。",
+  "qids": [
+   "2023r05a-am-55"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "暗号資産",
+  "term": "暗号資産",
+  "def": "「不特定の者に使える・電子的・法定通貨ではない」の3点セット",
+  "defQid": "2025r07h-am-79",
+  "source": "point-pair",
+  "point": "暗号資産=「不特定の者に使える・電子的・法定通貨ではない」の3点セット。加盟店限定の電子マネーとの違いが定番の対比です。",
+  "qids": [
+   "2024r06a-am-39",
+   "2025r07h-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "有機el",
+  "term": "有機EL",
+  "def": "自発光(電圧で素子が光る)",
+  "defQid": "2023r05h-am-12",
+  "source": "point-pair",
+  "point": "有機EL=自発光(電圧で素子が光る)。液晶=バックライト+透過光量制御(非自発光)。",
+  "qids": [
+   "2023r05h-am-12"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "有機elディスプレイ",
+  "term": "有機ELディスプレイ",
+  "def": "電圧をかけて発光素子を発光させて表示する。",
+  "defQid": "2023r05h-am-12",
+  "source": "text-def",
+  "point": "有機EL=自発光(電圧で素子が光る)。液晶=バックライト+透過光量制御(非自発光)。",
+  "qids": [
+   "2023r05h-am-12"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "期待金額価値",
+  "term": "期待金額価値",
+  "def": "(各結果の確率×収入の合計)−投資額",
+  "defQid": "2024r06h-am-54",
+  "source": "point-pair",
+  "point": "期待金額価値=(各結果の確率×収入の合計)−投資額。まず期待収入を出し,最後に投資額を引くのを忘れない。",
+  "qids": [
+   "2024r06h-am-54",
+   "2025r07a-am-54"
+  ],
+  "middle": "システム戦略",
+  "major": "M"
+ },
+ {
+  "id": "未使用ip空間-ダークネット-ニ届ク",
+  "term": "未使用IP空間(ダークネット)に届く",
+  "def": "無差別スキャンや攻撃対象探索のパケットが大半",
+  "defQid": "2024r06a-am-38",
+  "source": "point-pair",
+  "point": "未使用IP空間(ダークネット)に届く=無差別スキャンや攻撃対象探索のパケットが大半。",
+  "qids": [
+   "2024r06a-am-38"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "本調査",
+  "term": "本調査",
+  "def": "監査証拠を集めて結論を裏付ける",
+  "defQid": "2023r05h-am-58",
+  "source": "point-pair",
+  "point": "予備調査=本調査の前に対象の概要把握(規程・マニュアル・体制の理解)。本調査=監査証拠を集めて結論を裏付ける。両者の役割を区別する。",
+  "qids": [
+   "2022r04h-am-60",
+   "2023r05h-am-58"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "根本原因ノ特定",
+  "term": "根本原因の特定",
+  "def": "サービスマネジメントにおける問題管理の活動",
+  "defQid": "2025r07a-am-56",
+  "source": "choice-def",
+  "point": "インシデント管理=応急処置,問題管理=根本原因の追究と再発防止。この対比はサビマネの最頻出ポイントです。",
+  "qids": [
+   "2025r07a-am-56"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M",
+  "distractors": [
+   "サービス要求の優先度付け",
+   "変更要求の記録",
+   "リリースの検証"
+  ]
+ },
+ {
+  "id": "業務処理統制",
+  "term": "業務処理統制",
+  "def": "個々のアプリの処理の正確性(入力チェック等)",
+  "defQid": "2024r06h-am-60",
+  "source": "point-pair",
+  "point": "業務処理統制=個々のアプリの処理の正確性(入力チェック等)。全般統制=開発・運用・アクセス管理などシステム共通の土台。",
+  "qids": [
+   "2023r05a-am-60",
+   "2024r06h-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "機密性",
+  "term": "機密性",
+  "def": "JIS Q 27000:2019(情報セキュリティマネジメントシステムー用語)において,認可されていない個人,エンティティ又はプロセスに対して,情報を使用させず,また,開示しない特性として定義されているもの",
+  "defQid": "2023r05a-am-40",
+  "source": "choice-def",
+  "point": "機密性=認可された者だけがアクセスできる。完全性=改ざんされない,可用性=必要時に使える。CIAの三要素。",
+  "qids": [
+   "2022r04a-am-57",
+   "2023r05a-am-40",
+   "2024r06a-am-57"
+  ],
+  "middle": "セキュリティ",
+  "major": "T",
+  "distractors": [
+   "真正性",
+   "認証",
+   "否認防止"
+  ]
+ },
+ {
+  "id": "正規分布",
+  "term": "正規分布",
+  "def": "平均を中心にした左右対称の1つの山",
+  "defQid": "2023r05h-am-02",
+  "source": "point-pair",
+  "point": "正規分布=平均を中心にした左右対称の1つの山。標準偏差は山の広がり(大きいほど幅広くなだらか)。平均±1σに約68%が入る。",
+  "qids": [
+   "2023r05h-am-02"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "派遣",
+  "term": "派遣",
+  "def": "雇用は派遣元・指揮命令は派遣先",
+  "defQid": "2023r05a-am-80",
+  "source": "point-pair",
+  "point": "派遣=雇用は派遣元・指揮命令は派遣先。出向=出向先が指揮命令。請負=発注者と受託者の労働者に指揮命令関係なし。",
+  "qids": [
+   "2023r05a-am-80",
+   "2023r05h-am-79",
+   "2024r06a-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "派遣元ノ義務",
+  "term": "派遣元の義務",
+  "def": "派遣労働者の雇用主として教育訓練・福祉増進・キャリア支援など",
+  "defQid": "2023r05h-am-79",
+  "source": "point-pair",
+  "point": "派遣元の義務=派遣労働者の雇用主として教育訓練・福祉増進・キャリア支援など。派遣先の義務=管理台帳作成・派遣先責任者選任・契約内容の周知など。主体を取り違えないこと。",
+  "qids": [
+   "2023r05h-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "派遣先ノ義務",
+  "term": "派遣先の義務",
+  "def": "管理台帳作成・派遣先責任者選任・契約内容の周知など",
+  "defQid": "2023r05h-am-79",
+  "source": "point-pair",
+  "point": "派遣元の義務=派遣労働者の雇用主として教育訓練・福祉増進・キャリア支援など。派遣先の義務=管理台帳作成・派遣先責任者選任・契約内容の周知など。主体を取り違えないこと。",
+  "qids": [
+   "2023r05h-am-79"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "特許権ノ存続期間",
+  "term": "特許権の存続期間",
+  "def": "出願日から20年",
+  "defQid": "2023r05h-am-49",
+  "source": "point-pair",
+  "point": "特許権の存続期間=出願日から20年。個人的・家庭内利用や先使用権があれば許諾不要。「業として国内で製造」は実施に当たり許諾が必要。",
+  "qids": [
+   "2023r05h-am-49"
+  ],
+  "middle": "法務",
+  "major": "T"
+ },
+ {
+  "id": "独自ノgui",
+  "term": "独自のGUI",
+  "def": "意匠法において,保護の対象となり得るもの",
+  "defQid": "2025r07a-am-79",
+  "source": "choice-def",
+  "point": "意匠法=デザイン(見た目)の保護。GUIも画像意匠として保護対象,は改正後の頻出ポイントです。",
+  "qids": [
+   "2025r07a-am-79"
+  ],
+  "middle": "法務",
+  "major": "S",
+  "distractors": [
+   "独自のアルゴリズム",
+   "独自の通信プロトコル",
+   "独自のビジネスモデル"
+  ]
+ },
+ {
+  "id": "監査役",
+  "term": "監査役",
+  "def": "独立した立場から監視・検証",
+  "defQid": "2023r05h-am-60",
+  "source": "point-pair",
+  "point": "内部統制の役割分担:経営者=整備・運用の最終責任と基本方針決定。監査役=独立した立場から監視・検証。内部監査人=モニタリングで評価・改善を促す。",
+  "qids": [
+   "2023r05h-am-60"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "監査手続",
+  "term": "監査手続",
+  "def": "監査証拠を入手するための具体的手順",
+  "defQid": "2022r04a-am-59",
+  "source": "point-pair",
+  "point": "監査手続＝監査証拠を入手するための具体的手順。証拠収集がキーワード。",
+  "qids": [
+   "2022r04a-am-59",
+   "2022r04h-am-60",
+   "2023r05a-am-59",
+   "2023r05h-am-59",
+   "2024r06a-am-58",
+   "2025r07h-am-59"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "監査調書",
+  "term": "監査調書",
+  "def": "監査の結論に至った過程を明らかにし,監査の結論を支える合理的な根拠とするための記録",
+  "defQid": "2024r06h-am-58",
+  "source": "text-def",
+  "point": "監査調書=監査の作業記録・証拠。結論を裏付ける根拠。報告書(結論を伝える)や監査計画(これからの予定)と区別する。",
+  "qids": [
+   "2022r04h-am-59",
+   "2023r05a-am-58",
+   "2024r06h-am-58"
+  ],
+  "middle": "システム監査",
+  "major": "M"
+ },
+ {
+  "id": "直列化可能性",
+  "term": "直列化可能性",
+  "def": "同時実行と順次実行が同結果",
+  "defQid": "2023r05h-am-28",
+  "source": "point-pair",
+  "point": "べき等=何回やっても結果が同じ(例:x=5の代入,DELETE)。原子性=全部かゼロか。直列化可能性=同時実行と順次実行が同結果。",
+  "qids": [
+   "2023r05h-am-28"
+  ],
+  "middle": "データベース",
+  "major": "T"
+ },
+ {
+  "id": "第三者中継",
+  "term": "第三者中継",
+  "def": "接続元が社外かつ送信者・受信者ドメインの両方が自社以外",
+  "defQid": "2023r05a-am-38",
+  "source": "point-pair",
+  "point": "第三者中継=接続元が社外かつ送信者・受信者ドメインの両方が自社以外。外→外の中継を許すと踏み台にされる。",
+  "qids": [
+   "2023r05a-am-38"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "継続的改善",
+  "term": "継続的改善",
+  "def": "パフォーマンスを向上するために繰り返し行われる活動",
+  "defQid": "2023r05h-am-55",
+  "source": "text-def",
+  "point": "継続的改善=パフォーマンス向上のために繰り返す活動(PDCAのAct)。用語定義問題は,各選択肢がどの用語の定義かを見分ける。",
+  "qids": [
+   "2023r05h-am-55",
+   "2024r06a-am-56",
+   "2025r07h-am-57"
+  ],
+  "middle": "サービスマネジメント",
+  "major": "M"
+ },
+ {
+  "id": "耐タンパ性",
+  "term": "耐タンパ性",
+  "def": "解析・改ざんへの耐性",
+  "defQid": "2022r04h-am-23",
+  "source": "point-pair",
+  "point": "耐タンパ性=解析・改ざんへの耐性。「開けたら壊れる」「解析を検知したら消去」といった能動的な防御が向上策。手がかりを残す・整然と並べるのは逆。",
+  "qids": [
+   "2022r04h-am-23",
+   "2024r06a-am-24",
+   "2024r06h-am-44"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "職務著作",
+  "term": "職務著作",
+  "def": "従業員が職務で作成した著作物の著作権は雇用主（法人）に帰属",
+  "defQid": "2022r04a-am-78",
+  "source": "point-pair",
+  "point": "職務著作＝従業員が職務で作成した著作物の著作権は雇用主（法人）に帰属。委託しても作成した会社のもの。",
+  "qids": [
+   "2022r04a-am-78",
+   "2023r05a-am-78"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "自己資本比率",
+  "term": "自己資本比率",
+  "def": "自己資本÷総資産は財務指標の最頻出です",
+  "defQid": "2025r07a-am-76",
+  "source": "point-pair",
+  "point": "自己資本=資本金+剰余金(返さなくてよいお金),負債=返すお金。自己資本比率=自己資本÷総資産は財務指標の最頻出です。",
+  "qids": [
+   "2025r07a-am-76"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "製造原価",
+  "term": "製造原価",
+  "def": "製品を作るのにかかった費用のみ",
+  "defQid": "2023r05h-am-76",
+  "source": "point-pair",
+  "point": "製造原価=製品を作るのにかかった費用のみ。製造設備の修繕費は経費に算入。災害損失・支払利息・賃貸費用など製造に無関係な費用は非原価。",
+  "qids": [
+   "2023r05h-am-76"
+  ],
+  "middle": "企業活動",
+  "major": "S"
+ },
+ {
+  "id": "要配慮個人情報",
+  "term": "要配慮個人情報",
+  "def": "本人の病歴,犯罪の経歴など不当な差別や不利益を生じさせるおそれのある情報",
+  "defQid": "2024r06h-am-80",
+  "source": "text-def",
+  "point": "要配慮個人情報=人種・信条・病歴・犯罪歴など「差別につながりうる」機微情報。取得に本人同意が必要な点が通常の個人情報と異なる。",
+  "qids": [
+   "2024r06h-am-80"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "親和図法",
+  "term": "親和図法",
+  "aliases": [
+   "KJ法"
+  ],
+  "def": "引き出された多くの事実やアイディアを，類似するものでグルーピングしていく収束技法",
+  "defQid": "2022r04a-am-76",
+  "source": "choice-def",
+  "point": "親和図法（KJ法）＝雑多な情報を類似性でグループ化する収束技法。ブレーンストーミングは発散技法。",
+  "qids": [
+   "2022r04a-am-76",
+   "2025r07h-am-75"
+  ],
+  "middle": "企業活動",
+  "major": "S",
+  "distractors": [
+   "NM法",
+   "ゴードン法",
+   "ブレーンストーミング"
+  ]
+ },
+ {
+  "id": "認証vlan",
+  "term": "認証VLAN",
+  "def": "認証結果でVLANを動的割当て(座席非固定でも制御可)",
+  "defQid": "2023r05h-am-45",
+  "source": "point-pair",
+  "point": "認証VLAN=認証結果でVLANを動的割当て(座席非固定でも制御可)。スタティックVLAN=ポート固定割当て。フリーアドレス環境では認証VLANが適する。",
+  "qids": [
+   "2023r05h-am-45"
+  ],
+  "middle": "セキュリティ",
+  "major": "T"
+ },
+ {
+  "id": "請負",
+  "term": "請負",
+  "def": "発注者と受託者の労働者に指揮命令関係なし",
+  "defQid": "2023r05a-am-80",
+  "source": "point-pair",
+  "point": "派遣=雇用は派遣元・指揮命令は派遣先。出向=出向先が指揮命令。請負=発注者と受託者の労働者に指揮命令関係なし。",
+  "qids": [
+   "2022r04a-am-66",
+   "2022r04a-am-79",
+   "2022r04h-am-79",
+   "2023r05a-am-80",
+   "2025r07h-am-66"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "請負型",
+  "term": "請負型",
+  "def": "成果物が明確でベンダ主体の工程（内部設計〜システム結合）",
+  "defQid": "2022r04a-am-66",
+  "source": "point-pair",
+  "point": "請負型＝成果物が明確でベンダ主体の工程（内部設計〜システム結合）。要件定義・外部設計は準委任型。",
+  "qids": [
+   "2022r04a-am-66",
+   "2025r07h-am-66"
+  ],
+  "middle": "経営戦略",
+  "major": "S"
+ },
+ {
+  "id": "連結リスト",
+  "term": "連結リスト",
+  "def": "挿入削除速いがポインタ領域が必要・ランダムアクセス遅い",
+  "defQid": "2022r04h-am-05",
+  "source": "point-pair",
+  "point": "配列リスト=ランダムアクセス速いが領域固定・挿入削除が遅い。連結リスト=挿入削除速いがポインタ領域が必要・ランダムアクセス遅い。",
+  "qids": [
+   "2022r04h-am-05",
+   "2023r05h-am-05"
+  ],
+  "middle": "アルゴリズムとプログラミング",
+  "major": "T"
+ },
+ {
+  "id": "連関図",
+  "term": "連関図",
+  "def": "分析対象としている問題に数多くの要因が関係し,それらが相互に絡み合っているとき,原因と結果,目的と手段といった関係を追求していくことによって,因果関係を明らかにし,解決の糸口をつかむための図",
+  "defQid": "2024r06h-am-74",
+  "source": "choice-def",
+  "point": "連関図=複雑に絡んだ要因の「因果関係」を矢印で整理する(新QC七つ道具)。特性要因図(魚の骨)と似るが,要因が相互に絡む問題に向く。",
+  "qids": [
+   "2023r05a-am-76",
+   "2024r06h-am-74"
+  ],
+  "middle": "企業活動",
+  "major": "S",
+  "distractors": [
+   "アローダイアグラム",
+   "パレート図",
+   "マトリックス図"
+  ]
+ },
+ {
+  "id": "過学習",
+  "term": "過学習",
+  "def": "学習に使った訓練データに対しては精度が高い結果となる一方で，未知のデータに対しては精度が下がる。",
+  "defQid": "2022r04a-am-04",
+  "source": "text-def",
+  "point": "過学習＝訓練データにだけ強く、未知データに弱い。汎化性能の低下がキーワード。",
+  "qids": [
+   "2022r04a-am-04",
+   "2024r06a-am-02",
+   "2025r07h-am-03"
+  ],
+  "middle": "基礎理論",
+  "major": "T"
+ },
+ {
+  "id": "配列リスト",
+  "term": "配列リスト",
+  "def": "ランダムアクセス速いが領域固定・挿入削除が遅い",
+  "defQid": "2022r04h-am-05",
+  "source": "point-pair",
+  "point": "配列リスト=ランダムアクセス速いが領域固定・挿入削除が遅い。連結リスト=挿入削除速いがポインタ領域が必要・ランダムアクセス遅い。",
+  "qids": [
+   "2022r04h-am-05"
+  ],
+  "middle": "アルゴリズムとプログラミング",
+  "major": "T"
+ },
+ {
+  "id": "量子ゲート方式ノ量子コンピュータ",
+  "term": "量子ゲート方式の量子コンピュータ",
+  "def": "複数の状態を同時に表現する量子ビットと,その重ね合わせを利用する。",
+  "defQid": "2024r06h-am-09",
+  "source": "text-def",
+  "point": "量子コンピュータのキーワードは「量子ビット」「重ね合わせ」。極低温で動作する点(高温ではない)も誤答の定番。",
+  "qids": [
+   "2024r06h-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "量子超越性",
+  "term": "量子超越性",
+  "aliases": [
+   "Quantum Supremacy"
+  ],
+  "def": "従来のコンピュータでは実用的な時間で処理することができない計算を,量子コンピュータでは高速に実行できること",
+  "defQid": "2024r06a-am-09",
+  "source": "text-def",
+  "point": "量子超越性=古典機では非現実的な計算を量子機が高速に解けることの実証。",
+  "qids": [
+   "2024r06a-am-09"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "集団思考",
+  "term": "集団思考",
+  "aliases": [
+   "グループシンク"
+  ],
+  "def": "強い連帯性をもつチームが自らへの批判的思考を欠いて,不合理な合意へと達すること",
+  "defQid": "2023r05h-am-80",
+  "source": "text-def",
+  "point": "集団思考(グループシンク)=結束の強い集団で同調圧力により批判が抑えられ,不合理な結論に達すること。異論を歓迎する仕組みで防ぐ。",
+  "qids": [
+   "2023r05h-am-80",
+   "2024r06h-am-69",
+   "2025r07a-am-69"
+  ],
+  "middle": "法務",
+  "major": "S"
+ },
+ {
+  "id": "電気泳動",
+  "term": "電気泳動",
+  "def": "帯電粒子を電気で泳がせて集める",
+  "defQid": "2022r04a-am-11",
+  "source": "point-pair",
+  "point": "電気泳動＝帯電粒子を電気で泳がせて集める。電子書籍リーダーの表示方式。",
+  "qids": [
+   "2022r04a-am-11"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "電気泳動型電子ペーパー",
+  "term": "電気泳動型電子ペーパー",
+  "def": "電圧を印加した電極に，着色した帯電粒子を集めて表示する。",
+  "defQid": "2022r04a-am-11",
+  "source": "text-def",
+  "point": "電気泳動＝帯電粒子を電気で泳がせて集める。電子書籍リーダーの表示方式。",
+  "qids": [
+   "2022r04a-am-11"
+  ],
+  "middle": "コンピュータ構成要素",
+  "major": "T"
+ },
+ {
+  "id": "非機能要件ノ使用性",
+  "term": "非機能要件の使用性",
+  "def": "4時間以内のトレーニングを受けることで,新しい画面を操作できるようになること",
+  "defQid": "2022r04h-am-65",
+  "source": "text-def",
+  "point": "非機能要件の品質特性:使用性(使いやすさ・習得しやすさ),性能効率性(処理速度),信頼性(復旧・可用性),移植性(移行しやすさ)。「習得・操作」は使用性。",
+  "qids": [
+   "2022r04h-am-65"
+  ],
+  "middle": "システム企画",
+  "major": "S"
+ }
+]

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "fetch-exam": "tsx scripts/fetch-exam.ts",
     "extract-am": "tsx scripts/extract-am.ts",
+    "build:terms": "tsx scripts/build-terms.ts",
     "codex-bridge": "node scripts/codex-bridge.mjs",
     "test": "node --import tsx --test \"tests/*.test.mjs\""
   },

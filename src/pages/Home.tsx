@@ -12,6 +12,16 @@ import Badge from "../components/Badge";
 import { achievementRows, totalCount } from "../lib/achievements";
 import { pickGreeting } from "../lib/greeting";
 import { dueReviewIds, loadState, studyStats } from "../lib/progress";
+import { dueVocabIds } from "../lib/vocab";
+
+/** 用語ノートの絵文字アイコン(Icons.tsx は線画SVGなので、ここだけ絵文字で代用) */
+function IconVocab({ size = 20 }: { size?: number }) {
+  return (
+    <span style={{ fontSize: size - 3, lineHeight: 1 }} aria-hidden>
+      📒
+    </span>
+  );
+}
 
 function daysUntil(dateStr: string): number {
   const target = new Date(`${dateStr}T00:00:00`).getTime();
@@ -24,6 +34,7 @@ export default function Home() {
   const state = loadState();
   const stats = studyStats(state);
   const due = dueReviewIds(state).length;
+  const vocabDue = dueVocabIds(state).length;
   const examDate = state.settings.examDate;
   const left = examDate ? daysUntil(examDate) : null;
   const [greeting] = useState(() => pickGreeting(state));
@@ -91,6 +102,31 @@ export default function Home() {
           {due > 0 ? `${due}問が復習どき → 始める` : "今日の復習はありません"}
         </p>
       </Link>
+
+      {vocabDue > 0 && (
+        <Link
+          to="/vocab/run"
+          className="card"
+          style={{
+            display: "block",
+            background: "var(--accent-bg)",
+            borderColor: "var(--accent)",
+            marginBottom: 12,
+            textDecoration: "none",
+            color: "inherit",
+          }}
+        >
+          <p
+            className="small"
+            style={{ color: "var(--accent-text)", fontWeight: 600, marginBottom: 2 }}
+          >
+            📒 ことばの復習
+          </p>
+          <p style={{ fontWeight: 600, color: "var(--accent-text)" }}>
+            {vocabDue}語が復習どき → ことばドリルを始める
+          </p>
+        </Link>
+      )}
 
       <div
         style={{
@@ -172,6 +208,12 @@ export default function Home() {
             icon: IconRefresh,
             label: "反復学習",
             desc: "正解するまで繰り返して定着",
+          },
+          {
+            to: "/vocab",
+            icon: IconVocab,
+            label: "用語ノート",
+            desc: "間違えた問題のことばを整理・復習",
           },
           { to: "/pm", icon: IconDoc, label: "午後演習", desc: "長文読解と自己採点" },
           { to: "/mock", icon: IconClock, label: "模試モード", desc: "80問150分の通し演習" },
