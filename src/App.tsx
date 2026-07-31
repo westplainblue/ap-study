@@ -3,8 +3,10 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
 import TabBar from "./components/TabBar";
+import { loadTermsData } from "./data/terms";
 import { reconcileSilent } from "./lib/achievements";
 import { syncInBackground } from "./lib/sync";
+import { reconcileVocabFromStorage } from "./lib/vocab";
 import DrillRun from "./pages/DrillRun";
 import DrillSetup from "./pages/DrillSetup";
 import Home from "./pages/Home";
@@ -17,11 +19,15 @@ import PracticeSetup from "./pages/PracticeSetup";
 import ReviewRun from "./pages/ReviewRun";
 import Settings from "./pages/Settings";
 import Stats from "./pages/Stats";
+import VocabList from "./pages/VocabList";
+import VocabRun from "./pages/VocabRun";
 
 export default function App() {
   useEffect(() => {
     reconcileSilent(); // 既存の学習履歴から実績を遡及解除(トーストなし)
     syncInBackground();
+    // 用語辞書を読み込み、過去の誤答からことば帳を導出する(冪等・変更なしなら保存しない)
+    loadTermsData().then(() => reconcileVocabFromStorage());
   }, []);
 
   return (
@@ -38,6 +44,8 @@ export default function App() {
           <Route path="/mock/run" element={<MockRun />} />
           <Route path="/pm" element={<PmList />} />
           <Route path="/pm/:id" element={<PmDetail />} />
+          <Route path="/vocab" element={<VocabList />} />
+          <Route path="/vocab/run" element={<VocabRun />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import Player from "../components/Player";
-import { questionsByMiddle } from "../data";
+import { amQuestion, questionsByMiddle } from "../data";
+import type { AmQuestion } from "../data/types";
 import { statsByQuestion } from "../lib/progress";
 import { resumeQuestions } from "../lib/run";
 
@@ -9,6 +10,8 @@ interface Config {
   count: number;
   excludeCalc?: boolean;
   examIds?: string[]; // 出題する試験回(未指定なら全回)
+  /** 問題IDの直接指定(用語ノートの解き直し用)。指定時は他の条件を無視する */
+  ids?: string[];
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -28,6 +31,12 @@ export default function PracticeRun() {
     const config: Config = JSON.parse(
       sessionStorage.getItem("ap-practice") ?? '{"middles":[],"count":10}'
     );
+    // ID直接指定は解決した問題をその順で出題する(件数・シャッフル等は適用しない)
+    if (config.ids?.length) {
+      return config.ids
+        .map((id) => amQuestion(id))
+        .filter((q): q is AmQuestion => Boolean(q));
+    }
     const stats = statsByQuestion();
     // 解答回数が少ない問題を優先しつつ、同回数内はシャッフル
     return shuffle(

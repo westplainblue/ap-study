@@ -1,0 +1,9 @@
+{
+  "最適化": { "drop": true },
+  "血流量": { "drop": true },
+  "職業": { "drop": true },
+  "平均": { "drop": true },
+  "共同研究": { "drop": true },
+  "コンパイラノプログラム": { "drop": true },
+  "ntp": { "fact": true }
+}

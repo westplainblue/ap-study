@@ -48,12 +48,24 @@ export interface AchievementRecord {
 
 export type Achievements = Record<AchvId, AchievementRecord>;
 
+/** ことば帳(語彙SRS)のエントリ。termId → VocabEntry で保持する */
+export interface VocabEntry {
+  box: number; // 1-4(Leitner)、5=卒業
+  due: string; // YYYY-MM-DD
+  wrongQids: string[]; // 契機となった誤答問題ID(上限8)
+  addedAt: number; // 初回誤答の epoch ms
+  u: number; // エントリ単位の updatedAt(同期時のエントリLWW用)
+  hidden?: boolean; // ユーザーが非表示にした(復活させない)
+  memo?: string;
+}
+
 export interface ProgressState {
   attempts: Attempt[];
   review: Record<string, ReviewEntry>;
   settings: Settings;
   pm?: PmRecords;
   achievements?: Achievements;
+  vocab?: Record<string, VocabEntry>;
   updatedAt: number;
 }
 
@@ -106,6 +118,7 @@ export function loadState(): ProgressState {
     s.review ??= {};
     s.settings ??= {};
     s.achievements ??= {};
+    s.vocab ??= {};
     s.updatedAt ??= 0;
     return s;
   } catch {
@@ -278,6 +291,11 @@ export function importJson(text: string): void {
   if (!Array.isArray(s.attempts) || typeof s.review !== "object") {
     throw new Error("進捗データの形式が不正です");
   }
+  // vocab を持たない旧バックアップで現在のことば帳が消えないよう温存する
+  if (s.vocab == null) {
+    const cur = loadState().vocab;
+    if (cur && Object.keys(cur).length > 0) s.vocab = cur;
+  }
   saveStateRaw(s);
 }
 
@@ -318,12 +336,24 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
           }
         : (x ?? y)!;
   }
+  // 語彙: エントリ単位のLWW(同じ termId は u の大きい方を採用)
+  const vocab: Record<string, VocabEntry> = { ...(older.vocab ?? {}) };
+  for (const [id, e] of Object.entries(newer.vocab ?? {})) {
+    const prev = vocab[id];
+    if (!prev || e.u >= prev.u) vocab[id] = e;
+  }
+  // 双方のスプレッドを先頭に置き、既知フィールドをマージ結果で上書きする。
+  // こうすると新しいクライアントが追加したフィールドを旧クライアントの
+  // マージが落とさない(未知フィールドの温存)。
   return {
+    ...older,
+    ...newer,
     attempts,
     review: { ...older.review, ...newer.review },
     settings: { ...older.settings, ...newer.settings },
     pm,
     achievements,
+    vocab,
     updatedAt: Math.max(a.updatedAt, b.updatedAt),
   };
 }

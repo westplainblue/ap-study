@@ -7,6 +7,7 @@ import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
 import { recordAnswersBatch } from "../lib/progress";
+import { captureVocabForQuestion } from "../lib/vocab";
 import { MOCK_KEY, type MockState } from "./MockExam";
 
 const PASS_RATE = 0.6;
@@ -91,6 +92,10 @@ export default function MockRun() {
     recordAnswersBatch(
       questions.map((q, i) => ({ qid: q.id, ok: res[i], mode: "mock" as const }))
     );
+    // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
+    questions.forEach((q, i) => {
+      if (!res[i]) captureVocabForQuestion(q.id);
+    });
     setUnlocked(refreshAfterBatch()); // 実績を判定(トーストは出さず結果画面に表示)
     localStorage.removeItem(MOCK_KEY);
     setResults(res);

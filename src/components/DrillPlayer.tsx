@@ -17,6 +17,7 @@ import {
 } from "../lib/choiceShuffle";
 import { loadState, recordAnswer } from "../lib/progress";
 import { DRILL_CAP, drillNext } from "../lib/srs";
+import { captureVocabForQuestion } from "../lib/vocab";
 import { IconCheck, IconRefresh, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
 
@@ -184,6 +185,8 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
     // 初回の解答だけ履歴に記録する(反復ぶんは記録しない)
     if (!recorded.has(q.id)) {
       recordAnswer(q.id, ok, "drill");
+      // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
+      if (!ok) captureVocabForQuestion(q.id);
       refreshAfterAnswer();
       setRecorded((s) => new Set(s).add(q.id));
       if (ok) setFirstTryOk((n) => n + 1);

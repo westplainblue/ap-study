@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { canShuffleChoices, KANA, sourceOf } from "../data";
+import { termsDataSync } from "../data/terms";
 import type { AmQuestion } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import {
@@ -24,6 +25,7 @@ import {
   type Mode,
 } from "../lib/progress";
 import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
+import { captureVocabForQuestion } from "../lib/vocab";
 import { IconCheck, IconStar, IconX } from "./Icons";
 import QuestionCard from "./QuestionCard";
 
@@ -53,6 +55,8 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   const [results, setResults] = useState<boolean[]>(saved?.results ?? []);
   const [finished, setFinished] = useState(saved?.finished ?? false);
   const [reviewAdded, setReviewAdded] = useState(false);
+  // 誤答時にことば帳へ採取した termId(解説下のチップ表示用)
+  const [capturedTerms, setCapturedTerms] = useState<string[]>([]);
 
   // 選択肢シャッフル(設定で無効化可)。問題ごとに表示順を決め、解説の記号も
   // 表示に合わせて変換する。onSelect は元の添字を返すので記録・判定は不変。
@@ -86,6 +90,16 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   useEffect(() => {
     setAiMarks([]); // 問題が変わったら前の問題のマークを消す
   }, [cur?.id]);
+
+  // 採取した用語のチップ表示用の用語名(辞書が未ロードなら黙って出さない)
+  const capturedNames = useMemo(() => {
+    const d = termsDataSync();
+    if (!d) return [];
+    return capturedTerms
+      .map((id) => d.byId.get(id)?.term)
+      .filter((t): t is string => Boolean(t))
+      .slice(0, 4);
+  }, [capturedTerms]);
 
   // 進行状況を保存(結果画面に到達したら破棄)。次回起動時に途中から再開できる。
   useEffect(() => {
@@ -224,6 +238,8 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
     const ok = i === q.answer;
     setResults((r) => [...r, ok]);
     recordAnswer(q.id, ok, mode);
+    // 誤答した問題に登場する用語をことば帳へ採取する(正解時は採取しない)
+    if (!ok) setCapturedTerms(captureVocabForQuestion(q.id));
     refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
   };
 
@@ -234,6 +250,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       setIdx(idx + 1);
       setSelected(null);
       setReviewAdded(false);
+      setCapturedTerms([]);
       setRestoredOrder(undefined); // 次の問題は新しい並びを引く
     }
   };
@@ -342,6 +359,29 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
               </div>
             )}
           </div>
+          {!correct && capturedNames.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 6,
+                marginTop: 10,
+              }}
+            >
+              <span className="small" style={{ fontWeight: 600 }}>
+                📒 ノートに入りました:
+              </span>
+              {capturedNames.map((t) => (
+                <span key={t} className="chip">
+                  {t}
+                </span>
+              ))}
+              <Link to="/vocab" className="small" style={{ fontWeight: 600 }}>
+                ノートを見る
+              </Link>
+            </div>
+          )}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button
               className="btn"

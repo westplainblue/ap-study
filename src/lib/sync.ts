@@ -5,13 +5,24 @@ import {
   saveStateRaw,
   type ProgressState,
 } from "./progress";
+import { reconcileVocabFromStorage } from "./vocab";
 
 // AWS(DynamoDB + Lambda Function URL)で構築した同期API。
 // infra/sync.yaml の出力 SyncApiUrl を .env の VITE_SYNC_API_URL に設定する。
 // 未設定でもアプリはローカル保存のみで完全に動作する。
-const apiUrl = import.meta.env.VITE_SYNC_API_URL as string | undefined;
+// (node のテスト実行では import.meta.env が無いので typeof で守る)
+let apiUrl: string | undefined =
+  typeof import.meta.env === "undefined"
+    ? undefined
+    : (import.meta.env.VITE_SYNC_API_URL as string | undefined);
 
-export const syncAvailable: boolean = Boolean(apiUrl);
+export let syncAvailable: boolean = Boolean(apiUrl);
+
+/** テスト用: API URL の差し替え(Vite外の実行では env が無いため) */
+export function __setSyncApiUrlForTest(u: string | undefined): void {
+  apiUrl = u;
+  syncAvailable = Boolean(u);
+}
 
 export interface SyncResult {
   ok: boolean;
@@ -30,8 +41,7 @@ export async function syncNow(): Promise<SyncResult> {
       message: "クラウド同期は未設定です。.env に VITE_SYNC_API_URL を設定してください。",
     };
   }
-  const state = loadState();
-  const code = state.settings.syncCode;
+  const code = loadState().settings.syncCode;
   if (!code) {
     return { ok: false, message: "同期コードが未設定です(設定画面で発行できます)。" };
   }
@@ -44,13 +54,20 @@ export async function syncNow(): Promise<SyncResult> {
       return { ok: false, message: `サーバーからの取得に失敗しました: HTTP ${res.status}` };
     }
     const remote = (await res.json()) as { data?: ProgressState | null };
-    let merged = state;
+    // 取得を待つ間に起きたローカルの書込み(解答・ことば帳の導出など)を
+    // 失わないよう、マージにはfetch後に読み直した状態を使う。
+    // fetch前のスナップショットで上書きすると、その間の記録が黙って消える。
+    const local = loadState();
+    let merged = local;
     if (remote?.data) {
-      merged = mergeStates(state, remote.data);
+      merged = mergeStates(local, remote.data);
     }
     // 相手端末の履歴を含めて実績を再判定してから保存・送信する
     reconcile(merged, { silent: true, emit: false });
     saveStateRaw(merged);
+    // 相手端末から取り込んだ誤答のことば(用語)もここで導出しておく
+    // (辞書が未ロードなら no-op。導出できたら送信データにも含める)
+    if (reconcileVocabFromStorage()) merged = loadState();
     // push: マージ結果を保存
     const put = await fetch(`${base}/`, {
       method: "PUT",
