@@ -89,7 +89,11 @@ export function reconcileVocab(
       due: addDaysStr(today, REVIEW_INTERVALS[2]), // box=1 は後段で振り直す
       wrongQids,
       addedAt: firstWrongAt.get(wrongQids[0])!,
-      u: now,
+      // 導出データの u は 0 に固定する。同期のエントリLWW(uの大きい方が勝ち)で、
+      // 本物の学習操作(ドリル解答・メモ等は u=現在時刻)に決して勝たないようにする。
+      // これが現在時刻だと「サーバのvocab欠落→別端末の再バックフィル」の後に
+      // box1 の導出エントリが実進捗(box4等)を上書きしてしまう。
+      u: 0,
     };
     vocab[termId] = entry;
     created.push(entry);

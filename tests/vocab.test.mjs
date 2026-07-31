@@ -90,7 +90,7 @@ test("reconcileVocab: 誤答から新規作成し、2回目は何も変えない
     due: addDays(TODAY, 1),
     wrongQids: ["q1"],
     addedAt: 100,
-    u: NOW,
+    u: 0, // 導出データ。同期のLWWで実操作(u=現在時刻)に勝たない
   });
   const snapshot = JSON.stringify(s);
   assert.equal(reconcileVocab(s, index, NOW + 999), false);
