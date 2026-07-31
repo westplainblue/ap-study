@@ -36,6 +36,11 @@ npm run build      # 本番ビルド(dist/)
 
 ## 過去問の追加手順(データパイプライン)
 
+> **詳細マニュアル**: データ契約・表記規約・検証チェックリストの完全版は
+> [docs/am-authoring.md](docs/am-authoring.md)(午前)/
+> [docs/pm-authoring.md](docs/pm-authoring.md)(午後)。
+> 他のAIアシスタントに作成を依頼する場合はこの2つを渡せば足りる。
+
 1. **PDF取得+ページ画像化**(要 poppler: `brew install poppler`)
 
    ```bash
