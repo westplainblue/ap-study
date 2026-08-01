@@ -316,9 +316,31 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
     }
   }
   attempts.sort((x, y) => x.t - y.t);
-  const pm: PmRecords = { ...(older.pm ?? {}) };
-  for (const [pmId, parts] of Object.entries(newer.pm ?? {})) {
-    pm[pmId] = { ...pm[pmId], ...parts };
+  // 午後採点: 設問パーツ単位で採点時刻 t の新しい方を採用する(状態全体の
+  // updatedAt で丸ごと決めると、無関係な操作1回で新しい採点が古い値に巻き戻る)。
+  // AI講評(ai)は独立フィールドとして ai.t の新しい方を残す — 片端末で採点を
+  // 直しただけで、もう片方にしかないAI講評が消えないように。
+  const pm: PmRecords = {};
+  for (const pmId of new Set([
+    ...Object.keys(newer.pm ?? {}),
+    ...Object.keys(older.pm ?? {}),
+  ])) {
+    const pn = newer.pm?.[pmId] ?? {};
+    const po = older.pm?.[pmId] ?? {};
+    const parts: Record<string, PmPartRecord> = {};
+    for (const key of new Set([...Object.keys(pn), ...Object.keys(po)])) {
+      const x = pn[key];
+      const y = po[key];
+      if (x && y) {
+        const win = (x.t ?? 0) >= (y.t ?? 0) ? x : y;
+        const ai =
+          x.ai && y.ai ? ((x.ai.t ?? 0) >= (y.ai.t ?? 0) ? x.ai : y.ai) : (x.ai ?? y.ai);
+        parts[key] = { ...win, ...(ai ? { ai } : {}) };
+      } else {
+        parts[key] = (x ?? y)!;
+      }
+    }
+    pm[pmId] = parts;
   }
   // 実績: 和集合。unlockedAt は早い方、seen は OR、progress は大きい方(後退救済)
   const achievements: Achievements = {};
