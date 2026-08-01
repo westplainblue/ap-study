@@ -12,6 +12,7 @@ import {
 } from "../lib/aiConfig";
 import {
   activeReviewIds,
+  applySetting,
   dueReviewIds,
   exportJson,
   importJson,
@@ -90,7 +91,7 @@ export default function Settings() {
           value={state.settings.examDate ?? ""}
           onChange={(e) =>
             update((s) => {
-              s.settings.examDate = e.target.value || undefined;
+              applySetting(s, "examDate", e.target.value || undefined);
             })
           }
           style={{ width: "100%" }}
@@ -117,10 +118,13 @@ export default function Settings() {
           }}
           onClick={() =>
             update((s) => {
-              // ON は「キーなし(既定)」で表現する。明示値は false のみ保存し、
-              // 端末間マージで OFF が別端末の true に上書きされないようにする。
-              if (s.settings.shuffleChoices === false) delete s.settings.shuffleChoices;
-              else s.settings.shuffleChoices = false;
+              // ON は「キーなし(既定)」で表現する。明示値は false のみ保存する。
+              // 削除も applySetting 経由で時刻を打ち、同期でOFFが復活しないようにする。
+              applySetting(
+                s,
+                "shuffleChoices",
+                s.settings.shuffleChoices === false ? undefined : false
+              );
             })
           }
         >
@@ -163,7 +167,7 @@ export default function Settings() {
             style={{ marginBottom: 10 }}
             onClick={() =>
               update((s) => {
-                s.settings.syncCode = randomCode();
+                applySetting(s, "syncCode", randomCode());
               })
             }
           >
@@ -182,7 +186,7 @@ export default function Settings() {
             disabled={joinCode.trim().length < 4}
             onClick={() => {
               update((s) => {
-                s.settings.syncCode = joinCode.trim();
+                applySetting(s, "syncCode", joinCode.trim());
               });
               setJoinCode("");
             }}

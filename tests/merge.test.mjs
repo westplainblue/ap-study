@@ -121,3 +121,74 @@ test("review: 片側にしかないエントリは失われない", () => {
   assert.equal(m.review.q1.box, 1);
   assert.equal(m.review.q2.box, 5);
 });
+
+/* ---------- 設定(settings): キー単位のLWWと削除の伝播 ---------- */
+
+test("settings: キー削除(シャッフルON復帰)が同期で復活しない", () => {
+  // OFF(false, t=100)をサーバへpush済み → ONへ戻す(キー削除, t=200)
+  const reEnabled = base({
+    settings: { syncCode: "X", meta: { shuffleChoices: 200, syncCode: 50 } },
+    updatedAt: 300,
+  });
+  const staleServer = base({
+    settings: {
+      syncCode: "X",
+      shuffleChoices: false,
+      examDate: "2026-04-19",
+      meta: { shuffleChoices: 100, syncCode: 50, examDate: 60 },
+    },
+    updatedAt: 250,
+  });
+  for (const m of [mergeStates(reEnabled, staleServer), mergeStates(staleServer, reEnabled)]) {
+    assert.equal("shuffleChoices" in m.settings, false, "削除が勝つ");
+    assert.equal(m.settings.examDate, "2026-04-19", "触っていないキーは残る");
+    assert.equal(m.settings.syncCode, "X");
+    assert.equal(m.settings.meta.shuffleChoices, 200, "削除の時刻が残り再復活も防ぐ");
+  }
+});
+
+test("settings: 削除の後に他端末で再設定したら新しい方(再設定)が勝つ", () => {
+  const deleted = base({ settings: { meta: { examDate: 100 } }, updatedAt: 1 });
+  const reSet = base({
+    settings: { examDate: "2026-10-11", meta: { examDate: 200 } },
+    updatedAt: 2,
+  });
+  for (const m of [mergeStates(deleted, reSet), mergeStates(reSet, deleted)]) {
+    assert.equal(m.settings.examDate, "2026-10-11");
+  }
+});
+
+test("settings: キーごとに独立して勝敗が決まる", () => {
+  const a = base({
+    settings: { examDate: "2026-04-19", shuffleChoices: false, meta: { examDate: 200, shuffleChoices: 100 } },
+    updatedAt: 1,
+  });
+  const b = base({
+    settings: { examDate: "2026-10-11", meta: { examDate: 100, shuffleChoices: 200 } },
+    updatedAt: 2,
+  });
+  for (const m of [mergeStates(a, b), mergeStates(b, a)]) {
+    assert.equal(m.settings.examDate, "2026-04-19"); // Aの方が新しい
+    assert.equal("shuffleChoices" in m.settings, false); // Bの削除の方が新しい
+  }
+});
+
+test("settings: meta の無い旧形式は従来互換(新しい状態優先・欠落は古い側で補完)", () => {
+  const a = base({ settings: { examDate: "2026-04-19" }, updatedAt: 2_000 });
+  const b = base({ settings: { examDate: "2026-01-01", syncCode: "OLD1" }, updatedAt: 1_000 });
+  const m = mergeStates(a, b);
+  assert.equal(m.settings.examDate, "2026-04-19"); // 新しい状態の側
+  assert.equal(m.settings.syncCode, "OLD1"); // 片側にしか無いキーは補完
+});
+
+test("settings: applySetting は値の設定・削除の両方で時刻を打つ", async () => {
+  const { applySetting } = await import("../src/lib/progress.ts");
+  const s = base({ settings: {} });
+  applySetting(s, "examDate", "2026-04-19");
+  assert.equal(s.settings.examDate, "2026-04-19");
+  assert.ok(s.settings.meta.examDate > 0);
+  const t1 = s.settings.meta.examDate;
+  applySetting(s, "examDate", undefined);
+  assert.equal("examDate" in s.settings, false);
+  assert.ok(s.settings.meta.examDate >= t1, "削除でも時刻が更新される");
+});

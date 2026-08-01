@@ -24,6 +24,23 @@ export interface Settings {
   syncCode?: string;
   /** 選択肢の並びを毎回シャッフルする(未設定=有効。模試は常に固定) */
   shuffleChoices?: boolean;
+  /**
+   * キー単位の更新時刻(同期のLWW用)。値の変更だけでなく削除でも時刻を打つ。
+   * これが無いと「キー削除」(シャッフルON復帰・試験日クリア)が同期のたびに
+   * 古いスナップショットから復活し、二度と反映できなくなる。
+   */
+  meta?: Record<string, number>;
+}
+
+/** settings のキーを更新する(undefined で削除)。キー単位の更新時刻も打つ */
+export function applySetting<K extends keyof Omit<Settings, "meta">>(
+  s: ProgressState,
+  key: K,
+  value: Settings[K]
+): void {
+  if (value === undefined) delete s.settings[key];
+  else s.settings[key] = value;
+  (s.settings.meta ??= {})[key] = Date.now();
 }
 
 export type PmGrade = "o" | "d" | "x"; // ○ / △ / ×
@@ -442,6 +459,38 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
           }
         : (x ?? y)!;
   }
+  // 設定: キー単位のLWW。meta[キー]の時刻が新しい側の値を採用する(値が無い=
+  // 削除も伝播する)。meta の無い旧形式のキーは従来どおり新しい状態の側を優先し、
+  // 無ければ古い側で補完する(syncCode 等を失わないため)。
+  const sNew = (newer.settings ?? {}) as Record<string, unknown>;
+  const sOld = (older.settings ?? {}) as Record<string, unknown>;
+  const mNew = (newer.settings?.meta ?? {}) as Record<string, number>;
+  const mOld = (older.settings?.meta ?? {}) as Record<string, number>;
+  const settings: Settings = {};
+  const settingsMeta: Record<string, number> = {};
+  const settingKeys = new Set([
+    ...Object.keys(sNew),
+    ...Object.keys(sOld),
+    ...Object.keys(mNew),
+    ...Object.keys(mOld),
+  ]);
+  settingKeys.delete("meta");
+  for (const k of settingKeys) {
+    const tn = mNew[k] ?? 0;
+    const to = mOld[k] ?? 0;
+    const v =
+      tn === to
+        ? sNew[k] !== undefined
+          ? sNew[k]
+          : sOld[k]
+        : tn > to
+          ? sNew[k]
+          : sOld[k];
+    if (v !== undefined) (settings as Record<string, unknown>)[k] = v;
+    const t = Math.max(tn, to);
+    if (t > 0) settingsMeta[k] = t;
+  }
+  if (Object.keys(settingsMeta).length > 0) settings.meta = settingsMeta;
   // 復習: エントリ単位のLWW(u が大きい方)。u の無い旧形式は 0 扱いで、
   // 実操作(卒業墓標・箱遷移は u=現在時刻)が古いスナップショットに必ず勝つ。
   // 同値(旧形式同士)は従来どおり新しい状態の側を採る。
@@ -464,7 +513,7 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
     ...newer,
     attempts,
     review,
-    settings: { ...older.settings, ...newer.settings },
+    settings,
     pm,
     achievements,
     vocab,
