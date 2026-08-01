@@ -74,3 +74,50 @@ test("pm: 片側にしかない設問・問題は失われない", () => {
   assert.equal(m.pm.pm1.s1b.grade, "x");
   assert.equal(m.pm.pm2.s2a.grade, "d");
 });
+
+/* ---------- 復習(review): エントリ単位のLWWと卒業墓標 ---------- */
+
+test("review: 卒業の墓標(u付き)は古いライブエントリに負けない(復活バグの根絶)", () => {
+  // 状態全体としては墓標側が「古い」場合でも、エントリのuで勝つこと
+  const grad = base({
+    review: { q1: { box: 5, due: "9999-12-31", u: 500 } },
+    updatedAt: 1_000,
+  });
+  const staleServer = base({
+    review: { q1: { box: 4, due: "2026-07-01" } }, // 旧形式(u無し)の生き残り
+    updatedAt: 2_000,
+  });
+  for (const m of [mergeStates(grad, staleServer), mergeStates(staleServer, grad)]) {
+    assert.equal(m.review.q1.box, 5);
+    assert.equal(m.review.q1.due, "9999-12-31");
+  }
+});
+
+test("review: 箱の進捗はuの新しい方が勝つ(巻き戻り防止)", () => {
+  const advanced = base({
+    review: { q1: { box: 3, due: "2026-08-10", u: 200 } },
+    updatedAt: 100,
+  });
+  const behind = base({
+    review: { q1: { box: 1, due: "2026-08-02", u: 100 } },
+    updatedAt: 9_000,
+  });
+  for (const m of [mergeStates(advanced, behind), mergeStates(behind, advanced)]) {
+    assert.equal(m.review.q1.box, 3);
+  }
+});
+
+test("review: 旧形式同士(u無し)は従来どおり新しい状態の側", () => {
+  const a = base({ review: { q1: { box: 2, due: "2026-08-01" } }, updatedAt: 2_000 });
+  const b = base({ review: { q1: { box: 1, due: "2026-08-05" } }, updatedAt: 1_000 });
+  assert.equal(mergeStates(a, b).review.q1.box, 2);
+  assert.equal(mergeStates(b, a).review.q1.box, 2);
+});
+
+test("review: 片側にしかないエントリは失われない", () => {
+  const a = base({ review: { q1: { box: 1, due: "2026-08-01", u: 1 } }, updatedAt: 2 });
+  const b = base({ review: { q2: { box: 5, due: "9999-12-31", u: 1 } }, updatedAt: 1 });
+  const m = mergeStates(a, b);
+  assert.equal(m.review.q1.box, 1);
+  assert.equal(m.review.q2.box, 5);
+});

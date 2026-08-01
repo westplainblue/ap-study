@@ -5,6 +5,7 @@ import AiChat from "./components/AiChat";
 import TabBar from "./components/TabBar";
 import { loadTermsData } from "./data/terms";
 import { reconcileSilent } from "./lib/achievements";
+import { repairReviewFromStorage } from "./lib/progress";
 import { syncInBackground } from "./lib/sync";
 import { reconcileVocabFromStorage } from "./lib/vocab";
 import DrillRun from "./pages/DrillRun";
@@ -25,6 +26,8 @@ import VocabRun from "./pages/VocabRun";
 export default function App() {
   useEffect(() => {
     reconcileSilent(); // 既存の学習履歴から実績を遡及解除(トーストなし)
+    // 過去のマージ欠陥で復活した「卒業済みのはずの復習」を墓標化する(冪等)
+    repairReviewFromStorage();
     syncInBackground();
     // 用語辞書を読み込み、過去の誤答からことば帳を導出する(冪等・変更なしなら保存しない)
     loadTermsData().then(() => reconcileVocabFromStorage());

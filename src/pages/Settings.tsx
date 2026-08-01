@@ -11,6 +11,7 @@ import {
   type AiProvider,
 } from "../lib/aiConfig";
 import {
+  activeReviewIds,
   dueReviewIds,
   exportJson,
   importJson,
@@ -350,7 +351,7 @@ export default function Settings() {
         <p style={{ fontWeight: 600, marginBottom: 4 }}>バックアップ</p>
         <p className="muted small" style={{ marginBottom: 10 }}>
           解答履歴 {state.attempts.length}件 / 復習キュー{" "}
-          {Object.keys(state.review).length}問(期日到来 {dueReviewIds(state).length}問)
+          {activeReviewIds(state).length}問(期日到来 {dueReviewIds(state).length}問)
         </p>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn" style={{ flex: 1 }} onClick={download}>

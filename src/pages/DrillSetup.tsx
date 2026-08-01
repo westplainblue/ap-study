@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IconRefresh } from "../components/Icons";
 import { countByMiddle } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
-import { loadState } from "../lib/progress";
+import { activeReviewIds } from "../lib/progress";
 
 type Pool = "wrong" | "middle";
 const COUNTS: [number, string][] = [
@@ -21,7 +21,7 @@ export default function DrillSetup() {
   const [excludeCalc, setExcludeCalc] = useState(false);
 
   const counts = countByMiddle({ excludeCalc });
-  const wrongCount = Object.keys(loadState().review).length;
+  const wrongCount = activeReviewIds().length; // 卒業の墓標は数えない
 
   const toggle = (middle: string) => {
     const next = new Set(selected);

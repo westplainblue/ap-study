@@ -12,6 +12,7 @@
 import { termsDataSync, type TermIndex } from "../data/terms";
 import {
   addDaysStr,
+  GRADUATED_DUE,
   loadState,
   MAX_BOX,
   REVIEW_INTERVALS,
@@ -21,8 +22,8 @@ import {
   type VocabEntry,
 } from "./progress";
 
-/** 卒業(box=5)の due。実質「二度と期日にならない」番兵値 */
-export const GRADUATED_DUE = "9999-12-31";
+// 卒業(box=5)の due 番兵は progress.ts の GRADUATED_DUE(review と共通)
+export { GRADUATED_DUE };
 /** 1エントリが保持する誤答問題IDの上限 */
 export const WRONG_QIDS_MAX = 8;
 /** バックフィル時の平準化: box=1 の新規語を1日あたり何語まで割り当てるか */

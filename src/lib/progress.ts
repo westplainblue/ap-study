@@ -14,8 +14,9 @@ export interface Attempt {
 }
 
 export interface ReviewEntry {
-  box: number; // 1-4(Leitner)
-  due: string; // YYYY-MM-DD
+  box: number; // 1-4(Leitner)、5=卒業の墓標(削除すると同期で復活するため残す)
+  due: string; // YYYY-MM-DD(卒業は GRADUATED_DUE 番兵)
+  u?: number; // エントリ単位の更新時刻(同期のLWW用。旧形式は無し=0扱い)
 }
 
 export interface Settings {
@@ -74,6 +75,12 @@ const KEY = "ap-study:v1";
 // box N で正解したときの次回出題までの日数(box1→翌日, 2→3日, 3→7日, 4→14日)
 export const REVIEW_INTERVALS = [1, 3, 7, 14];
 export const MAX_BOX = 4;
+/**
+ * 卒業(review/vocab とも box=5)の due 番兵値。
+ * 卒業を「削除」で表すと同期マージが古いスナップショットから復活させてしまうため、
+ * 墓標として残す。旧バージョンのクライアントも期日フィルタで自然に無視できる。
+ */
+export const GRADUATED_DUE = "9999-12-31";
 
 export function todayStr(d = new Date()): string {
   const y = d.getFullYear();
@@ -136,42 +143,66 @@ export function saveStateRaw(s: ProgressState): void {
   localStorage.setItem(KEY, JSON.stringify(s));
 }
 
+/** 復習キューの遷移(recordAnswer / recordAnswersBatch 共通)。 */
+function applyReviewTransition(
+  s: ProgressState,
+  qid: string,
+  ok: boolean,
+  today: string,
+  now: number
+): void {
+  const entry = s.review[qid];
+  if (!ok) {
+    // 誤答は卒業済み(墓標)でも箱1へ戻す
+    s.review[qid] = { box: 1, due: addDaysStr(today, REVIEW_INTERVALS[0]), u: now };
+  } else if (entry) {
+    if (entry.box >= MAX_BOX) {
+      // 卒業。削除ではなく墓標を残す(削除は同期マージで復活してしまう)。
+      // 既に墓標なら u を更新して古いスナップショットに勝ち続けられるようにする。
+      s.review[qid] = { box: MAX_BOX + 1, due: GRADUATED_DUE, u: now };
+    } else {
+      const box = entry.box + 1;
+      s.review[qid] = { box, due: addDaysStr(today, REVIEW_INTERVALS[box - 1]), u: now };
+    }
+  }
+}
+
 /** 解答を記録し、復習キューを更新する */
 export function recordAnswer(qid: string, ok: boolean, mode: Mode): void {
   const s = loadState();
-  s.attempts.push({ q: qid, t: Date.now(), ok, mode, s: currentSessionId() });
-  const entry = s.review[qid];
-  if (!ok) {
-    s.review[qid] = { box: 1, due: addDaysStr(todayStr(), REVIEW_INTERVALS[0]) };
-  } else if (entry) {
-    if (entry.box >= MAX_BOX) {
-      delete s.review[qid]; // 卒業
-    } else {
-      const box = entry.box + 1;
-      s.review[qid] = { box, due: addDaysStr(todayStr(), REVIEW_INTERVALS[box - 1]) };
-    }
-  }
+  const now = Date.now();
+  s.attempts.push({ q: qid, t: now, ok, mode, s: currentSessionId() });
+  applyReviewTransition(s, qid, ok, todayStr(), now);
   saveState(s);
 }
 
-/** 「あとで復習」手動追加 */
+/** 「あとで復習」手動追加(卒業済みの墓標は箱1へ復帰させる) */
 export function addToReview(qid: string): void {
   const s = loadState();
-  if (!s.review[qid]) {
-    s.review[qid] = { box: 1, due: addDaysStr(todayStr(), 1) };
+  const e = s.review[qid];
+  if (!e || e.box > MAX_BOX) {
+    s.review[qid] = { box: 1, due: addDaysStr(todayStr(), 1), u: Date.now() };
     saveState(s);
   }
 }
 
 export function isInReview(qid: string): boolean {
-  return Boolean(loadState().review[qid]);
+  const e = loadState().review[qid];
+  return Boolean(e && e.box <= MAX_BOX);
+}
+
+/** 復習キューに生きている(卒業墓標を除く)questionId 一覧 */
+export function activeReviewIds(state = loadState()): string[] {
+  return Object.entries(state.review)
+    .filter(([, e]) => e.box <= MAX_BOX)
+    .map(([qid]) => qid);
 }
 
 /** 今日が期日を迎えている復習対象の questionId 一覧 */
 export function dueReviewIds(state = loadState()): string[] {
   const today = todayStr();
   return Object.entries(state.review)
-    .filter(([, e]) => e.due <= today)
+    .filter(([, e]) => e.box <= MAX_BOX && e.due <= today)
     .sort((a, b) => (a[1].due < b[1].due ? -1 : 1))
     .map(([qid]) => qid);
 }
@@ -225,19 +256,72 @@ export function recordAnswersBatch(
   const sid = currentSessionId();
   entries.forEach((e, i) => {
     s.attempts.push({ q: e.qid, t: now + i, ok: e.ok, mode: e.mode, s: sid });
-    const entry = s.review[e.qid];
-    if (!e.ok) {
-      s.review[e.qid] = { box: 1, due: addDaysStr(today, REVIEW_INTERVALS[0]) };
-    } else if (entry) {
-      if (entry.box >= MAX_BOX) {
-        delete s.review[e.qid];
-      } else {
-        const box = entry.box + 1;
-        s.review[e.qid] = { box, due: addDaysStr(today, REVIEW_INTERVALS[box - 1]) };
-      }
-    }
+    applyReviewTransition(s, e.qid, e.ok, today, now);
   });
   saveState(s);
+}
+
+/**
+ * 「本来は卒業済みなのに生きて残っている」復習エントリを墓標化する(冪等)。
+ *
+ * 過去のマージ欠陥(卒業=削除が古いスナップショットとの合成で復活)で汚染された
+ * データの掃除。attempts をLeitner規則で時系列リプレイし、リプレイ上は卒業して
+ * いる問題のエントリを対象にする。誤爆防止の条件:
+ * - u を持つエントリは触らない(新方式で実操作されたもの)
+ * - リプレイが生成した歴史上の (box, due) と一致するエントリだけを墓標化する
+ *   (「あとで復習」の手動追加は attempts に痕跡が無く、通常この集合に現れない)
+ * 墓標の u には卒業を確定させた解答の t を使う。全端末で決定的に同じ値になるため、
+ * 修復済み端末と未修復端末のマージが安定して墓標側に収束する。
+ */
+export function repairReviewGraduations(state: ProgressState): boolean {
+  const sim = new Map<string, { box: number; due: string }>();
+  const graduatedAt = new Map<string, number>();
+  const seenStates = new Map<string, Set<string>>();
+  const remember = (qid: string, e: { box: number; due: string }) => {
+    (seenStates.get(qid) ?? seenStates.set(qid, new Set()).get(qid)!).add(
+      `${e.box}:${e.due}`
+    );
+  };
+  const attempts = [...state.attempts].sort((x, y) => x.t - y.t);
+  for (const a of attempts) {
+    const day = todayStr(new Date(a.t));
+    if (!a.ok) {
+      const e = { box: 1, due: addDaysStr(day, REVIEW_INTERVALS[0]) };
+      sim.set(a.q, e);
+      graduatedAt.delete(a.q); // 卒業後の誤答は再入院なので卒業扱いを取り消す
+      remember(a.q, e);
+    } else {
+      const cur = sim.get(a.q);
+      if (!cur) continue; // キュー外の正解は箱を作らない(recordAnswerと同じ)
+      if (cur.box >= MAX_BOX) {
+        sim.delete(a.q);
+        graduatedAt.set(a.q, a.t);
+      } else {
+        const box = cur.box + 1;
+        const e = { box, due: addDaysStr(day, REVIEW_INTERVALS[box - 1]) };
+        sim.set(a.q, e);
+        remember(a.q, e);
+      }
+    }
+  }
+  let changed = false;
+  for (const [qid, t] of graduatedAt) {
+    const entry = state.review[qid];
+    if (!entry || entry.box > MAX_BOX) continue;
+    if (entry.u !== undefined) continue;
+    if (!seenStates.get(qid)?.has(`${entry.box}:${entry.due}`)) continue;
+    state.review[qid] = { box: MAX_BOX + 1, due: GRADUATED_DUE, u: t };
+    changed = true;
+  }
+  return changed;
+}
+
+/** 起動時・同期後に呼ぶ薄いラッパ。変更があったときだけ保存する */
+export function repairReviewFromStorage(): boolean {
+  const s = loadState();
+  if (!repairReviewGraduations(s)) return false;
+  saveState(s);
+  return true;
 }
 
 export function setPmGrade(
@@ -358,6 +442,14 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
           }
         : (x ?? y)!;
   }
+  // 復習: エントリ単位のLWW(u が大きい方)。u の無い旧形式は 0 扱いで、
+  // 実操作(卒業墓標・箱遷移は u=現在時刻)が古いスナップショットに必ず勝つ。
+  // 同値(旧形式同士)は従来どおり新しい状態の側を採る。
+  const review: Record<string, ReviewEntry> = { ...(older.review ?? {}) };
+  for (const [qid, e] of Object.entries(newer.review ?? {})) {
+    const prev = review[qid];
+    if (!prev || (e.u ?? 0) >= (prev.u ?? 0)) review[qid] = e;
+  }
   // 語彙: エントリ単位のLWW(同じ termId は u の大きい方を採用)
   const vocab: Record<string, VocabEntry> = { ...(older.vocab ?? {}) };
   for (const [id, e] of Object.entries(newer.vocab ?? {})) {
@@ -371,7 +463,7 @@ export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
     ...older,
     ...newer,
     attempts,
-    review: { ...older.review, ...newer.review },
+    review,
     settings: { ...older.settings, ...newer.settings },
     pm,
     achievements,

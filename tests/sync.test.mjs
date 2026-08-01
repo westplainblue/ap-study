@@ -148,3 +148,80 @@ test("mergeStates: 導出エントリ(u=0)は新しくても本物の進捗に�
   assert.equal(mergeStates(a, b).vocab.t1.box, 4);
   assert.equal(mergeStates(b, a).vocab.t1.box, 4);
 });
+
+test("syncNow: 卒業(墓標)が古いサーバスナップショットで復活せず、墓標をサーバへ書き戻す", async () => {
+  const now = 1_700_000_000_000;
+  const store = {
+    [KEY]: JSON.stringify({
+      attempts: [],
+      review: { q1: { box: 5, due: "9999-12-31", u: now } }, // 新方式で卒業済み
+      settings: { syncCode: "test-code" },
+      updatedAt: now,
+    }),
+  };
+  const puts = [];
+  const fetchImpl = async (input, init) => {
+    if (!init?.method) {
+      return {
+        ok: true,
+        json: async () => ({
+          data: {
+            attempts: [],
+            review: { q1: { box: 4, due: "2020-01-01" } }, // 旧形式の生き残り(過去due)
+            settings: { syncCode: "test-code" },
+            updatedAt: now + 999_999, // サーバの方が「全体としては新しい」ケースでも
+          },
+        }),
+      };
+    }
+    puts.push(JSON.parse(init.body));
+    return { ok: true };
+  };
+  await withEnv(store, fetchImpl, async () => {
+    const result = await syncNow();
+    assert.equal(result.ok, true, result.message);
+    const saved = JSON.parse(store[KEY]);
+    assert.equal(saved.review.q1.box, 5, "ローカルで墓標が維持される");
+    assert.equal(puts[0].data.review.q1.box, 5, "サーバにも墓標が書き戻される");
+  });
+});
+
+test("syncNow: 復活済みの旧エントリは履歴リプレイの修復で墓標化されてから送られる", async () => {
+  // 誤答→4連続正解で卒業する履歴。復習には歴史的状態(box3)が復活済み(u無し)
+  const D = 86_400_000;
+  const T0 = new Date("2026-05-01T12:00:00").getTime();
+  const day = (t) => {
+    const d = new Date(t);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const plus = (t, days) => day(t + days * D);
+  const attempts = [
+    { q: "q1", t: T0, ok: false, mode: "practice" },
+    { q: "q1", t: T0 + 1 * D, ok: true, mode: "review" },
+    { q: "q1", t: T0 + 4 * D, ok: true, mode: "review" },
+    { q: "q1", t: T0 + 11 * D, ok: true, mode: "review" },
+    { q: "q1", t: T0 + 25 * D, ok: true, mode: "review" },
+  ];
+  const store = {
+    [KEY]: JSON.stringify({
+      attempts,
+      review: { q1: { box: 3, due: plus(T0 + 4 * D, 7) } }, // 復活した歴史的状態
+      settings: { syncCode: "test-code" },
+      updatedAt: 1,
+    }),
+  };
+  const puts = [];
+  const fetchImpl = async (input, init) => {
+    if (!init?.method) return { ok: true, json: async () => ({ data: null }) };
+    puts.push(JSON.parse(init.body));
+    return { ok: true };
+  };
+  await withEnv(store, fetchImpl, async () => {
+    const result = await syncNow();
+    assert.equal(result.ok, true, result.message);
+    const saved = JSON.parse(store[KEY]);
+    assert.equal(saved.review.q1.box, 5, "修復で墓標化される");
+    assert.equal(saved.review.q1.u, T0 + 25 * D, "uは卒業解答のt(全端末で決定的)");
+    assert.equal(puts[0].data.review.q1.box, 5, "墓標がサーバへ送られる");
+  });
+});

@@ -2,6 +2,7 @@ import { reconcile } from "./achievements";
 import {
   loadState,
   mergeStates,
+  repairReviewFromStorage,
   saveStateRaw,
   type ProgressState,
 } from "./progress";
@@ -68,6 +69,8 @@ export async function syncNow(): Promise<SyncResult> {
     // 相手端末から取り込んだ誤答のことば(用語)もここで導出しておく
     // (辞書が未ロードなら no-op。導出できたら送信データにも含める)
     if (reconcileVocabFromStorage()) merged = loadState();
+    // 取り込んだ履歴で「本来は卒業済み」と分かった復習エントリも墓標化して送る
+    if (repairReviewFromStorage()) merged = loadState();
     // push: マージ結果を保存
     const put = await fetch(`${base}/`, {
       method: "PUT",
