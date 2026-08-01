@@ -180,3 +180,15 @@ test("同時実行上限: 3件同時のうち1件は429(busy)", async () => {
   const statuses = [a.status, b.status, c.status].sort();
   assert.deepEqual(statuses, [200, 200, 429]);
 });
+
+test("不正な%エンコードのGETでもプロセスが落ちず400を返す", async () => {
+  const { base } = await startBridge();
+  // decodeURIComponent が URIError を投げるパス(静的配信は認証・tryの前)
+  const res = await fetch(`${base}/%zz`);
+  assert.equal(res.status, 400);
+  const body = await res.json();
+  assert.equal(body.error.code, "bad_request");
+  // サーバは生きていて後続リクエストに応答できる
+  const alive = await fetch(`${base}/v1/models`);
+  assert.equal(alive.status, 200);
+});

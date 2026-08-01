@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import DrillPlayer from "../components/DrillPlayer";
 import { amQuestion, questionsByMiddle } from "../data";
 import type { AmQuestion } from "../data/types";
-import { loadState } from "../lib/progress";
+import { activeReviewIds } from "../lib/progress";
 
 interface Config {
   pool: "wrong" | "middle";
@@ -33,8 +33,8 @@ export default function DrillRun() {
   const questions = useMemo(() => {
     let pool: AmQuestion[];
     if (config.pool === "wrong") {
-      // 間隔反復キューに入っている(=間違えてまだ卒業していない)問題を期日無視で全部
-      pool = Object.keys(loadState().review)
+      // 間隔反復キューに生きている(=間違えてまだ卒業していない)問題を期日無視で全部
+      pool = activeReviewIds()
         .map((id) => amQuestion(id))
         .filter((q): q is AmQuestion => Boolean(q));
     } else {

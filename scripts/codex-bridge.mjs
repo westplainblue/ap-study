@@ -258,7 +258,16 @@ const MIME = {
  */
 function serveStatic(req, res, url) {
   if (!existsSync(DIST_DIR)) return false;
-  let rel = decodeURIComponent(url.pathname);
+  let rel;
+  try {
+    rel = decodeURIComponent(url.pathname);
+  } catch {
+    // 不正な%エンコード(/%zz 等)は URIError を投げる。この関数はリクエスト
+    // ハンドラの try の外から呼ばれるため、ここで握らないとプロセスごと落ちる。
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: { code: "bad_request", message: "不正なURLです" } }));
+    return true;
+  }
   if (rel === "/") rel = "/index.html";
   const filePath = path.resolve(DIST_DIR, "." + rel);
   if (!filePath.startsWith(DIST_DIR + path.sep) && filePath !== DIST_DIR) return false;
