@@ -23,6 +23,15 @@ function IconVocab({ size = 20 }: { size?: number }) {
   );
 }
 
+/** 計算ドリルの絵文字アイコン(IconVocab と同じ理由で絵文字) */
+function IconCalc({ size = 20 }: { size?: number }) {
+  return (
+    <span style={{ fontSize: size - 3, lineHeight: 1 }} aria-hidden>
+      🧮
+    </span>
+  );
+}
+
 function daysUntil(dateStr: string): number {
   const target = new Date(`${dateStr}T00:00:00`).getTime();
   const today = new Date();
@@ -208,6 +217,12 @@ export default function Home() {
             icon: IconRefresh,
             label: "反復学習",
             desc: "正解するまで繰り返して定着",
+          },
+          {
+            to: "/calc",
+            icon: IconCalc,
+            label: "計算ドリル",
+            desc: "公式のテーマ別に計算問題を特訓",
           },
           {
             to: "/vocab",

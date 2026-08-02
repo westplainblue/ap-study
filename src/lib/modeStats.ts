@@ -16,11 +16,12 @@ export interface Agg {
 }
 
 /** 表示順(実力→定着→総合の並び) */
-export const MODE_ORDER: Mode[] = ["practice", "drill", "review", "mock"];
+export const MODE_ORDER: Mode[] = ["practice", "drill", "calc", "review", "mock"];
 
 export const MODE_LABEL: Record<Mode, string> = {
   practice: "分野別演習",
   drill: "反復学習",
+  calc: "計算ドリル",
   review: "復習",
   mock: "模試",
 };
@@ -29,6 +30,7 @@ export const MODE_LABEL: Record<Mode, string> = {
 export const MODE_HINT: Record<Mode, string> = {
   practice: "初見が多い出題。いまの実力の目安",
   drill: "正解するまで繰り返す出題。記録は各問の初回解答のみ",
+  calc: "計算問題だけの特訓。1問ごとの解答時間も測る",
   review: "間隔をあけた解き直し。一度つまずいた問題が母集団なので低めに出やすい",
   mock: "80問通し・時間制約あり。本番に最も近い",
 };

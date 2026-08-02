@@ -17,6 +17,7 @@ const SAMPLE = [
   at("q4", true, "practice"),
   at("q1", false, "drill"),
   at("q5", true, "drill"),
+  at("q8", true, "calc"),
   at("q2", true, "review"),
   at("q6", false, "review"),
   at("q7", true, "mock"),
@@ -26,6 +27,7 @@ test("statsByMode: モードごとに解答数と正解数を分ける", () => {
   const m = statsByMode(SAMPLE);
   assert.deepEqual(m.get("practice"), { n: 4, ok: 3 });
   assert.deepEqual(m.get("drill"), { n: 2, ok: 1 });
+  assert.deepEqual(m.get("calc"), { n: 1, ok: 1 });
   assert.deepEqual(m.get("review"), { n: 2, ok: 1 });
   assert.deepEqual(m.get("mock"), { n: 1, ok: 1 });
   // 合計は元の件数と一致する(取りこぼし・二重計上なし)
@@ -60,8 +62,8 @@ test("modesWithData: データのあるモードだけを表示順で返す", ()
   assert.deepEqual(modesWithData(zero), []);
 });
 
-test("MODE_ORDER: 演習→反復→復習→模試の順で重複なし", () => {
-  assert.deepEqual(MODE_ORDER, ["practice", "drill", "review", "mock"]);
+test("MODE_ORDER: 演習→反復→計算→復習→模試の順で重複なし", () => {
+  assert.deepEqual(MODE_ORDER, ["practice", "drill", "calc", "review", "mock"]);
   assert.equal(new Set(MODE_ORDER).size, MODE_ORDER.length);
 });
 
@@ -73,6 +75,7 @@ const MAJOR_OF = {
   q5: "tech",
   q6: "strat",
   q7: "tech",
+  q8: "tech",
 };
 
 test("statsByGroupAndMode: 分野×モードで集計する", () => {

@@ -256,6 +256,18 @@ npm run build:terms
 問題のあるカードは `scripts/term-overrides.json` に `{"<id>": {"drop": true}}` 等を
 追記して再生成すれば除外できる(定義文の手書き修正は禁止 — 逐語性テストが落ちる)。
 
+続けて、**計算ドリルのテーマ索引も再生成する**(新しい回の計算問題をテーマに割り当てる):
+
+```bash
+npm run build:calc
+# → src/data/calc-index.json が更新される(コミット対象)
+```
+
+未分類の計算問題があるとスクリプトがID付きで失敗する。その場合は
+`scripts/calc-theme-overrides.json` に `{"<問題ID>": {"theme": "<テーマID>", "note": "<理由>"}}` を
+追記して再生成する(テーマ一覧は `src/data/calc-themes.json`)。
+再生成を忘れても `tests/calc.test.mjs` が検知して教えてくれる。
+
 ---
 
 ## 7. 検証(全部通ること)
@@ -265,6 +277,7 @@ npm test           # 全ユニットテスト。特に以下が新データを�
                    #  - tests/canShuffle.test.mjs: 全問が解答可能(choices4つ or 図中合成)、
                    #    シャッフル可否の不変条件
                    #  - tests/terms.test.mjs: 辞書の逐語性・索引整合(build:terms後)
+                   #  - tests/calc.test.mjs: 計算問題のテーマ分類の網羅(build:calc後)
 npx tsc --noEmit   # 型チェック
 npm run build      # 本番ビルド
 ```

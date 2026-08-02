@@ -106,15 +106,29 @@ function stripUnits(t: string): string {
   return t;
 }
 
+// 上付き文字の指数(例 10⁻⁶)を ^ 付きASCII(10^-6)へ寄せる。令和3年度以降の
+// データは指数をUnicode上付き文字で書く規約のため、これが無いと数値判定から漏れる。
+// n² のような変数付きの式は n^2 になり、数値の正規表現には一致しない(誤検出しない)。
+const SUPERSCRIPT_MAP: Record<string, string> = {
+  "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
+  "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-",
+};
+function normalizeSuperscripts(t: string): string {
+  return t.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g, (run) =>
+    `^${[...run].map((c) => SUPERSCRIPT_MAP[c]).join("")}`
+  );
+}
+
 function isNumericChoice(s: string): boolean {
   let t = s.replace(/[,\s　]/g, ""); // カンマ・空白を先に除去
   t = t.replace(/^(約|およそ|最大|最小|マイナス|-|−)/, "");
   t = stripUnits(t);
+  t = normalizeSuperscripts(t);
   if (!t) return false;
   return (
     /^\d+(\.\d+)?$/.test(t) || // 整数・小数
     /^\d+\/\d+$/.test(t) || // 分数(例 1/32)
-    /^\d+(\.\d+)?[×xX]10\^?-?\d+$/.test(t) || // 指数表記
+    /^\d+(\.\d+)?[×xX]10\^?-?\d+$/.test(t) || // 指数表記(10^-6 / 10⁻⁶)
     /^2\^?-?\d+$/.test(t) // 2のべき
   );
 }

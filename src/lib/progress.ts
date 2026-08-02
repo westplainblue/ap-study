@@ -3,7 +3,7 @@
  * drill(反復学習)は 2026-07 まで practice として記録していたため、それ以前の
  * 反復ぶんは分野別演習に含まれる(履歴は書き換えない方針)。
  */
-export type Mode = "practice" | "review" | "drill" | "mock";
+export type Mode = "practice" | "review" | "drill" | "mock" | "calc";
 
 export interface Attempt {
   q: string; // questionId
@@ -11,6 +11,8 @@ export interface Attempt {
   ok: boolean;
   mode: Mode;
   s?: string; // 学習セッションID(R4: セッションをまたいだ successive relearning 用)
+  /** 解答にかかった時間(ミリ秒)。計算ドリルのみ記録する任意フィールド */
+  ms?: number;
 }
 
 export interface ReviewEntry {
@@ -184,11 +186,18 @@ function applyReviewTransition(
   }
 }
 
-/** 解答を記録し、復習キューを更新する */
-export function recordAnswer(qid: string, ok: boolean, mode: Mode): void {
+/** 解答を記録し、復習キューを更新する。ms は解答にかかった時間(計算ドリルのみ) */
+export function recordAnswer(qid: string, ok: boolean, mode: Mode, ms?: number): void {
   const s = loadState();
   const now = Date.now();
-  s.attempts.push({ q: qid, t: now, ok, mode, s: currentSessionId() });
+  s.attempts.push({
+    q: qid,
+    t: now,
+    ok,
+    mode,
+    s: currentSessionId(),
+    ...(ms !== undefined ? { ms: Math.round(ms) } : {}),
+  });
   applyReviewTransition(s, qid, ok, todayStr(), now);
   saveState(s);
 }

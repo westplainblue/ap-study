@@ -8,6 +8,8 @@ import { reconcileSilent } from "./lib/achievements";
 import { repairReviewFromStorage } from "./lib/progress";
 import { syncInBackground } from "./lib/sync";
 import { reconcileVocabFromStorage } from "./lib/vocab";
+import CalcRun from "./pages/CalcRun";
+import CalcSetup from "./pages/CalcSetup";
 import DrillRun from "./pages/DrillRun";
 import DrillSetup from "./pages/DrillSetup";
 import Home from "./pages/Home";
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/practice/run" element={<PracticeRun />} />
           <Route path="/drill" element={<DrillSetup />} />
           <Route path="/drill/run" element={<DrillRun />} />
+          <Route path="/calc" element={<CalcSetup />} />
+          <Route path="/calc/run" element={<CalcRun />} />
           <Route path="/review/run" element={<ReviewRun />} />
           <Route path="/mock" element={<MockExam />} />
           <Route path="/mock/run" element={<MockRun />} />
