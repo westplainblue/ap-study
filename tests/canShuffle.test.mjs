@@ -19,14 +19,14 @@ test("canShuffleChoices: 既知の除外ケースを弾く", () => {
   assert.equal(canShuffleChoices(byId.get("2022r04a-am-08")), true);
 });
 
-test("全640問が解答可能(choicesが4つある)", () => {
+test("全収録問が解答可能(choicesが4つある)", () => {
   for (const q of AM_QUESTIONS) {
     assert.equal(q.choices.length, 4, `${q.id} の選択肢が ${q.choices.length} 個`);
     assert.ok(q.answer >= 0 && q.answer <= 3, q.id);
   }
 });
 
-test("canShuffleChoices: 全640問の不変条件", () => {
+test("canShuffleChoices: 全収録問の不変条件", () => {
   let eligible = 0;
   for (const q of AM_QUESTIONS) {
     if (!canShuffleChoices(q)) continue;

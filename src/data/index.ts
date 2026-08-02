@@ -16,6 +16,9 @@ import r2022a from "./exams/2022r04a.am.json";
 import r2022aPm from "./exams/2022r04a.pm.json";
 import r2022h from "./exams/2022r04h.am.json";
 import r2022hPm from "./exams/2022r04h.pm.json";
+import r2021a from "./exams/2021r03a.am.json";
+import r2021h from "./exams/2021r03h.am.json";
+import r2020o from "./exams/2020r02o.am.json";
 
 function normalize(raw: unknown, pm: unknown[]): ExamData {
   const e = raw as Partial<ExamData>;
@@ -46,6 +49,9 @@ export const EXAMS: ExamData[] = [
   normalize(r2023h, r2023hPm.pm),
   normalize(r2022a, r2022aPm.pm),
   normalize(r2022h, r2022hPm.pm),
+  normalize(r2021a, []),
+  normalize(r2021h, []),
+  normalize(r2020o, []),
 ];
 
 export const AM_QUESTIONS: AmQuestion[] = EXAMS.flatMap((e) => e.am);
@@ -74,7 +80,7 @@ export function sourceOf(q: AmQuestion): string {
 
 // --- 計算問題の判定 --------------------------------------------------------
 // 応用情報の午前問題は「選択肢が数値」であることが計算問題のほぼ確実な目印
-// (概念問題の選択肢は文章。実データ640問では数値選択肢が1〜2個の問題は0件で、
+// (概念問題の選択肢は文章。収録済み全問では数値選択肢が1〜2個の問題は0件で、
 //  0個 or 3個以上にきれいに分かれる)。数値選択肢が3つ以上なら計算問題とみなす。
 const CALC_UNITS = [
   "ミリ秒", "マイクロ秒", "ナノ秒", "kビット/秒", "Mビット/秒", "Gビット/秒",
@@ -115,9 +121,13 @@ function isNumericChoice(s: string): boolean {
 
 // 選択肢が数値でないため上の判定では拾えないが、式(論理式・集合演算・計算量・
 // 漸化式・記法変換など)を導いて答える計算問題や、計算した結果を順序・金額・
-// グラフで選ぶ計算問題。全640問を精読して個別に列挙した。
+// グラフで選ぶ計算問題。収録済み問題を精読して個別に列挙した。
 const EXTRA_CALC_IDS = [
   // 式で答える(論理式・集合演算・ビット演算・計算量・漸化式・記法変換)
+  "2020r02o-am-01", "2020r02o-am-03", // 進数の桁数 / 逆ポーランド表記
+  "2021r03a-am-02", "2021r03a-am-08", // 待ち時間 / オーバフロー条件
+  "2021r03a-am-22", "2021r03a-am-23", "2021r03a-am-35", // 論理回路 / ビット演算
+  "2021r03h-am-01", "2021r03h-am-34", // 論理演算 / IPアドレスのビット演算
   "2022r04a-am-02", "2025r07a-am-01", // カルノー図→論理式
   "2022r04h-am-02", "2025r07h-am-28", // 集合/関係代数の式
   "2023r05h-am-21", "2025r07a-am-21", "2025r07h-am-01", // 論理式
@@ -130,6 +140,12 @@ const EXTRA_CALC_IDS = [
   "2022r04h-am-01", // 浮動小数点の計算
   "2024r06a-am-03", "2024r06h-am-06", // 逆ポーランド/木の走査出力
   // 計算するが答えが数値以外(順序・記述・グラフ・金額)で数値判定から漏れたもの
+  "2020r02o-am-04", "2020r02o-am-12", // 符号長 / HPC性能(選択肢が図中)
+  "2020r02o-am-23", "2020r02o-am-47", // LUT回路 / 流れ図のトレース
+  "2020r02o-am-55", "2020r02o-am-75", // 逓減課金グラフ / 発注費用の式
+  "2021r03a-am-68", "2021r03a-am-75", "2021r03a-am-77", // コスト比較 / マクシミン / 損益比較
+  "2021r03h-am-14", // 稼働率の計算結果をグラフで選ぶ
+  "2021r03h-am-25", // SR回路の状態遷移
   "2024r06a-am-14", "2023r05h-am-16", "2025r07h-am-13", // 稼働率の計算
   "2023r05h-am-75", "2024r06h-am-54", // 期待値(EMV)
   "2024r06h-am-64", "2024r06a-am-64", // PBP/BPRの金額計算

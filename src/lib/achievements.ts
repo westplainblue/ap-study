@@ -37,7 +37,7 @@ const REVENGE_PER_Q_CAP = 3; // 単一問題からのリベンジ寄与の上限
 const DAILY_GOAL = 20; // デイリー目標(問/日)
 const WEEKLY_GOAL = 100; // ウィークリー目標(問/週)
 const MONTHLY_GOAL_DAYS = 20; // マンスリー目標(学習日/月)
-const TOTAL_Q = AM_QUESTIONS.length; // 640
+const TOTAL_Q = AM_QUESTIONS.length;
 
 // ---------- リベンジ算出 ----------
 export interface RevengeStats {

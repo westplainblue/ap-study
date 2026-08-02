@@ -8,7 +8,7 @@ const COUNTS = [5, 10, 20];
 
 /** チップ表示用の短い試験回名(例: 令和7年度 秋期 → 令和7秋期) */
 function shortExamLabel(label: string): string {
-  return label.replace("年度 ", "");
+  return label.replace(/年度 (?=\d+月$)/, "年").replace("年度 ", "");
 }
 
 export default function PracticeSetup() {

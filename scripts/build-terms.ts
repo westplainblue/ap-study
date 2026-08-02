@@ -2,8 +2,8 @@
  * 用語カード辞書(ことば帳)を既存の試験データから機械生成する。
  *
  * 入力:
- *   src/data/exams/*.am.json     … 午前問題(8回分)
- *   scripts/term-overrides.json  … キュレーション(drop/term/reading/aliases/fact)
+ *   src/data/exams/*.am.json     … 収録済みの午前問題
+ *   scripts/term-overrides.json  … キュレーション(drop/id/term/reading/aliases/fact)
  * 出力:
  *   src/data/terms.json          … TermCard[]
  *   src/data/term-index.json     … 問題ID → 用語ID[]
@@ -291,6 +291,7 @@ for (const rc of raw) {
 // --- 5. オーバーライド適用と id 付与 -----------------------------------------
 interface Override {
   drop?: boolean;
+  id?: string;
   term?: string;
   reading?: string;
   aliases?: string[];
@@ -312,20 +313,24 @@ const usedIds = new Set<string>();
 const cards: TermCard[] = [];
 for (const [, entry] of byKey) {
   const q = questionById.get(entry.best.defQid)!;
-  let id = slugify(entry.best.term);
-  if (!id) continue;
+  const generatedId = slugify(entry.best.term);
+  if (!generatedId) continue;
+  const ov = overrides[generatedId];
+  if (ov?.drop) continue;
+  let id = ov?.id ?? generatedId;
   while (usedIds.has(id)) id += "-2"; // slug衝突(表記ゆれ正規化で寄り切らない同名)
   usedIds.add(id);
 
-  const ov = overrides[id];
-  if (ov?.drop) continue;
+  const term = ov?.term ?? entry.best.term;
   const aliases = new Set(entry.aliases);
   aliases.delete(entry.best.term);
+  aliases.delete(term);
+  if (term !== entry.best.term) aliases.add(entry.best.term);
   for (const a of ov?.aliases ?? []) aliases.add(a);
 
   const card: TermCard = {
     id,
-    term: ov?.term ?? entry.best.term,
+    term,
     ...(ov?.reading ? { reading: ov.reading } : {}),
     ...(aliases.size ? { aliases: [...aliases].sort() } : {}),
     def: entry.best.def,
