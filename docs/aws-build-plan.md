@@ -1,4 +1,11 @@
+---
+tags: [リファレンス, インフラ]
+aliases: [AWS構築計画書]
+---
+
 # AWS 構築計画書 — S3 + CloudFront(個人利用)
+
+> [!info] [[ホーム]] › 初期構築の計画書。日々の運用は [[デプロイと公開先]]。
 
 ap-study を **S3 + CloudFront** で配信するための構築計画書。コスト試算は [aws-cost-estimate.md](./aws-cost-estimate.md) を参照(結論: **独自ドメインなしなら実質 0 円/月**)。
 

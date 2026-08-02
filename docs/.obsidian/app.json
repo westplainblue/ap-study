@@ -1,0 +1,11 @@
+{
+  "attachmentFolderPath": "添付",
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "showLineNumber": true,
+  "readableLineLength": true,
+  "strictLineBreaks": false,
+  "defaultViewMode": "preview",
+  "livePreview": true
+}

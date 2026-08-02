@@ -1,4 +1,11 @@
+---
+tags: [設計, 同期, インフラ]
+aliases: [クラウド同期のしくみ]
+---
+
 # クラウド同期のしくみ(AWS: Lambda + DynamoDB)
+
+> [!info] [[ホーム]] › インフラ側の解説です。マージの意味論は [[同期とマージ規則]] に分けています。
 
 ap-study の端末間同期(PC↔スマホ等)がどう動いているかの解説。初学者向け。
 関連コード: [`infra/sync.yaml`](../infra/sync.yaml)(インフラ)/ [`src/lib/sync.ts`](../src/lib/sync.ts)(アプリ側)。

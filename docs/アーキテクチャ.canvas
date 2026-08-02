@@ -1,0 +1,47 @@
+{
+	"nodes":[
+		{"id":"title","type":"text","text":"# AP Study 全体像\n\n左から右へ: 利用者 → 配信 → アプリ → 保存 → 任意の外部連携","x":-620,"y":-460,"width":600,"height":120,"color":"6"},
+
+		{"id":"user","type":"text","text":"## 👤 学習者\n\nスマホ / PC のブラウザ\nオフラインでも学習できる","x":-620,"y":-260,"width":260,"height":140,"color":"5"},
+
+		{"id":"deliver","type":"text","text":"## 🌐 配信(2系統)\n\n**GitHub Pages**\nmain へ push で自動\n\n**AWS S3 + CloudFront**\n手動デプロイのみ ⚠️","x":-300,"y":-280,"width":280,"height":180,"color":"2"},
+
+		{"id":"app","type":"text","text":"## ⚛️ SPA\n\nReact + Vite + TypeScript\nHashRouter\n\n問題データ(880問)を\nバンドルに同梱","x":40,"y":-280,"width":260,"height":180,"color":"4"},
+
+		{"id":"store","type":"text","text":"## 💾 localStorage\n\n`ap-study:v1` 学習データ\n`ap-study:ai` APIキー(隔離)\n`ap-study:mock` 模試の中断\n`ap-run:*` 演習の中断","x":380,"y":-300,"width":280,"height":200,"color":"3"},
+
+		{"id":"sync","type":"text","text":"## 🔀 同期API(任意)\n\nLambda + DynamoDB\npull → merge → push\n\nマージはクライアント側","x":380,"y":-40,"width":280,"height":160,"color":"1"},
+
+		{"id":"ai","type":"text","text":"## ✨ AI(任意)\n\nCodexブリッジ(ローカル)\nOpenAI / Anthropic / xAI\n\n未設定でも学習機能は全て動く","x":40,"y":-40,"width":260,"height":160,"color":"1"},
+
+		{"id":"modes","type":"text","text":"## 🎯 学習モード\n\n- 分野別演習 `practice`\n- 反復学習 `drill`\n- 復習 `review`\n- 模試 `mock`\n- ことばドリル\n- 午後演習(自己採点)","x":-300,"y":-40,"width":280,"height":200,"color":"4"},
+
+		{"id":"derive","type":"text","text":"## 🧮 導出\n\n**attempts が真実の源**\n\n分析 / 実績 / ことば帳 /\n復習キューの修復\nすべてここから再計算できる","x":40,"y":180,"width":260,"height":180,"color":"3"},
+
+		{"id":"staticdata","type":"text","text":"## 📚 静的データ\n\n午前 11回 880問\n午後 8回 40問\n用語カード 320語\n図表 70枚超","x":-300,"y":200,"width":280,"height":160,"color":"2"},
+
+		{"id":"docs","type":"file","file":"ホーム.md","x":-620,"y":-40,"width":260,"height":140},
+		{"id":"doc-sync","type":"file","file":"設計/同期とマージ規則.md","x":740,"y":-40,"width":280,"height":120},
+		{"id":"doc-model","type":"file","file":"設計/データモデル.md","x":740,"y":-280,"width":280,"height":120},
+		{"id":"doc-deploy","type":"file","file":"ガイド/デプロイと公開先.md","x":-300,"y":-460,"width":280,"height":120},
+		{"id":"doc-algo","type":"file","file":"設計/学習アルゴリズム.md","x":-620,"y":200,"width":260,"height":120},
+		{"id":"doc-ai","type":"file","file":"設計/AI連携.md","x":40,"y":420,"width":260,"height":100}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"user","fromSide":"right","toNode":"deliver","toSide":"left","label":"HTTPS"},
+		{"id":"e2","fromNode":"deliver","fromSide":"right","toNode":"app","toSide":"left"},
+		{"id":"e3","fromNode":"app","fromSide":"right","toNode":"store","toSide":"left","label":"保存"},
+		{"id":"e4","fromNode":"store","fromSide":"bottom","toNode":"sync","toSide":"top","label":"任意"},
+		{"id":"e5","fromNode":"app","fromSide":"bottom","toNode":"ai","toSide":"top","label":"任意"},
+		{"id":"e6","fromNode":"app","fromSide":"left","toNode":"modes","toSide":"right"},
+		{"id":"e7","fromNode":"modes","fromSide":"bottom","toNode":"staticdata","toSide":"top","label":"出題"},
+		{"id":"e8","fromNode":"store","fromSide":"bottom","toNode":"derive","toSide":"right","label":"attempts"},
+		{"id":"e9","fromNode":"derive","fromSide":"top","toNode":"app","toSide":"bottom","label":"分析・実績"},
+		{"id":"e10","fromNode":"deliver","fromSide":"top","toNode":"doc-deploy","toSide":"bottom"},
+		{"id":"e11","fromNode":"store","fromSide":"right","toNode":"doc-model","toSide":"left"},
+		{"id":"e12","fromNode":"sync","fromSide":"right","toNode":"doc-sync","toSide":"left"},
+		{"id":"e13","fromNode":"modes","fromSide":"left","toNode":"doc-algo","toSide":"top"},
+		{"id":"e14","fromNode":"ai","fromSide":"bottom","toNode":"doc-ai","toSide":"top"},
+		{"id":"e15","fromNode":"docs","fromSide":"top","toNode":"user","toSide":"bottom"}
+	]
+}

@@ -9,3 +9,7 @@ data-src/work/*
 .env
 .env.local
 .DS_Store
+
+# Obsidian: 個人ごとの画面レイアウトは共有しない
+docs/.obsidian/workspace*.json
+docs/.obsidian/plugins/
