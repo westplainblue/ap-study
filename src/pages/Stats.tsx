@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccuracyTrend, { type DayPoint } from "../components/AccuracyTrend";
 import AchievementGrid from "../components/AchievementGrid";
+import { IconChevronRight } from "../components/Icons";
 import ContributionGraph from "../components/ContributionGraph";
 import { amQuestion } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
@@ -14,6 +15,7 @@ import {
   statsByGroupAndMode,
   statsByMode,
 } from "../lib/modeStats";
+import { CALC_THEMES, statsByCalcTheme } from "../lib/calc";
 import { addDaysStr, loadState, todayStr } from "../lib/progress";
 import { delayedRetention } from "../lib/srs";
 
@@ -48,6 +50,7 @@ export default function Stats() {
     todayAgg,
     last7Agg,
     retention,
+    calcByTheme,
     byMode,
     byMajorMode,
   } = useMemo(() => {
@@ -90,6 +93,7 @@ export default function Stats() {
         }
       }
       const retention = delayedRetention(state.attempts, 7);
+      const calcByTheme = statsByCalcTheme(state.attempts);
       const byMode = statsByMode(state.attempts);
       // 分野の粒度は大分類。中分類をモードで割ると1桁件数のセルばかりになり読めない
       const byMajorMode = statsByGroupAndMode(
@@ -106,6 +110,7 @@ export default function Stats() {
         todayAgg,
         last7Agg,
         retention,
+        calcByTheme,
         byMode,
         byMajorMode,
       };
@@ -137,6 +142,21 @@ export default function Stats() {
     );
     navigate("/practice/run");
   };
+
+  // そのテーマだけを集中して解き直す(CalcSetup と同じ設定形式で渡す)
+  const goCalcTheme = (themeId: string) => {
+    sessionStorage.setItem(
+      "ap-calc",
+      JSON.stringify({ themes: [themeId], mix: "focus", count: 10 })
+    );
+    navigate("/calc/run");
+  };
+
+  // 解答実績のあるテーマだけを定義順に並べる(未着手のテーマは「成績」ではない)
+  const calcRows = CALC_THEMES.map((t) => ({ theme: t, stat: calcByTheme.get(t.id) }))
+    .filter((r): r is { theme: (typeof CALC_THEMES)[number]; stat: NonNullable<typeof r.stat> } =>
+      Boolean(r.stat)
+    );
 
   // 実施したモードが2つ以上あるときだけ、分野×モードの表を出す(1つなら上の表と同じ)
   const modeCols = modesWithData(byMode);
@@ -362,6 +382,82 @@ export default function Stats() {
               </button>
             ))}
           </div>
+        </>
+      )}
+
+      {calcRows.length > 0 && (
+        <>
+          <p style={{ fontWeight: 600, marginBottom: 8 }}>🧮 計算テーマ別の成績</p>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 6 }}
+          >
+            {calcRows.map(({ theme, stat }) => {
+              const rate = Math.round((stat.ok / stat.n) * 100);
+              const avgSec =
+                stat.timedN > 0 ? Math.round(stat.msTotal / stat.timedN / 1000) : null;
+              const slow = avgSec !== null && avgSec > theme.targetSec;
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => goCalcTheme(theme.id)}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    background: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                  }}
+                  aria-label={`${theme.name} 正答率${rate}%。このテーマを特訓する`}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      gap: 8,
+                      fontSize: 13,
+                      marginBottom: 3,
+                    }}
+                  >
+                    {/* 押せる行であることを他画面(ホーム・弱点トピック)と同じ記号で示す */}
+                    <span
+                      style={{ display: "inline-flex", alignItems: "center", gap: 2 }}
+                    >
+                      {theme.icon} {theme.name}
+                      <span style={{ color: "var(--text-3)" }} aria-hidden>
+                        <IconChevronRight size={13} />
+                      </span>
+                    </span>
+                    <span className="muted" style={{ whiteSpace: "nowrap" }}>
+                      {avgSec !== null && (
+                        <span
+                          style={{
+                            color: slow ? "var(--warning-text)" : "var(--success-text)",
+                            fontWeight: 600,
+                            marginRight: 6,
+                          }}
+                        >
+                          ⏱{avgSec}秒
+                        </span>
+                      )}
+                      {rate}%({stat.ok}/{stat.n})
+                    </span>
+                  </div>
+                  <div className="bar-track">
+                    <div
+                      className={`bar-fill ${rate < 60 ? "warn" : ""}`}
+                      style={{ width: `${rate}%` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="muted small" style={{ marginBottom: 18, lineHeight: 1.6 }}>
+            正答率は演習・模試も含めた全モードの計算問題から。⏱は計算ドリルで測った平均解答時間で、
+            テーマの目標時間を超えていると橙色になります。行をタップするとそのテーマだけを特訓できます。
+          </p>
         </>
       )}
 

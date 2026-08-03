@@ -11,6 +11,7 @@ import {
   pmQuestion,
 } from "../data";
 import { MIDDLES_BY_MAJOR, type Major } from "../data/types";
+import { CALC_THEMES, calcThemeOf } from "./calc";
 import {
   loadState,
   saveStateRaw,
@@ -90,6 +91,8 @@ export interface EvalContext {
   hasReview: boolean;
   hasMock: boolean;
   calcCorrect: number;
+  calcThemesOk: number; // 正解できた計算テーマの数(公式の踏破数)
+  calcInTime: number; // 目標秒数内に正解した計算問題の数(計算ドリルのみ)
   dailyGoalDays: number;
   weeklyGoalWeeks: number;
   monthlyGoalMonths: number;
@@ -135,6 +138,8 @@ export function buildContext(state: ProgressState): EvalContext {
   let maxCombo = 0;
   let combo = 0;
   let calcCorrect = 0;
+  const calcThemesOk = new Set<string>();
+  let calcInTime = 0;
   let hasPractice = false;
   let hasReview = false;
   let hasMock = false;
@@ -167,6 +172,15 @@ export function buildContext(state: ProgressState): EvalContext {
           correctByMiddle.set(q.middle, new Set()).get(q.middle)!
         ).add(a.q);
         if (isCalcQuestion(q)) calcCorrect += 1;
+        // 公式テーマの踏破と「目標時間内に解けた」の集計。時間は計算ドリルでしか
+        // 記録しないので、ms を持つ解答だけが速さの実績に効く。
+        const theme = calcThemeOf(a.q);
+        if (theme) {
+          calcThemesOk.add(theme.id);
+          if (a.ms !== undefined && a.ms > 0 && a.ms <= theme.targetSec * 1000) {
+            calcInTime += 1;
+          }
+        }
       }
     } else {
       combo = 0;
@@ -263,6 +277,8 @@ export function buildContext(state: ProgressState): EvalContext {
     hasReview,
     hasMock,
     calcCorrect,
+    calcThemesOk: calcThemesOk.size,
+    calcInTime,
     dailyGoalDays,
     weeklyGoalWeeks,
     monthlyGoalMonths,
@@ -432,6 +448,10 @@ mk("weekend", "週末戦士", "土日に学習", "bronze", "challenge", (c) => b
 mk("comeback", "おかえりなさい", "7日以上空けて学習を再開", "bronze", "challenge", (c) => bool(c.hasComeback ? 1 : 0), 1);
 mk("calc-50", "計算も恐れず", "計算問題を50問正解", "silver", "challenge", (c) => c.calcCorrect, 50);
 mk("calc-200", "計算マスター", "計算問題を200問正解", "gold", "challenge", (c) => c.calcCorrect, 200);
+mk("calc-speed", "速算の使い手", "目標時間内に計算問題を30問正解", "silver", "challenge",
+  (c) => c.calcInTime, 30);
+mk("calc-themes", "公式の全踏破", `計算${CALC_THEMES.length}テーマすべてで正解`, "gold", "challenge",
+  (c) => c.calcThemesOk, CALC_THEMES.length);
 mk("modes-3", "三刀流", "演習・復習・模試すべてで解答", "silver", "challenge",
   (c) => bool(c.hasPractice && c.hasReview && c.hasMock ? 1 : 0), 1);
 

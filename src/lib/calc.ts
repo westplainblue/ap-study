@@ -65,3 +65,48 @@ export function calcPool(themeIds: string[]): AmQuestion[] {
   }
   return pool;
 }
+
+export interface CalcThemeStat {
+  n: number; // 解答数
+  ok: number; // 正解数
+  timedN: number; // 解答時間が記録されている解答数
+  msTotal: number; // 解答時間の合計(平均の算出用)
+  inTime: number; // 目標秒数内に解けた数(timedN のうち)
+}
+
+/**
+ * 計算テーマ別の成績。
+ *
+ * 正答率は**全モードの計算問題**から集計する。分野別演習や模試で解いた計算問題も
+ * 「その公式を使えるか」を等しく表すので、計算ドリルに限ると母数が小さくなりすぎる。
+ * 一方、解答時間は計算ドリルでしか記録していない(Attempt.ms)ので、
+ * 平均時間と目標達成数は ms を持つ解答だけを母数にする。
+ *
+ * 引数は Attempt[] を受けるが、必要な3項目だけの構造型にして progress への依存を避ける。
+ */
+export function statsByCalcTheme(
+  attempts: { q: string; ok: boolean; ms?: number }[]
+): Map<string, CalcThemeStat> {
+  const map = new Map<string, CalcThemeStat>();
+  for (const a of attempts) {
+    const theme = calcThemeOf(a.q);
+    if (!theme) continue;
+    const cur = map.get(theme.id) ?? {
+      n: 0,
+      ok: 0,
+      timedN: 0,
+      msTotal: 0,
+      inTime: 0,
+    };
+    cur.n += 1;
+    if (a.ok) cur.ok += 1;
+    // ms<=0 は計測不能とみなして母数に入れない(平均が不当に速くなるのを防ぐ)
+    if (a.ms !== undefined && a.ms > 0) {
+      cur.timedN += 1;
+      cur.msTotal += a.ms;
+      if (a.ms <= theme.targetSec * 1000) cur.inTime += 1;
+    }
+    map.set(theme.id, cur);
+  }
+  return map;
+}
