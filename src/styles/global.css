@@ -1190,3 +1190,110 @@ body {
     padding-top: 2px;
   }
 }
+
+/* ==========================================================================
+   モーション
+   ========================================================================== */
+
+/*
+ * 動きを減らす設定への対応。
+ *
+ * 前庭障害のある人にとって画面の動きは実際に体調不良を引き起こすため、
+ * OSの「視差効果を減らす」を尊重するのは実装側の責任。
+ * 完全に 0 にせず 0.01ms 残すのは、animation の終了イベントに依存している
+ * コードがあっても壊さないため(このアプリには今のところ無いが、定石に従う)。
+ * !important を使うのは、この宣言が個別のアニメーション指定より必ず勝つ必要があるから。
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 解答後に現れる要素(正誤バナー・解説・公式カード)。
+   位置は 6px しか動かさない: 読む対象を大きく動かすと視線が追随を強いられる */
+.answer-block {
+  animation: fade-up 0.18s ease;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 画面遷移。80ms は「無いと物足りないが、待たされたとは感じない」水準 */
+.route-fade {
+  animation: route-in 0.08s ease-out;
+}
+
+@keyframes route-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * 押せる要素の手応え。タッチ端末では hover が「タップ後も残る」ので付けない。
+ * 押下の scale は既にあるが、トランジションが無いと戻りが一瞬で手応えにならない。
+ */
+.btn,
+.choice,
+.list-row,
+.chip-toggle,
+.mock-cell,
+.figure-btn {
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.08s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled),
+  .chip-toggle:hover:not(:disabled),
+  .mock-cell:hover {
+    border-color: var(--border-strong);
+    background: var(--surface-2);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+  }
+
+  .list-row:hover,
+  .figure-btn:hover {
+    border-color: var(--border-strong);
+  }
+
+  /* 解答前の選択肢だけ反応させる(解答後は正誤の色を保つ) */
+  .choice:not(:disabled):hover {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+}
+
+.list-row:active,
+.choice:not(:disabled):active,
+.mock-cell:active {
+  transform: scale(0.99);
+}
+
+/* 図の拡大。モーダルと同じ動きで「開いた」ことを伝える */
+.figure-zoom {
+  animation: modal-pop 0.18s ease;
+}

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes, useLocation } from "react-router-dom";
 import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
 import ShortcutHelp from "./components/ShortcutHelp";
@@ -39,9 +39,25 @@ export default function App() {
 
   return (
     <HashRouter>
+      <AppShell />
+    </HashRouter>
+  );
+}
+
+/**
+ * ルーティングの内側。画面が変わったことを短いフェードで伝える。
+ *
+ * main に key を付けて作り直すのは、`.app-main > *` に読み幅と中央寄せを
+ * 当てているため。ラッパの div を挟むとその指定がラッパに乗ってしまい、
+ * ページ側の .pc-wide が効かなくなる。
+ */
+function AppShell() {
+  const location = useLocation();
+  return (
+    <>
       {/* PC(1024px以上)はサイドバー、それ未満は下部タブバー。CSSで排他表示 */}
       <SideNav />
-      <main className="app-main">
+      <main className="app-main route-fade" key={location.pathname}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<PracticeSetup />} />
@@ -65,6 +81,6 @@ export default function App() {
       <AchievementToast />
       <AiChat />
       <TabBar />
-    </HashRouter>
+    </>
   );
 }
