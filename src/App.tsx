@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
+import ShortcutHelp from "./components/ShortcutHelp";
 import SideNav from "./components/SideNav";
 import TabBar from "./components/TabBar";
 import { loadTermsData } from "./data/terms";
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
+      <ShortcutHelp />
       <AchievementToast />
       <AiChat />
       <TabBar />

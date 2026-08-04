@@ -137,7 +137,9 @@ export default function AccuracyTrend({ points, average }: Props) {
           onPointerLeave={handleLeave}
           onKeyDown={handleKeyDown}
           onBlur={() => setActive(null)}
-          style={{ touchAction: "pan-y", outline: "none", display: "block" }}
+          // outline は指定しない: 左右キーで操作できる要素なので、
+          // フォーカスリング(global.css の :focus-visible)を消してはいけない
+          style={{ touchAction: "pan-y", display: "block" }}
         >
           {GRID.map((g) => (
             <g key={g}>

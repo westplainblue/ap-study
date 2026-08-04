@@ -1,7 +1,8 @@
 import { Fragment } from "react";
 import type { AmQuestion } from "../data/types";
-import { figureUrl, KANA, sourceOf } from "../data";
+import { KANA, sourceOf } from "../data";
 import { segmentText, type ResolvedMark } from "../lib/aiHighlight";
+import ZoomableFigure from "./ZoomableFigure";
 
 interface Props {
   question: AmQuestion;
@@ -65,20 +66,8 @@ export default function QuestionCard({
         <MarkedText text={q.text} marks={textMarks} />
       </p>
       {q.figure && (
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid var(--border)",
-            borderRadius: 8,
-            padding: 8,
-            marginBottom: 12,
-          }}
-        >
-          <img
-            src={figureUrl(q.figure)}
-            alt={`問${q.number}の図表`}
-            style={{ maxWidth: "100%", display: "block", margin: "0 auto" }}
-          />
+        <div style={{ marginBottom: 12 }}>
+          <ZoomableFigure src={q.figure} alt={`問${q.number}の図表`} />
         </div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

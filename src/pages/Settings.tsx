@@ -21,6 +21,7 @@ import {
   saveState,
 } from "../lib/progress";
 import { syncAvailable, syncNow } from "../lib/sync";
+import { setTheme, theme, type Theme } from "../lib/ui";
 
 function randomCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -36,6 +37,7 @@ export default function Settings() {
   const [syncing, setSyncing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [ai, setAi] = useState(loadAiConfig());
+  const [themeSel, setThemeSel] = useState<Theme>(theme);
   const [keyDraft, setKeyDraft] = useState("");
   const [showKey, setShowKey] = useState(false);
 
@@ -133,6 +135,36 @@ export default function Settings() {
         <p className="muted small" style={{ marginTop: 6, lineHeight: 1.7 }}>
           「答えの位置」で覚えてしまうのを防ぎます。記号(ア〜エ)は表示順に振り直され、
           解説内の記号も自動で読み替えられます。図中選択肢・数値選択肢の問題と模試は対象外です。
+        </p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 12 }}>
+        <p style={{ fontWeight: 600, marginBottom: 8 }}>配色</p>
+        <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+          {(
+            [
+              ["auto", "端末に合わせる"],
+              ["light", "ライト"],
+              ["dark", "ダーク"],
+            ] as [Theme, string][]
+          ).map(([v, label]) => (
+            <button
+              key={v}
+              className={`chip-toggle ${themeSel === v ? "on" : ""}`}
+              style={{ flex: 1, padding: "8px 0" }}
+              aria-pressed={themeSel === v}
+              onClick={() => {
+                setTheme(v);
+                setThemeSel(v);
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="muted small" style={{ lineHeight: 1.7 }}>
+          既定は端末(OS)の設定に追従します。この設定は<strong>この端末だけ</strong>
+          に保存され、クラウド同期には含まれません。
         </p>
       </div>
 

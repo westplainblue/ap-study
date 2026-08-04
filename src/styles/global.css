@@ -25,8 +25,13 @@
   --ai-mark-line: #d97706;
 }
 
+/*
+ * ダークテーマの値。OSの設定に追従する既定に加えて、
+ * :root[data-theme="dark"] でも同じ値を当てる(設定画面からの手動切替用)。
+ * 手動指定を OS 追従より後に書くことで、明示的な選択が必ず勝つようにしている。
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #171614;
     --surface: #211f1c;
     --surface-2: #2b2925;
@@ -49,6 +54,30 @@
     --ai-mark-bg: rgba(250, 204, 21, 0.26);
     --ai-mark-line: #e5b45c;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #171614;
+  --surface: #211f1c;
+  --surface-2: #2b2925;
+  --text: #ece9e2;
+  --text-2: #a5a29a;
+  --text-3: #7c7a72;
+  --border: #383530;
+  --border-strong: #4c4941;
+  --accent: #5b8def;
+  --accent-strong: #7aa4f5;
+  --on-accent: #10131a;
+  --accent-bg: #1e2a44;
+  --accent-text: #9db9f7;
+  --success-bg: #16311f;
+  --success-text: #7fd39a;
+  --danger-bg: #3a201e;
+  --danger-text: #f1988f;
+  --warning-bg: #38290e;
+  --warning-text: #e5b45c;
+  --ai-mark-bg: rgba(250, 204, 21, 0.26);
+  --ai-mark-line: #e5b45c;
 }
 
 * {
@@ -110,6 +139,28 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/*
+ * キーボード操作のフォーカスリング。
+ * :focus ではなく :focus-visible にするのは、マウスでボタンを押しただけで
+ * リングが出るのを避けるため(ブラウザがキーボード操作時だけ付けてくれる)。
+ * 演習の解答・サイドバー・グラフはキーだけで操作できるので、
+ * 「いまどこにいるか」が見えないと使えない。
+ */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+details:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* 選択肢は枠自体が丸いので、リングも同じ丸みに合わせる */
+.choice:focus-visible {
   outline-offset: 1px;
 }
 
@@ -833,7 +884,8 @@ body {
   gap: 8px;
 }
 
-/* PCでは不要になる要素(サイドバーと重複するブランド表記など) */
+/* PCでは不要になる要素(サイドバーと重複するブランド表記、
+   PCでは常時表示になる模試の解答状況トグルなど)。1024px未満では通常表示 */
 @media (min-width: 1024px) {
   .pc-hide {
     display: none;
@@ -954,5 +1006,187 @@ body {
   body.nav-collapsed .sidenav-group + .sidenav-group {
     border-top: 1px solid var(--border);
     padding-top: 8px;
+  }
+}
+
+/* ---- 拡大できる図表 ---- */
+.figure-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  background: #fff; /* 図は白地前提で描かれているのでダークでも白のまま */
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: zoom-in;
+}
+
+.figure-btn img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.figure-zoom-hint {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.figure-zoom {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: min(1100px, 94vw);
+  max-height: 92dvh;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+}
+
+.figure-zoom img {
+  /* 元画像より大きくは引き伸ばさない(拡大しても粗くなるだけ) */
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* ---- キーボードショートカット一覧 ---- */
+.shortcut-modal {
+  width: min(460px, 100%);
+  text-align: left;
+}
+
+.shortcut-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: 0.5px;
+  margin: 12px 0 4px;
+}
+
+.shortcut-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.shortcut-list dt {
+  white-space: nowrap;
+}
+
+.shortcut-list dd {
+  margin: 0;
+  color: var(--text-2);
+}
+
+/* kbd は .kbd-hint 内では PC限定だが、一覧では常に見せる */
+.shortcut-list kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* ---- 模試の解答状況グリッド ---- */
+.mock-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+
+.mock-cell {
+  padding: 4px 0;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  text-align: center;
+}
+
+.mock-cell.answered {
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+/* 見直しフラグは解答済みより優先して見せる(戻るべき問題だから) */
+.mock-cell.flagged {
+  background: var(--warning-bg);
+  border-color: var(--warning-text);
+  color: var(--warning-text);
+  font-weight: 700;
+}
+
+.mock-cell.current {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.mock-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.mock-legend .mock-cell {
+  width: 20px;
+  padding: 2px 0;
+  margin-left: 8px;
+  pointer-events: none;
+}
+
+.mock-legend .mock-cell:first-child {
+  margin-left: 0;
+}
+
+/* 問題数のテキストはPCのみ(モバイルは開閉ボタンが件数を兼ねる) */
+.mock-count {
+  display: none;
+}
+
+/* 右カラムの一覧はPC専用。.pc-split は1024px未満では素通し(縦積み)なので、
+   ここで隠さないとモバイルで開閉式の一覧と二重に出てしまう */
+.mock-side {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .mock-count {
+    display: inline;
+  }
+
+  .mock-side {
+    display: block;
+    /* 80問ぶんのグリッドは縦に短いので、余白を詰めて上に寄せる */
+    padding-top: 2px;
   }
 }

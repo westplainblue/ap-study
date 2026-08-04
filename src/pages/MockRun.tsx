@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Badge from "../components/Badge";
 import QuestionCard from "../components/QuestionCard";
@@ -6,6 +6,7 @@ import { EXAMS, KANA, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
+import { choiceIndexFromKey, isPlainKey, isTypingTarget } from "../lib/keys";
 import { recordAnswersBatch } from "../lib/progress";
 import { captureVocabForQuestion } from "../lib/vocab";
 import { MOCK_KEY, type MockState } from "./MockExam";
@@ -33,6 +34,11 @@ export default function MockRun() {
   const [graded, setGraded] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
   const [unlocked, setUnlocked] = useState<string[]>([]);
+  // キーハンドラは1度だけ登録し、最新の処理を ref 経由で呼ぶ
+  // (依存に入れて貼り直すと、押しっぱなしの取りこぼしや無駄な再登録が起きる)
+  const idxRef = useRef(0);
+  const answerRef = useRef<(i: number) => void>(() => {});
+  const flagRef = useRef<() => void>(() => {});
 
   const exam = useMemo(
     () => EXAMS.find((e) => e.examId === mock?.examId),
@@ -69,6 +75,39 @@ export default function MockRun() {
 
   useEffect(() => () => setAiContext(null), []);
 
+  // キーボード操作。模試は Player を使わない独自画面なので、ここで直接受ける。
+  // 解答(1〜4 / A〜D)に加え、80問を行き来する模試特有の ←→ と F を割り当てる。
+  const canKey = Boolean(mock && exam) && !graded;
+  useEffect(() => {
+    if (!canKey) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!isPlainKey(e) || isTypingTarget(document.activeElement)) return;
+      const total = exam!.am.length;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setIdx((i) => Math.min(total - 1, i + 1));
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setIdx((i) => Math.max(0, i - 1));
+        return;
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        flagRef.current();
+        return;
+      }
+      const d = choiceIndexFromKey(e.key, exam!.am[idxRef.current].choices.length);
+      if (d >= 0) {
+        e.preventDefault();
+        answerRef.current(d);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [canKey, exam]);
+
   if (!mock || !exam) {
     return (
       <div>
@@ -86,6 +125,30 @@ export default function MockRun() {
   const remaining = Math.max(0, Math.floor((mock.deadline - now) / 1000));
   const timeUp = remaining <= 0;
   const answeredCount = mock.answers.filter((a) => a !== null).length;
+  const flags = mock.flags ?? [];
+
+  const patch = (next: MockState) => {
+    setMock(next);
+    localStorage.setItem(MOCK_KEY, JSON.stringify(next));
+  };
+
+  const answerAt = (i: number) => {
+    if (timeUp) return;
+    patch({ ...mock, answers: mock.answers.map((a, j) => (j === idx ? i : a)) });
+  };
+
+  /** 「あとで見直す」の付け外し。本番の「飛ばして後で戻る」戦略を画面上で表せるようにする */
+  const toggleFlag = () => {
+    patch({
+      ...mock,
+      flags: flags.includes(idx) ? flags.filter((f) => f !== idx) : [...flags, idx],
+    });
+  };
+
+  // キーハンドラから最新の処理・位置を参照できるようにする
+  idxRef.current = idx;
+  answerRef.current = answerAt;
+  flagRef.current = toggleFlag;
 
   const grade = () => {
     const res = questions.map((q, i) => mock.answers[i] === q.answer);
@@ -210,8 +273,49 @@ export default function MockRun() {
 
   const q = questions[idx];
 
+  // 問題番号の一覧。PCでは右に常時出し、モバイルはヘッダーのボタンで開閉する
+  const grid = (
+    <div className="mock-grid">
+      {questions.map((_, i) => {
+        const answered = mock.answers[i] !== null;
+        const flagged = flags.includes(i);
+        return (
+          <button
+            key={i}
+            onClick={() => {
+              setIdx(i);
+              setShowGrid(false);
+            }}
+            className={`mock-cell${answered ? " answered" : ""}${flagged ? " flagged" : ""}${i === idx ? " current" : ""}`}
+            aria-label={`問${i + 1}${answered ? " 解答済み" : " 未解答"}${flagged ? " 見直し" : ""}`}
+            aria-current={i === idx ? "true" : undefined}
+          >
+            {i + 1}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const legend = (
+    <p className="muted small mock-legend">
+      <span className="mock-cell answered" aria-hidden>
+        1
+      </span>
+      解答済み
+      <span className="mock-cell flagged" aria-hidden>
+        1
+      </span>
+      見直し
+      <span className="mock-cell" aria-hidden>
+        1
+      </span>
+      未解答
+    </p>
+  );
+
   return (
-    <div>
+    <div className="pc-wide">
       <div
         style={{
           display: "flex",
@@ -230,9 +334,23 @@ export default function MockRun() {
         >
           ⏱ {formatTime(remaining)}
         </span>
-        <button className="chip-toggle" onClick={() => setShowGrid((v) => !v)}>
-          {idx + 1} / {questions.length}(解答済 {answeredCount})
-        </button>
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button
+            className={`chip-toggle ${flags.includes(idx) ? "on" : ""}`}
+            onClick={toggleFlag}
+            aria-pressed={flags.includes(idx)}
+            title="あとで見直す(F)"
+          >
+            {flags.includes(idx) ? "🚩 見直す" : "🏳 見直し"}
+          </button>
+          {/* PCでは右に一覧を常時出すので、この開閉ボタンはモバイル用 */}
+          <button className="chip-toggle pc-hide" onClick={() => setShowGrid((v) => !v)}>
+            {idx + 1} / {questions.length}(解答済 {answeredCount})
+          </button>
+          <span className="muted small mock-count">
+            {idx + 1} / {questions.length}(解答済 {answeredCount})
+          </span>
+        </span>
       </div>
 
       {timeUp && (
@@ -241,56 +359,25 @@ export default function MockRun() {
         </div>
       )}
 
+      {/* モバイル: ヘッダーのボタンで開閉する一覧 */}
       {showGrid && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(10, 1fr)",
-            gap: 4,
-            marginBottom: 12,
-          }}
-        >
-          {questions.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setIdx(i);
-                setShowGrid(false);
-              }}
-              style={{
-                padding: "4px 0",
-                fontSize: 11,
-                borderRadius: 6,
-                border:
-                  i === idx
-                    ? "1.5px solid var(--accent)"
-                    : "1px solid var(--border)",
-                background:
-                  mock.answers[i] !== null ? "var(--accent-bg)" : "var(--surface)",
-                color: mock.answers[i] !== null ? "var(--accent-text)" : "var(--text-2)",
-              }}
-            >
-              {i + 1}
-            </button>
-          ))}
+        <div className="pc-hide" style={{ marginBottom: 12 }}>
+          {grid}
+          {legend}
         </div>
       )}
 
-      <QuestionCard
-        question={q}
-        selected={mock.answers[idx]}
-        answered={timeUp}
-        revealAnswer={false}
-        onSelect={(i) => {
-          if (timeUp) return;
-          const next: MockState = {
-            ...mock,
-            answers: mock.answers.map((a, j) => (j === idx ? i : a)),
-          };
-          setMock(next);
-          localStorage.setItem(MOCK_KEY, JSON.stringify(next));
-        }}
-      />
+      {/* PCでは問題(左)と番号一覧(右)を並べる。80問を行き来する模試では
+          「どこが未解答か」が常に見えていないと見直しの戦略が立てられない */}
+      <div className="pc-split">
+        <div>
+          <QuestionCard
+            question={q}
+            selected={mock.answers[idx]}
+            answered={timeUp}
+            revealAnswer={false}
+            onSelect={answerAt}
+          />
 
       <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
         <button
@@ -332,6 +419,31 @@ export default function MockRun() {
       >
         中断する(進行状況は保存されます)
       </button>
+
+          <div className="kbd-hint">
+            <span>
+              <kbd>1</kbd>〜<kbd>4</kbd>で解答
+            </span>
+            <span>
+              <kbd>←</kbd>
+              <kbd>→</kbd>で移動
+            </span>
+            <span>
+              <kbd>F</kbd>で見直し
+            </span>
+          </div>
+        </div>
+
+        {/* 番号一覧(PCのみ・画面内に固定) */}
+        <div className="pc-split-sticky mock-side">
+          <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 13 }}>
+            解答状況({answeredCount} / {questions.length})
+            {flags.length > 0 && ` ・ 見直し ${flags.length}`}
+          </p>
+          {grid}
+          {legend}
+        </div>
+      </div>
     </div>
   );
 }

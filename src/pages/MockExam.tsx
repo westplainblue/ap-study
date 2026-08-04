@@ -8,6 +8,11 @@ export interface MockState {
   examId: string;
   answers: (number | null)[];
   deadline: number; // epoch ms
+  /**
+   * 「あとで見直す」を付けた問題の番号(0始まり)。
+   * 途中から追加したフィールドなので、古い中断データには存在しない(undefined許容)。
+   */
+  flags?: number[];
 }
 
 export default function MockExam() {

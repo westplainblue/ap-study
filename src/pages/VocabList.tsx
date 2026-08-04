@@ -458,13 +458,13 @@ export default function VocabList() {
               {middle}{" "}
               <span className="muted small">({cards.length})</span>
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="pc-grid-2">
               {cards.map(renderRow)}
             </div>
           </div>
         ))
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="pc-grid-2">
           {rows.map(renderRow)}
         </div>
       )}

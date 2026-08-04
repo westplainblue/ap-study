@@ -30,7 +30,7 @@ export default function PmList() {
       {EXAMS.filter((e) => e.pm.length > 0).map((exam) => (
         <div key={exam.examId} style={{ marginBottom: 16 }}>
           <p style={{ fontWeight: 600, marginBottom: 8 }}>{exam.label}</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="pc-grid-2">
             {exam.pm.map((q) => {
               const total = partCount(q);
               const graded = Object.keys(pmRecords(q.id)).length;

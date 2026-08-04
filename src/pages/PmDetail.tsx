@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import PmAiGrade from "../components/PmAiGrade";
-import { examLabel, figureUrl, pmQuestion } from "../data";
+import ZoomableFigure from "../components/ZoomableFigure";
+import { examLabel, pmQuestion } from "../data";
 import { setAiContext } from "../lib/aiContext";
 import {
   pmRecords,
@@ -111,11 +112,12 @@ export default function PmDetail() {
                   {sec.body}
                 </p>
                 {sec.figure && (
-                  <img
-                    src={figureUrl(sec.figure)}
-                    alt={`${sec.heading ?? "本文"}の図表`}
-                    style={{ maxWidth: "100%", marginTop: 8, background: "#fff", borderRadius: 8 }}
-                  />
+                  <div style={{ marginTop: 8 }}>
+                    <ZoomableFigure
+                      src={sec.figure}
+                      alt={`${sec.heading ?? "本文"}の図表`}
+                    />
+                  </div>
                 )}
               </details>
             ))}
