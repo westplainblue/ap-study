@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
+import SideNav from "./components/SideNav";
 import TabBar from "./components/TabBar";
 import { loadTermsData } from "./data/terms";
 import { reconcileSilent } from "./lib/achievements";
@@ -37,6 +38,8 @@ export default function App() {
 
   return (
     <HashRouter>
+      {/* PC(1024px以上)はサイドバー、それ未満は下部タブバー。CSSで排他表示 */}
+      <SideNav />
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Home />} />

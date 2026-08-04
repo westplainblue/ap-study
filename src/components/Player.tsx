@@ -26,7 +26,9 @@ import {
 } from "../lib/progress";
 import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
 import { captureVocabForQuestion } from "../lib/vocab";
+import { useAnswerKeys } from "../hooks/useAnswerKeys";
 import { IconCheck, IconStar, IconX } from "./Icons";
+import KeyHint from "./KeyHint";
 import QuestionCard from "./QuestionCard";
 
 interface Props {
@@ -255,8 +257,24 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
     }
   };
 
+  const handleReview = () => {
+    if (isInReview(q.id)) return;
+    addToReview(q.id);
+    setReviewAdded(true);
+  };
+
+  // キーボード操作(PC)。キーは画面の並び順なので、シャッフル時は order で
+  // 元の添字に戻してから記録する(マウスでの選択と完全に同じ経路にする)
+  useAnswerKeys({
+    enabled: !finished,
+    choiceCount: q.choices.length,
+    onPick: (d) => handleSelect(order ? order[d] : d),
+    onNext: answered ? handleNext : undefined,
+    onReview: answered ? handleReview : undefined,
+  });
+
   return (
-    <div>
+    <div className={answered ? "pc-wide" : undefined}>
       <div
         style={{
           display: "flex",
@@ -323,17 +341,22 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         )}
       </div>
 
-      <QuestionCard
-        question={q}
-        selected={selected}
-        answered={answered}
-        onSelect={handleSelect}
-        order={order ?? undefined}
-        aiMarks={aiMarks}
-      />
+      {/* 解答後はPCで問題と解説を左右に並べ、スクロールせず見比べられるようにする
+          (1024px未満では .pc-split が素通しなので従来どおり縦に積む) */}
+      <div className={answered ? "pc-split" : undefined}>
+        <div>
+          <QuestionCard
+            question={q}
+            selected={selected}
+            answered={answered}
+            onSelect={handleSelect}
+            order={order ?? undefined}
+            aiMarks={aiMarks}
+          />
+        </div>
 
       {answered && (
-        <div style={{ marginTop: 14 }}>
+        <div className="answer-block">
           <div className={correct ? "banner banner-ok" : "banner banner-ng"}>
             {correct ? <IconCheck size={18} /> : <IconX size={18} />}
             <span>
@@ -387,10 +410,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
               className="btn"
               style={{ flex: 1 }}
               disabled={reviewAdded || isInReview(q.id)}
-              onClick={() => {
-                addToReview(q.id);
-                setReviewAdded(true);
-              }}
+              onClick={handleReview}
             >
               <IconStar size={16} />
               {reviewAdded || isInReview(q.id) ? "復習に登録済み" : "あとで復習"}
@@ -401,6 +421,9 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
           </div>
         </div>
       )}
+      </div>
+
+      <KeyHint choiceCount={q.choices.length} answered={answered} canReview />
 
       {askQuit && (
         <div className="modal-backdrop" role="presentation" onClick={() => setAskQuit(false)}>

@@ -18,7 +18,9 @@ import {
 } from "../lib/choiceShuffle";
 import { loadState, recordAnswer } from "../lib/progress";
 import { captureVocabForQuestion } from "../lib/vocab";
+import { useAnswerKeys } from "../hooks/useAnswerKeys";
 import { IconCheck, IconX } from "./Icons";
+import KeyHint from "./KeyHint";
 import QuestionCard from "./QuestionCard";
 
 interface Props {
@@ -291,8 +293,16 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
     }
   };
 
+  // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
+  useAnswerKeys({
+    enabled: !finished,
+    choiceCount: q.choices.length,
+    onPick: (d) => handleSelect(order ? order[d] : d),
+    onNext: answered ? handleNext : undefined,
+  });
+
   return (
-    <div>
+    <div className={answered ? "pc-wide" : undefined}>
       <div
         style={{
           display: "flex",
@@ -343,17 +353,21 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
         />
       </div>
 
-      <QuestionCard
-        question={q}
-        selected={selected}
-        answered={answered}
-        onSelect={handleSelect}
-        order={order ?? undefined}
-        aiMarks={aiMarks}
-      />
+      {/* 解答後はPCで問題と解説・公式カードを左右に並べる */}
+      <div className={answered ? "pc-split" : undefined}>
+        <div>
+          <QuestionCard
+            question={q}
+            selected={selected}
+            answered={answered}
+            onSelect={handleSelect}
+            order={order ?? undefined}
+            aiMarks={aiMarks}
+          />
+        </div>
 
       {answered && (
-        <div style={{ marginTop: 14 }}>
+        <div className="answer-block">
           <div className={correct ? "banner banner-ok" : "banner banner-ng"}>
             {correct ? <IconCheck size={18} /> : <IconX size={18} />}
             <span>
@@ -395,6 +409,9 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
           </button>
         </div>
       )}
+      </div>
+
+      <KeyHint choiceCount={q.choices.length} answered={answered} />
 
       {askQuit && (
         <div className="modal-backdrop" role="presentation" onClick={() => setAskQuit(false)}>

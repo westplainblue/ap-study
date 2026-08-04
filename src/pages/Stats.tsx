@@ -166,7 +166,7 @@ export default function Stats() {
     .sort((a, b) => a[1].ok / a[1].n - b[1].ok / b[1].n);
 
   return (
-    <div>
+    <div className="pc-wide">
       <h1 style={{ fontSize: 20, marginBottom: 14 }}>分析</h1>
 
       <div
@@ -388,9 +388,8 @@ export default function Stats() {
       {calcRows.length > 0 && (
         <>
           <p style={{ fontWeight: 600, marginBottom: 8 }}>🧮 計算テーマ別の成績</p>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 6 }}
-          >
+          {/* 最大15テーマ。PCでは2列に並べる */}
+          <div className="pc-grid-2" style={{ marginBottom: 6 }}>
             {calcRows.map(({ theme, stat }) => {
               const rate = Math.round((stat.ok / stat.n) * 100);
               const avgSec =
@@ -462,7 +461,8 @@ export default function Stats() {
       )}
 
       <p style={{ fontWeight: 600, marginBottom: 8 }}>分野別の成績</p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+      {/* 22分類あるのでPCでは2列にして縦の長さを半分にする */}
+      <div className="pc-grid-2" style={{ marginBottom: 18 }}>
         {(Object.keys(MIDDLES_BY_MAJOR) as Major[]).flatMap((major) =>
           MIDDLES_BY_MAJOR[major]
             .filter((middle) => byMiddle.has(middle))

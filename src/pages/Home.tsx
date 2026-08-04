@@ -55,8 +55,10 @@ export default function Home() {
   )[0];
 
   return (
-    <div>
+    <div className="pc-wide">
+      {/* PCではサイドバーにブランド表記があるので二重に出さない */}
       <p
+        className="pc-hide"
         style={{
           fontSize: 13,
           fontWeight: 800,
@@ -204,7 +206,8 @@ export default function Home() {
         <IconChevronRight size={18} />
       </Link>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* PCでは2列に並べて縦スクロールを減らす(1024px未満は1列のまま) */}
+      <div className="pc-grid-2">
         {[
           {
             to: "/practice",

@@ -75,7 +75,7 @@ export default function PmDetail() {
   };
 
   return (
-    <div>
+    <div className="pc-wide">
       <p className="muted small">{examLabel(q.examId)} 午後(IPA)</p>
       <h1 style={{ fontSize: 19, margin: "2px 0 4px" }}>
         問{q.number} {q.field}
@@ -84,38 +84,46 @@ export default function PmDetail() {
         {q.title}
       </p>
 
-      <p style={{ fontWeight: 600, marginBottom: 6 }}>問題文</p>
-      <p className="muted small" style={{ marginBottom: 8 }}>
-        セクションをタップすると開閉できます。設問を解きながら必要な箇所だけ開くと読みやすいです。
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18 }}>
-        {q.sections.map((sec, i) => (
-          <details
-            key={i}
-            open={i === 0}
-            className="card"
-            style={{ padding: "10px 14px" }}
-          >
-            <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
-              {sec.heading ?? `本文 ${i + 1}`}
-            </summary>
-            <p
-              className="small"
-              style={{ whiteSpace: "pre-wrap", lineHeight: 1.9, marginTop: 8 }}
-            >
-              {sec.body}
-            </p>
-            {sec.figure && (
-              <img
-                src={figureUrl(sec.figure)}
-                alt={`${sec.heading ?? "本文"}の図表`}
-                style={{ maxWidth: "100%", marginTop: 8, background: "#fff", borderRadius: 8 }}
-              />
-            )}
-          </details>
-        ))}
-      </div>
+      {/* PCでは長文(左)と設問(右)を並べる。午後は本文と設問を何度も往復するため、
+          左右に置けるだけでスクロールの往復が丸ごと消える。
+          1024px未満では .pc-split が素通しなので従来どおり縦に積む */}
+      <div className="pc-split">
+        <div>
+          <p style={{ fontWeight: 600, marginBottom: 6 }}>問題文</p>
+          <p className="muted small" style={{ marginBottom: 8 }}>
+            セクションをタップすると開閉できます。設問を解きながら必要な箇所だけ開くと読みやすいです。
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18 }}>
+            {q.sections.map((sec, i) => (
+              <details
+                key={i}
+                open={i === 0}
+                className="card"
+                style={{ padding: "10px 14px" }}
+              >
+                <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
+                  {sec.heading ?? `本文 ${i + 1}`}
+                </summary>
+                <p
+                  className="small"
+                  style={{ whiteSpace: "pre-wrap", lineHeight: 1.9, marginTop: 8 }}
+                >
+                  {sec.body}
+                </p>
+                {sec.figure && (
+                  <img
+                    src={figureUrl(sec.figure)}
+                    alt={`${sec.heading ?? "本文"}の図表`}
+                    style={{ maxWidth: "100%", marginTop: 8, background: "#fff", borderRadius: 8 }}
+                  />
+                )}
+              </details>
+            ))}
+          </div>
+        </div>
 
+        {/* 設問側は画面内に固定し、本文だけを長くスクロールできるようにする */}
+        <div className="pc-split-sticky">
       <p style={{ fontWeight: 600, marginBottom: 8 }}>設問</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {q.setumon.map((setu) => (
@@ -226,6 +234,8 @@ export default function PmDetail() {
       <Link to="/pm" className="btn btn-block" style={{ marginTop: 16 }}>
         午後演習の一覧へ戻る
       </Link>
+        </div>
+      </div>
     </div>
   );
 }
