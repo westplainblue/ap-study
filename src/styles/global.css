@@ -797,18 +797,23 @@ body {
     transition: padding-left 0.18s ease;
   }
 
-  /* 本文の中身は読み幅で中央に置く。ページごとに .pc-wide で広げられる */
+  /* 本文の中身は読み幅にして、サイドバーを除いた領域の**中央**に置く。
+     左寄せのままだとサイドバーを畳んだときに本文だけ左端に取り残される。
+     ページごとに .pc-wide で広げられる */
   .app-main > * {
     max-width: var(--read-w);
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .app-main > .pc-wide {
     max-width: 1180px;
   }
 
-  /* AIパネルを開いても本文が潰れないよう、右側だけを空ける */
+  /* AIパネルを開いている間の右余白。左(サイドバー側)と同じ値にしないと
+     本文の中央寄せが左右非対称になる */
   body.ai-open .app-main {
-    padding-right: 24px;
+    padding-right: 40px;
   }
 
   .ai-fab {

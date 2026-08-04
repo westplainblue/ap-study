@@ -341,8 +341,9 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         )}
       </div>
 
-      {/* 解答後はPCで問題と解説を左右に並べ、スクロールせず見比べられるようにする
-          (1024px未満では .pc-split が素通しなので従来どおり縦に積む) */}
+      {/* 解答後はPCで問題と解説を左右に並べ、スクロールせず見比べられるようにする。
+          未解答のうちから2カラムの枠を確保すると右半分が空いて左寄りに見えるため、
+          解答してから広げる(1024px未満では .pc-split が素通しで従来どおり縦積み) */}
       <div className={answered ? "pc-split" : undefined}>
         <div>
           <QuestionCard
