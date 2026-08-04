@@ -695,12 +695,40 @@ body {
     z-index: 50;
   }
 
+  .sidenav-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px 10px 10px;
+  }
+
   .sidenav-brand {
+    flex: 1;
+    min-width: 0;
     font-size: 13px;
     font-weight: 800;
     color: var(--accent-text);
     letter-spacing: 0.5px;
-    padding: 4px 10px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sidenav-toggle {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    color: var(--text-3);
+    /* 展開時は「«」の向き(閉じる)。畳むと 0deg に戻して「»」(開く)にする */
+    transform: rotate(180deg);
+  }
+
+  .sidenav-toggle:hover {
+    background: var(--surface-2);
+    color: var(--text);
   }
 
   .sidenav-group {
@@ -766,6 +794,7 @@ body {
     max-width: none;
     margin: 0;
     padding: 28px 40px 48px calc(var(--sidenav-w) + 40px);
+    transition: padding-left 0.18s ease;
   }
 
   /* 本文の中身は読み幅で中央に置く。ページごとに .pc-wide で広げられる */
@@ -874,5 +903,51 @@ body {
 @media (min-width: 1024px) {
   .pc-split > .answer-block {
     margin-top: 0;
+  }
+}
+
+/* ---- サイドバーの開閉(PCのみ) ----
+   畳んでもアイコンは残す。完全に隠すと開き直す入口を別に作る必要があり、
+   ナビゲーションへの到達も遠くなるため。 */
+@media (min-width: 1024px) {
+  .sidenav {
+    transition: width 0.18s ease;
+  }
+
+  body.nav-collapsed {
+    --sidenav-w: 64px;
+  }
+
+  body.nav-collapsed .sidenav {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  /* 幅が足りない要素は畳んだときに隠す(アイコンだけ残す) */
+  body.nav-collapsed .sidenav-brand,
+  body.nav-collapsed .sidenav-heading,
+  body.nav-collapsed .sidenav-label,
+  body.nav-collapsed .sidenav-chevron {
+    display: none;
+  }
+
+  body.nav-collapsed .sidenav-top {
+    justify-content: center;
+    padding: 2px 0 10px;
+  }
+
+  body.nav-collapsed .sidenav-toggle {
+    transform: rotate(0deg); /* 「»」= 開く */
+  }
+
+  body.nav-collapsed .sidenav a {
+    justify-content: center;
+    padding: 9px 0;
+  }
+
+  /* 見出しが消えるぶん、グループの区切りを線で示す */
+  body.nav-collapsed .sidenav-group + .sidenav-group {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
   }
 }
