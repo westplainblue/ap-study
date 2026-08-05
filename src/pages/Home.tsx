@@ -39,8 +39,8 @@ function daysUntil(dateStr: string): number {
   return Math.round((target - today.getTime()) / 86400000);
 }
 
-/** 1日の演習ノルマ(問)。設定項目にはせず「間隔反復を続ける最低量」の既定値 */
-const DAILY_GOAL = 10;
+/** 1日の演習ノルマ(問)。設定項目にはせず固定値(利用者の希望で30問) */
+const DAILY_GOAL = 30;
 
 /**
  * 今日のプラン。ホームを「メニューの一覧」から「今日やることの指示」に変える中核。
@@ -103,7 +103,9 @@ function TodayPlan({
         ? `${DAILY_GOAL}問 完了`
         : `${Math.min(today, DAILY_GOAL)}/${DAILY_GOAL}問`,
       cta:
-        today > 0 ? `演習へ(今日あと${DAILY_GOAL - today}問)` : "演習を始める(10問)",
+        today > 0
+          ? `演習へ(今日あと${DAILY_GOAL - today}問)`
+          : `演習を始める(${DAILY_GOAL}問)`,
       to: "/practice",
       done: practiceDone,
     },
