@@ -155,6 +155,50 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
 
   useEffect(() => () => setAiContext(null), []);
 
+  const answered = selected !== null;
+
+  // --- 操作ハンドラ ---------------------------------------------------------
+  // 早期リターン(出題なし・結果画面)より前に置く。この下でフックを呼ぶため、
+  // returnを挟むと結果画面に切り替わった瞬間にフックの数が変わって React が落ちる。
+  const handleSelect = (i: number) => {
+    if (answered || !cur) return;
+    setSelected(i);
+    const ok = i === cur.answer;
+    setResults((r) => [...r, ok]);
+    recordAnswer(cur.id, ok, mode);
+    // 誤答した問題に登場する用語をことば帳へ採取する(正解時は採取しない)
+    if (!ok) setCapturedTerms(captureVocabForQuestion(cur.id));
+    refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
+  };
+
+  const handleNext = () => {
+    if (idx + 1 >= questions.length) {
+      setFinished(true);
+    } else {
+      setIdx(idx + 1);
+      setSelected(null);
+      setReviewAdded(false);
+      setCapturedTerms([]);
+      setRestoredOrder(undefined); // 次の問題は新しい並びを引く
+    }
+  };
+
+  const handleReview = () => {
+    if (!cur || isInReview(cur.id)) return;
+    addToReview(cur.id);
+    setReviewAdded(true);
+  };
+
+  // キーボード操作(PC)。キーは画面の並び順なので、シャッフル時は order で
+  // 元の添字に戻してから記録する(マウスでの選択と完全に同じ経路にする)
+  useAnswerKeys({
+    enabled: !finished && Boolean(cur),
+    choiceCount: cur?.choices.length ?? 0,
+    onPick: (d) => handleSelect(order ? order[d] : d),
+    onNext: answered ? handleNext : undefined,
+    onReview: answered ? handleReview : undefined,
+  });
+
   if (questions.length === 0) {
     return (
       <div>
@@ -226,52 +270,12 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   }
 
   const q = questions[idx];
-  const answered = selected !== null;
-  const correct = answered && selected === q.answer;
+  const correct = answered && q !== undefined && selected === q.answer;
 
   // このセッションのリアルタイム成績(解答した瞬間に results が伸びて更新される)
   const liveDone = results.length;
   const liveCorrect = results.filter(Boolean).length;
   const liveRate = liveDone > 0 ? Math.round((liveCorrect / liveDone) * 100) : 0;
-
-  const handleSelect = (i: number) => {
-    if (answered) return;
-    setSelected(i);
-    const ok = i === q.answer;
-    setResults((r) => [...r, ok]);
-    recordAnswer(q.id, ok, mode);
-    // 誤答した問題に登場する用語をことば帳へ採取する(正解時は採取しない)
-    if (!ok) setCapturedTerms(captureVocabForQuestion(q.id));
-    refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
-  };
-
-  const handleNext = () => {
-    if (idx + 1 >= questions.length) {
-      setFinished(true);
-    } else {
-      setIdx(idx + 1);
-      setSelected(null);
-      setReviewAdded(false);
-      setCapturedTerms([]);
-      setRestoredOrder(undefined); // 次の問題は新しい並びを引く
-    }
-  };
-
-  const handleReview = () => {
-    if (isInReview(q.id)) return;
-    addToReview(q.id);
-    setReviewAdded(true);
-  };
-
-  // キーボード操作(PC)。キーは画面の並び順なので、シャッフル時は order で
-  // 元の添字に戻してから記録する(マウスでの選択と完全に同じ経路にする)
-  useAnswerKeys({
-    enabled: !finished,
-    choiceCount: q.choices.length,
-    onPick: (d) => handleSelect(order ? order[d] : d),
-    onNext: answered ? handleNext : undefined,
-    onReview: answered ? handleReview : undefined,
-  });
 
   return (
     <div className={answered ? "pc-wide" : undefined}>

@@ -146,6 +146,40 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
 
   useEffect(() => () => setAiContext(null), []);
 
+  const correct = answered && cur !== undefined && selected === cur.answer;
+
+  // --- 操作ハンドラ ---------------------------------------------------------
+  // 早期リターン(出題なし・結果画面)より前に置く。この下でフックを呼ぶため、
+  // returnを挟むと結果画面に切り替わった瞬間にフックの数が変わって React が落ちる。
+  const handleSelect = (i: number) => {
+    if (answered || !cur) return;
+    const ms = Date.now() - startRef.current;
+    setSelected(i);
+    const ok = i === cur.answer;
+    setResults((r) => [...r, { qid: cur.id, ok, ms }]);
+    recordAnswer(cur.id, ok, "calc", ms);
+    // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
+    if (!ok) captureVocabForQuestion(cur.id);
+    refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
+  };
+
+  const handleNext = () => {
+    if (idx + 1 >= questions.length) {
+      setFinished(true);
+    } else {
+      setIdx(idx + 1);
+      setSelected(null);
+    }
+  };
+
+  // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
+  useAnswerKeys({
+    enabled: !finished && Boolean(cur),
+    choiceCount: cur?.choices.length ?? 0,
+    onPick: (d) => handleSelect(order ? order[d] : d),
+    onNext: answered ? handleNext : undefined,
+  });
+
   if (questions.length === 0) {
     return (
       <div>
@@ -268,38 +302,8 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
   }
 
   const q = questions[idx];
-  const correct = answered && selected === q.answer;
   const lastMs = results[results.length - 1]?.ms ?? 0;
   const overTarget = theme ? lastMs > theme.targetSec * 1000 : false;
-
-  const handleSelect = (i: number) => {
-    if (answered) return;
-    const ms = Date.now() - startRef.current;
-    setSelected(i);
-    const ok = i === q.answer;
-    setResults((r) => [...r, { qid: q.id, ok, ms }]);
-    recordAnswer(q.id, ok, "calc", ms);
-    // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
-    if (!ok) captureVocabForQuestion(q.id);
-    refreshAfterAnswer(); // 実績を判定し、新規解除はトーストで通知
-  };
-
-  const handleNext = () => {
-    if (idx + 1 >= questions.length) {
-      setFinished(true);
-    } else {
-      setIdx(idx + 1);
-      setSelected(null);
-    }
-  };
-
-  // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
-  useAnswerKeys({
-    enabled: !finished,
-    choiceCount: q.choices.length,
-    onPick: (d) => handleSelect(order ? order[d] : d),
-    onNext: answered ? handleNext : undefined,
-  });
 
   return (
     <div className={answered ? "pc-wide" : undefined}>

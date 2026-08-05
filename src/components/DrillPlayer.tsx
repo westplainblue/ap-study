@@ -110,6 +110,48 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
 
   useEffect(() => () => setAiContext(null), []);
 
+  const answered = selected !== null;
+  const correct = answered && q !== undefined && selected === q.answer;
+
+  // --- 操作ハンドラ ---------------------------------------------------------
+  // 早期リターン(出題なし・完了画面・キュー空)より前に置く。この下でフックを
+  // 呼ぶため、returnを挟むと完了時にフックの数が変わって React が落ちる。
+  const handleSelect = (i: number) => {
+    if (answered || !q) return;
+    setSelected(i);
+    const ok = i === q.answer;
+    setAnswers((n) => n + 1);
+    triesRef.current.set(q.id, (triesRef.current.get(q.id) ?? 0) + 1);
+    // 初回の解答だけ履歴に記録する(反復ぶんは記録しない)
+    if (!recorded.has(q.id)) {
+      recordAnswer(q.id, ok, "drill");
+      // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
+      if (!ok) captureVocabForQuestion(q.id);
+      refreshAfterAnswer();
+      setRecorded((s) => new Set(s).add(q.id));
+      if (ok) setFirstTryOk((n) => n + 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (!q) return;
+    const tries = triesRef.current.get(q.id) ?? 0;
+    const { queue: next, outcome } = drillNext(queue, correct, tries, DRILL_CAP);
+    if (outcome === "mastered") setMastered((m) => m + 1);
+    else if (outcome === "deferred") setDeferred((d) => d + 1);
+    setQueue(next);
+    setSelected(null);
+    setRound((r) => r + 1); // 次の出題で選択肢の並びを引き直す
+  };
+
+  // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
+  useAnswerKeys({
+    enabled: !finished && Boolean(q),
+    choiceCount: q?.choices.length ?? 0,
+    onPick: (d) => handleSelect(order ? order[d] : d),
+    onNext: answered ? handleNext : undefined,
+  });
+
   if (total === 0) {
     return (
       <div>
@@ -175,47 +217,9 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
 
   if (!q) return null;
 
-  const answered = selected !== null;
-  const correct = answered && selected === q.answer;
-
-  const handleSelect = (i: number) => {
-    if (answered) return;
-    setSelected(i);
-    const ok = i === q.answer;
-    setAnswers((n) => n + 1);
-    triesRef.current.set(q.id, (triesRef.current.get(q.id) ?? 0) + 1);
-    // 初回の解答だけ履歴に記録する(反復ぶんは記録しない)
-    if (!recorded.has(q.id)) {
-      recordAnswer(q.id, ok, "drill");
-      // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
-      if (!ok) captureVocabForQuestion(q.id);
-      refreshAfterAnswer();
-      setRecorded((s) => new Set(s).add(q.id));
-      if (ok) setFirstTryOk((n) => n + 1);
-    }
-  };
-
-  const handleNext = () => {
-    const tries = triesRef.current.get(q.id) ?? 0;
-    const { queue: next, outcome } = drillNext(queue, correct, tries, DRILL_CAP);
-    if (outcome === "mastered") setMastered((m) => m + 1);
-    else if (outcome === "deferred") setDeferred((d) => d + 1);
-    setQueue(next);
-    setSelected(null);
-    setRound((r) => r + 1); // 次の出題で選択肢の並びを引き直す
-  };
-
   const atCap = (triesRef.current.get(q.id) ?? 0) >= DRILL_CAP;
   const willDefer = answered && !correct && atCap; // これ以上は再出題せず次回へ
   const willFinish = queue.length === 1 && (correct || willDefer);
-
-  // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
-  useAnswerKeys({
-    enabled: !finished,
-    choiceCount: q.choices.length,
-    onPick: (d) => handleSelect(order ? order[d] : d),
-    onNext: answered ? handleNext : undefined,
-  });
 
   return (
     <div className={answered ? "pc-wide" : undefined}>
