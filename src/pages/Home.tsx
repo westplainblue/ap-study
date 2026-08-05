@@ -51,13 +51,11 @@ function TodayPlan({
   due,
   vocabDue,
   today,
-  streak,
   total,
 }: {
   due: number;
   vocabDue: number;
   today: number;
-  streak: number;
   total: number;
 }) {
   // 初回起動: プランを出しても「復習✓(やったことがないだけ)」になり嘘くさい。
@@ -123,23 +121,9 @@ function TodayPlan({
         background: allDone ? "var(--success-bg)" : "var(--accent-bg)",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          marginBottom: 8,
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>
-          {allDone ? "今日のプラン完了!" : "今日のプラン"}
-        </p>
-        {streak > 0 && (
-          <span className="chip" title={`連続学習 ${streak}日`}>
-            🔥 {streak}日
-          </span>
-        )}
-      </div>
+      <p style={{ fontWeight: 700, marginBottom: 8 }}>
+        {allDone ? "今日のプラン完了!" : "今日のプラン"}
+      </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {tasks.map((t) => (
@@ -204,9 +188,6 @@ function TodayPlan({
           >
             {next.cta}
           </Link>
-          <p className="muted small" style={{ marginTop: 8 }}>
-            今日 {today}問 ・ 累計 {total.toLocaleString()}問
-          </p>
         </>
       ) : (
         <p className="small" style={{ marginTop: 10, color: "var(--success-text)" }}>
@@ -269,9 +250,37 @@ export default function Home() {
         due={due}
         vocabDue={vocabDue}
         today={stats.today}
-        streak={stats.streak}
         total={stats.total}
       />
+
+      {/* 学習量の常設サマリー。今日のプラン導入時にフッター1行へ縮約したが、
+          「常に見えていてほしい」という要望でプラン導入前の3枠表示を復元した */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 8,
+          marginBottom: 16,
+        }}
+      >
+        {[
+          { label: "連続学習", value: `${stats.streak}日` },
+          { label: "累計演習", value: `${stats.total}問` },
+          { label: "今日", value: `${stats.today}問` },
+        ].map((m) => (
+          <div
+            key={m.label}
+            style={{
+              background: "var(--surface-2)",
+              borderRadius: 10,
+              padding: "10px 12px",
+            }}
+          >
+            <p className="small muted">{m.label}</p>
+            <p style={{ fontSize: 20, fontWeight: 700 }}>{m.value}</p>
+          </div>
+        ))}
+      </div>
 
       <Link
         to="/stats"
