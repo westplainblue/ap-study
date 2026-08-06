@@ -28,6 +28,26 @@ test("questionsByMiddle: 分野・計算除外と組み合わせられる", () =
   assert.ok(qs.length <= questionsByMiddle(["セキュリティ"], { excludeCalc: true }).length);
 });
 
+test("excludeIds: 指定した問題IDが出題対象から外れる(未挑戦のみの土台)", () => {
+  const all = questionsByMiddle([], { examIds: ["2025r07h"] });
+  const skip = new Set(all.slice(0, 78).map((q) => q.id));
+  const rest = questionsByMiddle([], { examIds: ["2025r07h"], excludeIds: skip });
+  assert.equal(rest.length, 2);
+  assert.ok(rest.every((q) => !skip.has(q.id)));
+
+  // countByMiddle も同じ除外で数える(設定画面のチップ件数と実出題を一致させる)
+  const counts = countByMiddle({ examIds: ["2025r07h"], excludeIds: skip });
+  const total = [...counts.values()].reduce((a, b) => a + b, 0);
+  assert.equal(total, 2);
+
+  // 全問除外なら空
+  const none = questionsByMiddle([], {
+    examIds: ["2025r07h"],
+    excludeIds: new Set(all.map((q) => q.id)),
+  });
+  assert.equal(none.length, 0);
+});
+
 test("countByMiddle: 試験回で絞ると合計がその回の問題数になる", () => {
   const counts = countByMiddle({ examIds: ["2022r04a"] });
   const total = [...counts.values()].reduce((a, b) => a + b, 0);

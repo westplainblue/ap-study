@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { countByMiddle, EXAMS } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
+import { statsByQuestion } from "../lib/progress";
 import { clearRun } from "../lib/run";
 
 const COUNTS = [5, 10, 20];
@@ -17,7 +18,18 @@ export default function PracticeSetup() {
   const [examIds, setExamIds] = useState<Set<string>>(new Set());
   const [count, setCount] = useState(10);
   const [excludeCalc, setExcludeCalc] = useState(false);
-  const counts = countByMiddle({ excludeCalc, examIds: [...examIds] });
+  const [unseenOnly, setUnseenOnly] = useState(false);
+  // 一度でも解答した問題のID(モード不問)。「未挑戦のみ」の除外対象
+  const attempted = useMemo(() => new Set(statsByQuestion().keys()), []);
+  const counts = countByMiddle({
+    excludeCalc,
+    examIds: [...examIds],
+    excludeIds: unseenOnly ? attempted : undefined,
+  });
+  // いまの絞り込み(分野未選択なら全分野)で出題対象になる問題数
+  const available = selected.size
+    ? [...selected].reduce((sum, m) => sum + (counts.get(m) ?? 0), 0)
+    : [...counts.values()].reduce((sum, n) => sum + n, 0);
 
   const toggle = (middle: string) => {
     const next = new Set(selected);
@@ -41,6 +53,7 @@ export default function PracticeSetup() {
         middles: [...selected],
         count,
         excludeCalc,
+        unseenOnly,
         examIds: [...examIds],
       })
     );
@@ -132,7 +145,50 @@ export default function PracticeSetup() {
           待ち行列・稼働率・伝送時間など、選択肢が数値の計算問題を出題対象から外します。
         </p>
 
-        <button className="btn btn-primary btn-block" onClick={start}>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={unseenOnly}
+          className={`chip-toggle ${unseenOnly ? "on" : ""}`}
+          style={{
+            width: "100%",
+            padding: "10px 0",
+            marginBottom: 6,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+          onClick={() => setUnseenOnly((v) => !v)}
+        >
+          {unseenOnly ? "☑" : "☐"} まだ解いていない問題だけを出題する
+        </button>
+        <p className="muted small" style={{ marginBottom: 16 }}>
+          これまでに一度も解答したことのない問題に絞ります(どのモードで解いた問題も除外)。
+          分野チップの件数も未挑戦の数に変わります。
+          {unseenOnly && (
+            <>
+              <br />
+              いまの絞り込みで未挑戦は <b>{available}問</b> です。
+            </>
+          )}
+        </p>
+
+        {available === 0 && (
+          <p
+            className="small"
+            style={{ color: "var(--danger-text)", marginBottom: 8 }}
+          >
+            {unseenOnly
+              ? "この条件の問題はすべて解答済みです。分野や試験回の指定を広げてください。"
+              : "この条件に合う問題がありません。絞り込みを見直してください。"}
+          </p>
+        )}
+        <button
+          className="btn btn-primary btn-block"
+          onClick={start}
+          disabled={available === 0}
+        >
           演習を始める
         </button>
       </div>

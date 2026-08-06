@@ -204,6 +204,8 @@ interface QueryOptions {
   excludeCalc?: boolean; // 計算問題を除外する
   /** 出題する試験回(examId)。未指定・空配列なら全回から出題 */
   examIds?: string[];
+  /** 除外する問題ID。「未挑戦のみ」で解答済みIDを渡す(このモジュールは学習履歴を知らない) */
+  excludeIds?: ReadonlySet<string>;
 }
 
 export function questionsByMiddle(
@@ -216,7 +218,8 @@ export function questionsByMiddle(
     (q) =>
       (!set || set.has(q.middle)) &&
       (!exams || exams.has(q.examId)) &&
-      (!opts.excludeCalc || !calcIds.has(q.id))
+      (!opts.excludeCalc || !calcIds.has(q.id)) &&
+      !opts.excludeIds?.has(q.id)
   );
 }
 
@@ -226,6 +229,7 @@ export function countByMiddle(opts: QueryOptions = {}): Map<string, number> {
   for (const q of AM_QUESTIONS) {
     if (opts.excludeCalc && calcIds.has(q.id)) continue;
     if (exams && !exams.has(q.examId)) continue;
+    if (opts.excludeIds?.has(q.id)) continue;
     map.set(q.middle, (map.get(q.middle) ?? 0) + 1);
   }
   return map;
