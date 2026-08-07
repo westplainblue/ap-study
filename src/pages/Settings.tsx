@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import CodexAccountPanel from "../components/CodexAccountPanel";
+import ConfirmDialog from "../components/ConfirmDialog";
 import {
   CODEX_DEFAULT_URL,
   DEFAULT_MODELS,
@@ -38,6 +39,7 @@ export default function Settings() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [ai, setAi] = useState(loadAiConfig());
   const [themeSel, setThemeSel] = useState<Theme>(theme);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [keyDraft, setKeyDraft] = useState("");
   const [showKey, setShowKey] = useState(false);
 
@@ -419,16 +421,24 @@ export default function Settings() {
         <button
           className="btn btn-block"
           style={{ color: "var(--danger-text)", borderColor: "var(--danger-text)" }}
-          onClick={() => {
-            if (window.confirm("学習履歴・復習キューをすべて削除します。よろしいですか?")) {
-              resetState();
-              setState(loadState());
-            }
-          }}
+          onClick={() => setConfirmReset(true)}
         >
           すべての学習データを削除
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmReset}
+        message="学習履歴・復習キューをすべて削除します。よろしいですか?"
+        confirmLabel="削除する"
+        danger
+        onConfirm={() => {
+          resetState();
+          setState(loadState());
+          setConfirmReset(false);
+        }}
+        onCancel={() => setConfirmReset(false)}
+      />
 
       <p className="muted small" style={{ marginTop: 16 }}>
         収録問題の出典: 応用情報技術者試験 過去問題(独立行政法人情報処理推進機構)。

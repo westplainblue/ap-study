@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { EXAMS } from "../data";
 
 export const MOCK_KEY = "ap-study:mock";
@@ -17,6 +19,7 @@ export interface MockState {
 
 export default function MockExam() {
   const navigate = useNavigate();
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const saved = localStorage.getItem(MOCK_KEY);
   const savedState: MockState | null = saved ? JSON.parse(saved) : null;
 
@@ -56,12 +59,7 @@ export default function MockExam() {
             <button
               className="btn"
               style={{ flex: 1 }}
-              onClick={() => {
-                if (window.confirm("中断中の模試を破棄しますか?")) {
-                  localStorage.removeItem(MOCK_KEY);
-                  navigate(0);
-                }
-              }}
+              onClick={() => setConfirmDiscard(true)}
             >
               破棄する
             </button>
@@ -80,6 +78,19 @@ export default function MockExam() {
           </button>
         </div>
       ))}
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        message="中断中の模試を破棄しますか?"
+        confirmLabel="破棄する"
+        danger
+        onConfirm={() => {
+          localStorage.removeItem(MOCK_KEY);
+          setConfirmDiscard(false);
+          navigate(0);
+        }}
+        onCancel={() => setConfirmDiscard(false)}
+      />
     </div>
   );
 }

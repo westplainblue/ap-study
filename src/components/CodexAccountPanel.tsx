@@ -7,6 +7,7 @@ import {
   startCodexLogin,
   type CodexAccount,
 } from "../lib/codexAuth";
+import ConfirmDialog from "./ConfirmDialog";
 
 const PLAN_LABEL: Record<string, string> = {
   free: "ChatGPT Free",
@@ -46,6 +47,7 @@ function errorHelp(code: string): string | null {
 /** Codexプロバイダの接続状態表示とChatGPTログイン操作 */
 export default function CodexAccountPanel() {
   const [panel, setPanel] = useState<Panel>({ kind: "checking" });
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const pollRef = useRef<number | null>(null);
 
   const stopPolling = () => {
@@ -122,9 +124,6 @@ export default function CodexAccountPanel() {
   };
 
   const logout = async () => {
-    if (!window.confirm("ChatGPTからログアウトしますか?(Codex CLI全体のログアウトになります)")) {
-      return;
-    }
     try {
       await codexLogout();
       setPanel({ kind: "disconnected" });
@@ -164,9 +163,19 @@ export default function CodexAccountPanel() {
         <p className="muted small" style={{ marginTop: 4 }}>
           APIキーは不要です。認証はCodexが管理し、トークンがブラウザへ渡ることはありません。
         </p>
-        <button className="btn" style={{ marginTop: 8 }} onClick={() => void logout()}>
+        <button className="btn" style={{ marginTop: 8 }} onClick={() => setConfirmLogout(true)}>
           ログアウト
         </button>
+        <ConfirmDialog
+          open={confirmLogout}
+          message="ChatGPTからログアウトしますか?(Codex CLI全体のログアウトになります)"
+          confirmLabel="ログアウト"
+          onConfirm={() => {
+            setConfirmLogout(false);
+            void logout();
+          }}
+          onCancel={() => setConfirmLogout(false)}
+        />
       </div>
     );
   }

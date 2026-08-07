@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Badge from "../components/Badge";
+import ConfirmDialog from "../components/ConfirmDialog";
 import QuestionCard from "../components/QuestionCard";
 import { EXAMS, KANA, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
@@ -32,6 +33,9 @@ export default function MockRun() {
   const [showGrid, setShowGrid] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [graded, setGraded] = useState(false);
+  // 未解答が残ったまま「採点する」を押したときのアプリ内確認
+  // (window.confirm はPWA等で無反応になるため使わない → components/ConfirmDialog)
+  const [confirmGrade, setConfirmGrade] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
   const [unlocked, setUnlocked] = useState<string[]>([]);
   // キーハンドラは1度だけ登録し、最新の処理を ref 経由で呼ぶ
@@ -77,7 +81,7 @@ export default function MockRun() {
 
   // キーボード操作。模試は Player を使わない独自画面なので、ここで直接受ける。
   // 解答(1〜4 / A〜D)に加え、80問を行き来する模試特有の ←→ と F を割り当てる。
-  const canKey = Boolean(mock && exam) && !graded;
+  const canKey = Boolean(mock && exam) && !graded && !confirmGrade;
   useEffect(() => {
     if (!canKey) return;
     const onKey = (e: KeyboardEvent) => {
@@ -400,13 +404,8 @@ export default function MockRun() {
           className="btn btn-primary"
           style={{ flex: 1 }}
           onClick={() => {
-            const unanswered = questions.length - answeredCount;
-            if (
-              unanswered === 0 ||
-              window.confirm(`未解答が${unanswered}問あります。採点しますか?`)
-            ) {
-              grade();
-            }
+            if (questions.length - answeredCount === 0) grade();
+            else setConfirmGrade(true);
           }}
         >
           採点する
@@ -444,6 +443,17 @@ export default function MockRun() {
           {legend}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmGrade}
+        message={`未解答が${questions.length - answeredCount}問あります。\n未解答は不正解として採点します。`}
+        confirmLabel="採点する"
+        onConfirm={() => {
+          setConfirmGrade(false);
+          grade();
+        }}
+        onCancel={() => setConfirmGrade(false)}
+      />
     </div>
   );
 }
