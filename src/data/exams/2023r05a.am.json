@@ -374,6 +374,7 @@
    "major": "T",
    "middle": "ハードウェア",
    "figure": "figures/2023r05a/am-q22.png",
+   "choicesInFigure": true,
    "explanation": "この回路はNAND(ANDの後にNOT)を交差接続したSRフリップフロップで,X=NAND(S,Y),Y=NAND(R,X)。初期状態はX=0,Y=1で安定。Sを0にするとX=NAND(0,1)=1となり,続いてY=NAND(1,1)=0に変化する。Sを1に戻してもX=NAND(1,0)=1,Y=NAND(1,1)=0のまま保持される。よって最終値はX=1,Y=0でウが正しい。",
    "point": "SRフリップフロップはセット/リセット後の状態を保持する。入力を戻しても出力は変化前の状態に戻らない。"
   },
