@@ -12,6 +12,8 @@ interface Options {
   onNext?: () => void;
   /** R: あとで復習に登録(対応する画面のみ) */
   onReview?: () => void;
+  /** J / N: 確信度メモ(解答後のみ渡す)。J=自信あった, N=なかった・まぐれ */
+  onConf?: (conf: "high" | "low") => void;
 }
 
 /**
@@ -30,6 +32,7 @@ export function useAnswerKeys({
   onPick,
   onNext,
   onReview,
+  onConf,
 }: Options): void {
   useEffect(() => {
     if (!enabled) return;
@@ -46,6 +49,16 @@ export function useAnswerKeys({
         onReview();
         return;
       }
+      if ((e.key === "j" || e.key === "J") && onConf) {
+        e.preventDefault();
+        onConf("high");
+        return;
+      }
+      if ((e.key === "n" || e.key === "N") && onConf) {
+        e.preventDefault();
+        onConf("low");
+        return;
+      }
       const i = choiceIndexFromKey(e.key, choiceCount);
       if (i >= 0) {
         e.preventDefault();
@@ -54,5 +67,5 @@ export function useAnswerKeys({
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [enabled, choiceCount, onPick, onNext, onReview]);
+  }, [enabled, choiceCount, onPick, onNext, onReview, onConf]);
 }

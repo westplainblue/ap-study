@@ -5,6 +5,9 @@
  */
 export type Mode = "practice" | "review" | "drill" | "mock" | "calc";
 
+/** 解答直後に自己申告する確信度。high=自信あり / low=自信なし(誤答)・まぐれ(正解) */
+export type Confidence = "high" | "low";
+
 export interface Attempt {
   q: string; // questionId
   t: number; // epoch ms
@@ -13,12 +16,20 @@ export interface Attempt {
   s?: string; // 学習セッションID(R4: セッションをまたいだ successive relearning 用)
   /** 解答にかかった時間(ミリ秒)。計算ドリルのみ記録する任意フィールド */
   ms?: number;
+  /** 確信度の自己申告(任意)。解答直後の1タップで後付けされる */
+  conf?: Confidence;
 }
 
 export interface ReviewEntry {
   box: number; // 1-4(Leitner)、5=卒業の墓標(削除すると同期で復活するため残す)
   due: string; // YYYY-MM-DD(卒業は GRADUATED_DUE 番兵)
   u?: number; // エントリ単位の更新時刻(同期のLWW用。旧形式は無し=0扱い)
+  /**
+   * 自信あり誤答(思い込み)から生まれた復習。期日到来時に最優先で出題する。
+   * 高確信エラーは訂正直後は直りやすい一方、追いテストが無いと戻りやすいため。
+   * 次の箱遷移で自然に消える(遷移はエントリを作り直すので引き継がれない)。
+   */
+  hc?: boolean;
 }
 
 export interface Settings {
@@ -202,6 +213,52 @@ export function recordAnswer(qid: string, ok: boolean, mode: Mode, ms?: number):
   saveState(s);
 }
 
+/**
+ * 解答直後の確信度メモを反映する(純関数)。対象は「qid の最新の解答」で、
+ * すでに確信度が付いている場合は何もしない(再読込後の二重タップ対策)。
+ *
+ * - 誤答+自信あり: 思い込み。復習エントリに hc を立てて期日到来時に最優先で出す
+ * - 正解+自信なし(まぐれ): 知っていた扱いにしない。正解で箱が進んでいても
+ *   箱1に戻して翌日出題する(「自信を持って思い出せたときだけ進む」に寄せる)
+ * 反映したら true を返す。
+ */
+export function applyConfidence(
+  s: ProgressState,
+  qid: string,
+  conf: Confidence,
+  today = todayStr(),
+  now = Date.now()
+): boolean {
+  let last: Attempt | undefined;
+  for (let i = s.attempts.length - 1; i >= 0; i--) {
+    if (s.attempts[i].q === qid) {
+      last = s.attempts[i];
+      break;
+    }
+  }
+  if (!last || last.conf) return false;
+  last.conf = conf;
+  if (!last.ok && conf === "high") {
+    // 直前の applyReviewTransition で箱1になっているはず。期日は保ったまま hc を立てる
+    const entry = s.review[qid];
+    s.review[qid] = {
+      box: 1,
+      due: entry && entry.box <= MAX_BOX ? entry.due : addDaysStr(today, 1),
+      u: now,
+      hc: true,
+    };
+  } else if (last.ok && conf === "low") {
+    s.review[qid] = { box: 1, due: addDaysStr(today, 1), u: now };
+  }
+  return true;
+}
+
+/** 確信度メモを保存する(applyConfidence の localStorage ラッパ) */
+export function markConfidence(qid: string, conf: Confidence): void {
+  const s = loadState();
+  if (applyConfidence(s, qid, conf)) saveState(s);
+}
+
 /** 「あとで復習」手動追加(卒業済みの墓標は箱1へ復帰させる) */
 export function addToReview(qid: string): void {
   const s = loadState();
@@ -224,12 +281,15 @@ export function activeReviewIds(state = loadState()): string[] {
     .map(([qid]) => qid);
 }
 
-/** 今日が期日を迎えている復習対象の questionId 一覧 */
+/** 今日が期日を迎えている復習対象の questionId 一覧(思い込み hc を最優先) */
 export function dueReviewIds(state = loadState()): string[] {
   const today = todayStr();
   return Object.entries(state.review)
     .filter(([, e]) => e.box <= MAX_BOX && e.due <= today)
-    .sort((a, b) => (a[1].due < b[1].due ? -1 : 1))
+    .sort((a, b) => {
+      if (Boolean(a[1].hc) !== Boolean(b[1].hc)) return a[1].hc ? -1 : 1;
+      return a[1].due < b[1].due ? -1 : 1;
+    })
     .map(([qid]) => qid);
 }
 
@@ -416,13 +476,17 @@ export function resetState(): void {
 /** 端末間マージ: attempts は和集合、review/settings は新しい方を優先 */
 export function mergeStates(a: ProgressState, b: ProgressState): ProgressState {
   const [newer, older] = a.updatedAt >= b.updatedAt ? [a, b] : [b, a];
-  const seen = new Set<string>();
+  const byKey = new Map<string, number>();
   const attempts: Attempt[] = [];
   for (const at of [...a.attempts, ...b.attempts]) {
     const key = `${at.q}:${at.t}:${at.mode}`;
-    if (!seen.has(key)) {
-      seen.add(key);
+    const idx = byKey.get(key);
+    if (idx === undefined) {
+      byKey.set(key, attempts.length);
       attempts.push(at);
+    } else if (at.conf && !attempts[idx].conf) {
+      // 同一解答の重複は確信度メモを持つ側を残す(付与直前に同期した端末に負けない)
+      attempts[idx] = at;
     }
   }
   attempts.sort((x, y) => x.t - y.t);

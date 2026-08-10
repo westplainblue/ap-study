@@ -21,7 +21,9 @@ import {
   addToReview,
   isInReview,
   loadState,
+  markConfidence,
   recordAnswer,
+  type Confidence,
   type Mode,
 } from "../lib/progress";
 import { clearRun, loadRun, saveRun, type RunState } from "../lib/run";
@@ -57,6 +59,8 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   const [results, setResults] = useState<boolean[]>(saved?.results ?? []);
   const [finished, setFinished] = useState(saved?.finished ?? false);
   const [reviewAdded, setReviewAdded] = useState(false);
+  // 解答直後の確信度メモ(1問ごとにリセット)。一度付けたら変更不可
+  const [conf, setConf] = useState<Confidence | null>(null);
   // 誤答時にことば帳へ採取した termId(解説下のチップ表示用)
   const [capturedTerms, setCapturedTerms] = useState<string[]>([]);
 
@@ -178,6 +182,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       setIdx(idx + 1);
       setSelected(null);
       setReviewAdded(false);
+      setConf(null);
       setCapturedTerms([]);
       setRestoredOrder(undefined); // 次の問題は新しい並びを引く
     }
@@ -189,6 +194,13 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
     setReviewAdded(true);
   };
 
+  // 確信度メモ。まぐれ正解は復習キューへ、自信あり誤答は復習で最優先になる
+  const handleConf = (c: Confidence) => {
+    if (conf !== null || !cur || !answered) return;
+    setConf(c);
+    markConfidence(cur.id, c);
+  };
+
   // キーボード操作(PC)。キーは画面の並び順なので、シャッフル時は order で
   // 元の添字に戻してから記録する(マウスでの選択と完全に同じ経路にする)
   useAnswerKeys({
@@ -197,6 +209,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
     onPick: (d) => handleSelect(order ? order[d] : d),
     onNext: answered ? handleNext : undefined,
     onReview: answered ? handleReview : undefined,
+    onConf: answered ? handleConf : undefined,
   });
 
   if (questions.length === 0) {
@@ -368,6 +381,47 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
               {correct ? "正解!" : "不正解…"} 答えは「{kanaOf(q.answer)}」
             </span>
           </div>
+
+          {/* 確信度メモ(任意・1タップ)。自信と実際のズレを検出して復習に活かす */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              marginTop: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <span className="small muted" style={{ fontWeight: 600 }}>
+              自信は?
+            </span>
+            <button
+              className={`chip-toggle ${conf === "high" ? "on" : ""}`}
+              disabled={conf !== null}
+              style={conf !== null && conf !== "high" ? { opacity: 0.45 } : undefined}
+              onClick={() => handleConf("high")}
+            >
+              あった
+            </button>
+            <button
+              className={`chip-toggle ${conf === "low" ? "on" : ""}`}
+              disabled={conf !== null}
+              style={conf !== null && conf !== "low" ? { opacity: 0.45 } : undefined}
+              onClick={() => handleConf("low")}
+            >
+              {correct ? "まぐれ" : "なかった"}
+            </button>
+            {conf !== null && (
+              <span className="small" style={{ color: "var(--text-2)" }}>
+                {conf === "high" && !correct
+                  ? "思い込みは直りやすい所。復習で最優先に出します"
+                  : conf === "low" && correct
+                    ? "復習キューに入れました(明日)"
+                    : "メモしました"}
+              </span>
+            )}
+          </div>
+
           <div className="card" style={{ marginTop: 10 }}>
             <p style={{ fontWeight: 600, marginBottom: 4 }}>解説</p>
             <p className="small" style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
@@ -428,7 +482,7 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
       )}
       </div>
 
-      <KeyHint choiceCount={q.choices.length} answered={answered} canReview />
+      <KeyHint choiceCount={q.choices.length} answered={answered} canReview canConf />
 
       {askQuit && (
         <div className="modal-backdrop" role="presentation" onClick={() => setAskQuit(false)}>

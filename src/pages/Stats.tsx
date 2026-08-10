@@ -16,7 +16,7 @@ import {
   statsByMode,
 } from "../lib/modeStats";
 import { CALC_THEMES, statsByCalcTheme } from "../lib/calc";
-import { addDaysStr, loadState, todayStr } from "../lib/progress";
+import { addDaysStr, loadState, MAX_BOX, todayStr } from "../lib/progress";
 import { delayedRetention } from "../lib/srs";
 
 interface Agg {
@@ -53,6 +53,9 @@ export default function Stats() {
     calcByTheme,
     byMode,
     byMajorMode,
+    confAgg,
+    hcTotal,
+    hcWaiting,
   } = useMemo(() => {
       const state = loadState();
       const byMiddle = new Map<string, Agg>();
@@ -95,6 +98,19 @@ export default function Stats() {
       const retention = delayedRetention(state.attempts, 7);
       const calcByTheme = statsByCalcTheme(state.attempts);
       const byMode = statsByMode(state.attempts);
+      // 確信度メモの集計(メモを付けた解答のみ)。自信と実際のズレを見る
+      const confAgg = { high: { n: 0, ok: 0 }, low: { n: 0, ok: 0 } };
+      let hcTotal = 0; // 自信あり誤答(思い込み)の累計
+      for (const a of state.attempts) {
+        if (!a.conf) continue;
+        const g = confAgg[a.conf];
+        g.n += 1;
+        if (a.ok) g.ok += 1;
+        if (a.conf === "high" && !a.ok) hcTotal += 1;
+      }
+      const hcWaiting = Object.values(state.review).filter(
+        (e) => e.box <= MAX_BOX && e.hc
+      ).length;
       // 分野の粒度は大分類。中分類をモードで割ると1桁件数のセルばかりになり読めない
       const byMajorMode = statsByGroupAndMode(
         state.attempts,
@@ -113,6 +129,9 @@ export default function Stats() {
         calcByTheme,
         byMode,
         byMajorMode,
+        confAgg,
+        hcTotal,
+        hcWaiting,
       };
     }, []);
 
@@ -366,6 +385,50 @@ export default function Stats() {
           );
         })}
       </div>
+
+      {confAgg.high.n + confAgg.low.n >= 5 && (
+        <>
+          <p style={{ fontWeight: 600, marginBottom: 8 }}>確信度メモ(自信と実際のズレ)</p>
+          <div className="card" style={{ marginBottom: 18 }}>
+            <div className="pc-grid-2" style={{ marginBottom: 8 }}>
+              {(
+                [
+                  ["自信あり", confAgg.high],
+                  ["自信なし・まぐれ", confAgg.low],
+                ] as const
+              ).map(([label, g]) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 14,
+                    padding: "3px 0",
+                  }}
+                >
+                  <span>{label}</span>
+                  <span className="muted">
+                    {g.n > 0 ? `${Math.round((g.ok / g.n) * 100)}%(${g.ok}/${g.n})` : "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="small" style={{ marginBottom: 4 }}>
+              思い込み(自信あり×不正解): 累計 {hcTotal}件
+              {hcWaiting > 0 && (
+                <>
+                  {" "}
+                  ・ <b>復習待ち {hcWaiting}件</b>(復習で最優先に出題)
+                </>
+              )}
+            </p>
+            <p className="muted small" style={{ lineHeight: 1.7 }}>
+              「自信あり」の正答率が低いときは思い込みのサインです。まぐれ正解は
+              翌日の復習に回しています。
+            </p>
+          </div>
+        </>
+      )}
 
       {weak.length > 0 && (
         <>

@@ -8,9 +8,11 @@ interface Props {
   answered: boolean;
   /** 「あとで復習」が使える画面か */
   canReview?: boolean;
+  /** 確信度メモ(J/N)が使える画面か */
+  canConf?: boolean;
 }
 
-export default function KeyHint({ choiceCount = 4, answered, canReview }: Props) {
+export default function KeyHint({ choiceCount = 4, answered, canReview, canConf }: Props) {
   return (
     <div className="kbd-hint" aria-hidden>
       <span>
@@ -20,6 +22,11 @@ export default function KeyHint({ choiceCount = 4, answered, canReview }: Props)
       {answered && (
         <span>
           <kbd>Enter</kbd>で次へ
+        </span>
+      )}
+      {answered && canConf && (
+        <span>
+          <kbd>J</kbd>/<kbd>N</kbd>で自信メモ
         </span>
       )}
       {answered && canReview && (
