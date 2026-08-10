@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IconCheck, IconX } from "../components/Icons";
+import KeyHint from "../components/KeyHint";
 import { amQuestion, examLabel, KANA } from "../data";
 import {
   loadTermsData,
   type TermCard,
   type TermsData,
 } from "../data/terms";
+import { useAnswerKeys } from "../hooks/useAnswerKeys";
+import { isPlainKey, isTypingTarget } from "../lib/keys";
 import { loadState, MAX_BOX, type VocabEntry } from "../lib/progress";
+import { setVocabMode, vocabMode, type VocabMode } from "../lib/ui";
 import {
   dueVocabIds,
   reconcileVocabFromStorage,
@@ -152,7 +156,12 @@ interface QuizResult {
   to: number;
 }
 
-/** ことばドリル: 期日を迎えた用語を4択で復習する(1問ごとに保存される) */
+/**
+ * ことばドリル: 期日を迎えた用語を復習する(1問ごとに保存される)。
+ * 出題形式は2つ(端末内設定 `ap-study:ui` に保存):
+ * - choice: 4択で選ぶ(既定)。誤答肢との弁別も鍛えられる
+ * - flip:   思い出してからめくって自己採点。選択肢のヒントが無いぶん想起が深い
+ */
 export default function VocabRun() {
   const navigate = useNavigate();
   const [items, setItems] = useState<QuizItem[] | null>(null);
@@ -160,6 +169,8 @@ export default function VocabRun() {
   const [selected, setSelected] = useState<number | null>(null);
   const [results, setResults] = useState<QuizResult[]>([]);
   const [finished, setFinished] = useState(false);
+  const [mode, setMode] = useState<VocabMode>(() => vocabMode());
+  const [flipped, setFlipped] = useState(false);
 
   // 辞書を読み込んでから出題を組み立てる(直接このURLを開いた場合にも備える)
   useEffect(() => {
@@ -176,6 +187,80 @@ export default function VocabRun() {
       alive = false;
     };
   }, []);
+
+  // --- 操作ハンドラとキーボード。早期リターンより前に置く(フック数を変えない) ---
+  const curItem = items?.[idx];
+  const answered = selected !== null;
+
+  const handleSelect = (i: number) => {
+    if (answered || !curItem) return;
+    setSelected(i);
+    const ok = i === curItem.answer;
+    recordVocabAnswer(curItem.termId, ok); // 1問ごとに保存(途中離脱しても失われない)
+    const to = ok ? (curItem.fromBox >= MAX_BOX ? 5 : curItem.fromBox + 1) : 1;
+    setResults((r) => [
+      ...r,
+      { termId: curItem.termId, term: curItem.card.term, ok, from: curItem.fromBox, to },
+    ]);
+  };
+
+  const handleNext = () => {
+    if (!items) return;
+    if (idx + 1 >= items.length) {
+      setFinished(true);
+    } else {
+      setIdx(idx + 1);
+      setSelected(null);
+      setFlipped(false);
+    }
+  };
+
+  /** めくった後の自己採点。答えは表示済みなので確認を挟まず次の語へ進む */
+  const handleFlipGrade = (ok: boolean) => {
+    if (!flipped || !curItem || !items) return;
+    recordVocabAnswer(curItem.termId, ok);
+    const to = ok ? (curItem.fromBox >= MAX_BOX ? 5 : curItem.fromBox + 1) : 1;
+    setResults((r) => [
+      ...r,
+      { termId: curItem.termId, term: curItem.card.term, ok, from: curItem.fromBox, to },
+    ]);
+    setFlipped(false);
+    if (idx + 1 >= items.length) setFinished(true);
+    else setIdx(idx + 1);
+  };
+
+  // 4択モードのキーボード(1〜4で選択、Enterで次へ)
+  useAnswerKeys({
+    enabled: mode === "choice" && !finished && Boolean(curItem),
+    choiceCount: curItem?.choices.length ?? 0,
+    onPick: handleSelect,
+    onNext: answered ? handleNext : undefined,
+  });
+
+  // めくりモードのキーボード(Space/Enterでめくる、1/2で自己採点)
+  useEffect(() => {
+    if (mode !== "flip" || finished || !curItem) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!isPlainKey(e) || isTypingTarget(document.activeElement)) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (!flipped) setFlipped(true);
+        return;
+      }
+      if (flipped && (e.key === "1" || e.key === "j" || e.key === "J")) {
+        e.preventDefault();
+        handleFlipGrade(true);
+        return;
+      }
+      if (flipped && (e.key === "2" || e.key === "n" || e.key === "N")) {
+        e.preventDefault();
+        handleFlipGrade(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleFlipGrade は依存の items/idx/flipped から決まる
+  }, [mode, finished, curItem, flipped, idx, items]);
 
   if (items === null) {
     return (
@@ -274,30 +359,8 @@ export default function VocabRun() {
   }
 
   const cur = items[idx];
-  const answered = selected !== null;
   const isCorrect = answered && selected === cur.answer;
   const liveCorrect = results.filter((r) => r.ok).length;
-
-  const handleSelect = (i: number) => {
-    if (answered) return;
-    setSelected(i);
-    const ok = i === cur.answer;
-    recordVocabAnswer(cur.termId, ok); // 1問ごとに保存(途中離脱しても失われない)
-    const to = ok ? (cur.fromBox >= MAX_BOX ? 5 : cur.fromBox + 1) : 1;
-    setResults((r) => [
-      ...r,
-      { termId: cur.termId, term: cur.card.term, ok, from: cur.fromBox, to },
-    ]);
-  };
-
-  const handleNext = () => {
-    if (idx + 1 >= items.length) {
-      setFinished(true);
-    } else {
-      setIdx(idx + 1);
-      setSelected(null);
-    }
-  };
 
   return (
     <div>
@@ -337,17 +400,43 @@ export default function VocabRun() {
           }}
         />
       </div>
-      <p className="muted small" style={{ marginBottom: 14 }}>
+      <p className="muted small" style={{ marginBottom: 10 }}>
         {results.length > 0
           ? `正解 ${liveCorrect} / ${results.length}`
           : "解答は1語ごとに保存されます。途中でやめても大丈夫。"}
       </p>
 
+      {/* 出題形式の切替(端末内保存)。答えを見た後の切替は二重記録になるので不可 */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        {(
+          [
+            ["choice", "4択で選ぶ"],
+            ["flip", "思い出してめくる"],
+          ] as const
+        ).map(([m, label]) => (
+          <button
+            key={m}
+            className={`chip-toggle ${mode === m ? "on" : ""}`}
+            disabled={answered || flipped}
+            onClick={() => {
+              setMode(m);
+              setVocabMode(m);
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="card" style={{ marginBottom: 12 }}>
         <p className="muted small" style={{ marginBottom: 4 }}>
-          {cur.askTerm
-            ? "この説明にあてはまる用語はどれ?"
-            : "この用語の説明として正しいものはどれ?"}
+          {mode === "flip"
+            ? cur.askTerm
+              ? "この説明の用語を思い出せますか?"
+              : "この用語の説明を思い出せますか?"
+            : cur.askTerm
+              ? "この説明にあてはまる用語はどれ?"
+              : "この用語の説明として正しいものはどれ?"}
         </p>
         {cur.askTerm ? (
           <p style={{ lineHeight: 1.8 }}>{cur.card.def}</p>
@@ -361,29 +450,31 @@ export default function VocabRun() {
         )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {cur.choices.map((choice, i) => {
-          let cls = "choice";
-          if (answered) {
-            if (i === cur.answer) cls += " choice-correct";
-            else if (i === selected) cls += " choice-wrong";
-            else cls += " choice-dim";
-          }
-          return (
-            <button
-              key={i}
-              className={cls}
-              onClick={() => handleSelect(i)}
-              disabled={answered}
-            >
-              <span className="choice-kana">{KANA[i]}</span>
-              <span style={{ flex: 1 }}>{choice}</span>
-            </button>
-          );
-        })}
-      </div>
+      {mode === "choice" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {cur.choices.map((choice, i) => {
+            let cls = "choice";
+            if (answered) {
+              if (i === cur.answer) cls += " choice-correct";
+              else if (i === selected) cls += " choice-wrong";
+              else cls += " choice-dim";
+            }
+            return (
+              <button
+                key={i}
+                className={cls}
+                onClick={() => handleSelect(i)}
+                disabled={answered}
+              >
+                <span className="choice-kana">{KANA[i]}</span>
+                <span style={{ flex: 1 }}>{choice}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {answered && (
+      {mode === "choice" && answered && (
         <div style={{ marginTop: 14 }}>
           <div className={isCorrect ? "banner banner-ok" : "banner banner-ng"}>
             {isCorrect ? <IconCheck size={18} /> : <IconX size={18} />}
@@ -429,6 +520,96 @@ export default function VocabRun() {
           >
             {idx + 1 >= items.length ? "結果を見る" : "次のことばへ"}
           </button>
+        </div>
+      )}
+
+      {mode === "flip" && !flipped && (
+        <button
+          className="btn btn-primary btn-block"
+          onClick={() => setFlipped(true)}
+        >
+          答えを見る
+        </button>
+      )}
+
+      {mode === "flip" && flipped && (
+        <div>
+          <div className="card">
+            <p style={{ fontWeight: 700, marginBottom: 4 }}>
+              {cur.card.term}
+              {cur.card.reading && (
+                <span className="muted small" style={{ fontWeight: 400 }}>
+                  ({cur.card.reading})
+                </span>
+              )}
+            </p>
+            <p className="small" style={{ lineHeight: 1.8 }}>
+              {cur.card.def}
+            </p>
+            {cur.card.point && (
+              <div
+                style={{
+                  background: "var(--surface-2)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  marginTop: 10,
+                }}
+              >
+                <p className="small" style={{ fontWeight: 600 }}>💡 覚え方</p>
+                <p className="small" style={{ lineHeight: 1.7 }}>
+                  {cur.card.point}
+                </p>
+              </div>
+            )}
+            <p className="muted small" style={{ marginTop: 8 }}>
+              出典: {sourceLabel(cur.card)}
+            </p>
+          </div>
+          {/* 自己採点で次の語へ。正誤は4択と同じSRS遷移に流れる */}
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button
+              className="btn"
+              style={{
+                flex: 1,
+                background: "var(--success-bg)",
+                borderColor: "var(--success-text)",
+                color: "var(--success-text)",
+                fontWeight: 700,
+              }}
+              onClick={() => handleFlipGrade(true)}
+            >
+              思い出せた
+            </button>
+            <button
+              className="btn"
+              style={{
+                flex: 1,
+                background: "var(--danger-bg)",
+                borderColor: "var(--danger-text)",
+                color: "var(--danger-text)",
+                fontWeight: 700,
+              }}
+              onClick={() => handleFlipGrade(false)}
+            >
+              思い出せなかった
+            </button>
+          </div>
+        </div>
+      )}
+
+      {mode === "choice" ? (
+        <KeyHint choiceCount={cur.choices.length} answered={answered} />
+      ) : (
+        <div className="kbd-hint" aria-hidden>
+          {!flipped ? (
+            <span>
+              <kbd>Space</kbd>でめくる
+            </span>
+          ) : (
+            <span>
+              <kbd>1</kbd>思い出せた / <kbd>2</kbd>思い出せなかった
+            </span>
+          )}
         </div>
       )}
     </div>

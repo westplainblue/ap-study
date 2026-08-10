@@ -10,10 +10,14 @@ const KEY = "ap-study:ui";
 /** 配色。auto = OSの設定に追従(既定) */
 export type Theme = "auto" | "light" | "dark";
 
+/** ことばドリルの出題形式。choice = 4択(既定) / flip = 思い出してめくる */
+export type VocabMode = "choice" | "flip";
+
 interface UiState {
   /** PCの左サイドバーを畳んでいるか */
   navCollapsed?: boolean;
   theme?: Theme;
+  vocabMode?: VocabMode;
 }
 
 function load(): UiState {
@@ -39,6 +43,14 @@ export function navCollapsed(): boolean {
 
 export function setNavCollapsed(v: boolean): void {
   save({ ...load(), navCollapsed: v });
+}
+
+export function vocabMode(): VocabMode {
+  return load().vocabMode === "flip" ? "flip" : "choice";
+}
+
+export function setVocabMode(m: VocabMode): void {
+  save({ ...load(), vocabMode: m });
 }
 
 export function theme(): Theme {
