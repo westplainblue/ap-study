@@ -52,12 +52,35 @@ const seed = (store, state) => {
 };
 const read = (store) => JSON.parse(store["ap-study:v1"]);
 
-test("recordAnswer: 箱4で正解すると削除ではなく墓標(box5・due番兵・u付き)になる", () => {
+test("recordAnswer: 旧Leitner箱4は正解でFSRSに移行し安定度が伸びる(まだ卒業しない)", () => {
   const store = {};
   withLocalStorage(store, () => {
     seed(store, {
       attempts: [],
-      review: { q1: { box: MAX_BOX, due: TODAY } },
+      review: { q1: { box: MAX_BOX, due: TODAY } }, // 旧形式(s/d/lr無し)
+      settings: {},
+      updatedAt: 0,
+    });
+    recordAnswer("q1", true, "review");
+    const e = read(store).review.q1;
+    // 箱4(間隔14日)を期日どおり正解 → 安定度は約47日。60日には届かず生存
+    assert.ok(e.box <= MAX_BOX);
+    assert.ok(e.s > 40 && e.s < 55, `s=${e.s}`);
+    assert.equal(e.lr, TODAY);
+    assert.ok(e.due > addDays(TODAY, 30), e.due);
+    assert.ok(Array.isArray(e.pv)); // まぐれ申告のやり直し用に遷移前状態を残す
+    assert.ok(e.u > 0);
+  });
+});
+
+test("recordAnswer: 安定度が60日に達すると削除ではなく墓標(box5・due番兵)になる", () => {
+  const store = {};
+  withLocalStorage(store, () => {
+    seed(store, {
+      attempts: [],
+      review: {
+        q1: { box: 4, due: TODAY, u: 1, s: 55, d: 5, lr: addDays(TODAY, -56) },
+      },
       settings: {},
       updatedAt: 0,
     });
@@ -65,7 +88,22 @@ test("recordAnswer: 箱4で正解すると削除ではなく墓標(box5・due番
     const e = read(store).review.q1;
     assert.equal(e.box, MAX_BOX + 1);
     assert.equal(e.due, GRADUATED_DUE);
-    assert.ok(e.u > 0);
+    assert.ok(e.u > 1);
+  });
+});
+
+test("recordAnswer: 試験日を超える先送りはしない(期日を試験日でキャップ)", () => {
+  const store = {};
+  withLocalStorage(store, () => {
+    seed(store, {
+      attempts: [],
+      review: { q1: { box: MAX_BOX, due: TODAY } },
+      settings: { examDate: addDays(TODAY, 10) },
+      updatedAt: 0,
+    });
+    recordAnswer("q1", true, "review"); // 素の間隔は約47日 → 試験日で切る
+    const e = read(store).review.q1;
+    assert.equal(e.due, addDays(TODAY, 10));
   });
 });
 
@@ -86,7 +124,7 @@ test("recordAnswer: 卒業(墓標)後の誤答は箱1へ復帰する", () => {
   });
 });
 
-test("recordAnswersBatch: 模試でも卒業は墓標になる", () => {
+test("recordAnswersBatch: 模試の一括採点でもFSRS遷移が働く", () => {
   const store = {};
   withLocalStorage(store, () => {
     seed(store, {
@@ -101,9 +139,11 @@ test("recordAnswersBatch: 模試でも卒業は墓標になる", () => {
       { qid: "q3", ok: false, mode: "mock" },
     ]);
     const r = read(store).review;
-    assert.equal(r.q1.box, 5);
-    assert.equal(r.q2.box, 3); // 通常の昇格
-    assert.equal(r.q3.box, 1); // 誤答は箱1
+    assert.equal(r.q1.box, 4); // 旧箱4は移行後まだ生存(安定度約47日)
+    assert.ok(r.q1.s > 40);
+    assert.equal(r.q2.box, 3); // 旧箱2(3日)を期日どおり正解 → 安定度約12日=箱3相当
+    assert.equal(r.q3.box, 1); // 誤答は翌日から
+    assert.equal(r.q3.due, addDays(TODAY, 1));
   });
 });
 

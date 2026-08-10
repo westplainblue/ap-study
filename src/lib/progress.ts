@@ -1,3 +1,5 @@
+import { initialState, intervalDays, nextState } from "./fsrs";
+
 /**
  * 解答を記録したときの出題モード。
  * drill(反復学習)は 2026-07 まで practice として記録していたため、それ以前の
@@ -21,7 +23,12 @@ export interface Attempt {
 }
 
 export interface ReviewEntry {
-  box: number; // 1-4(Leitner)、5=卒業の墓標(削除すると同期で復活するため残す)
+  /**
+   * 1-4=生きている(FSRS移行後は安定度から導いた表示用の目安)、
+   * 5=卒業の墓標(削除すると同期で復活するため残す)。
+   * 「生きているか」の判定・同期互換のため、FSRS移行後もこのフィールドは維持する。
+   */
+  box: number;
   due: string; // YYYY-MM-DD(卒業は GRADUATED_DUE 番兵)
   u?: number; // エントリ単位の更新時刻(同期のLWW用。旧形式は無し=0扱い)
   /**
@@ -30,6 +37,17 @@ export interface ReviewEntry {
    * 次の箱遷移で自然に消える(遷移はエントリを作り直すので引き継がれない)。
    */
   hc?: boolean;
+  /** FSRS: 安定度(日)。無ければLeitner時代のエントリで、次の遷移時に box から移行する */
+  s?: number;
+  /** FSRS: 難易度 1〜10 */
+  d?: number;
+  /** FSRS: 最終レビュー日 YYYY-MM-DD(経過日数の計算用) */
+  lr?: string;
+  /**
+   * FSRS: 直前の遷移「前」の状態 [s, d, lr]。
+   * まぐれ申告(applyConfidence)が直前の遷移を Again でやり直すために使う。
+   */
+  pv?: [number, number, string];
 }
 
 export interface Settings {
@@ -102,9 +120,11 @@ export interface ProgressState {
 
 const KEY = "ap-study:v1";
 
-// box N で正解したときの次回出題までの日数(box1→翌日, 2→3日, 3→7日, 4→14日)
+// Leitner時代の箱別間隔。ことば帳のSRSと、旧形式エントリのFSRS移行に使う
 export const REVIEW_INTERVALS = [1, 3, 7, 14];
 export const MAX_BOX = 4;
+/** 安定度がここ(日)まで伸びたら卒業(墓標化)。試験対策で2か月先の復習は組まない */
+export const GRADUATE_STABILITY = 60;
 /**
  * 卒業(review/vocab とも box=5)の due 番兵値。
  * 卒業を「削除」で表すと同期マージが古いスナップショットから復活させてしまうため、
@@ -173,8 +193,45 @@ export function saveStateRaw(s: ProgressState): void {
   localStorage.setItem(KEY, JSON.stringify(s));
 }
 
-/** 復習キューの遷移(recordAnswer / recordAnswersBatch 共通)。 */
-function applyReviewTransition(
+/** 2つの YYYY-MM-DD の日数差(a→b、負にはしない) */
+function daysBetween(a: string, b: string): number {
+  const ms = new Date(`${b}T00:00:00`).getTime() - new Date(`${a}T00:00:00`).getTime();
+  return Math.max(0, Math.round(ms / 86400000));
+}
+
+const round2 = (x: number) => Math.round(x * 100) / 100;
+
+/** 安定度から表示・互換用の箱番号(1〜4)を導く。Leitnerの間隔帯に対応させる */
+function tierOf(s: number): number {
+  return s < 3 ? 1 : s < 7 ? 2 : s < 14 ? 3 : 4;
+}
+
+/** 試験日を超える先送りはしない(試験前に必ずもう一度出す)。試験日当日以降は素通し */
+function capDue(due: string, s: ProgressState, today: string): string {
+  const exam = s.settings.examDate;
+  return exam && exam > today && due > exam ? exam : due;
+}
+
+/** エントリのFSRS状態。旧Leitner形式は箱の間隔を安定度とみなして移行する */
+function fsrsOf(entry: ReviewEntry, today: string): { s: number; d: number; lr: string } {
+  if (entry.s !== undefined && entry.d !== undefined && entry.lr !== undefined) {
+    return { s: entry.s, d: entry.d, lr: entry.lr };
+  }
+  const box = Math.min(Math.max(entry.box, 1), MAX_BOX);
+  const s0 = REVIEW_INTERVALS[box - 1];
+  // 最終レビュー日は「期日 − 間隔」で逆算する(Leitnerは期日=前回+間隔)
+  const lr = addDaysStr(entry.due, -s0);
+  return { s: s0, d: initialState(3).d, lr: lr <= today ? lr : today };
+}
+
+/**
+ * 復習キューの遷移(recordAnswer / recordAnswersBatch 共通)。FSRSで次回を組む。
+ * - 誤答: キュー外・墓標でも(再)入院。既存エントリは Again で安定度を落とす
+ * - 正解: キュー内のみ遷移(キュー外の正解はエントリを作らない)。
+ *   安定度が GRADUATE_STABILITY に達したら卒業(墓標)
+ * pv に遷移前の状態を残し、直後のまぐれ申告(applyConfidence)がやり直せるようにする。
+ */
+export function applyReviewTransition(
   s: ProgressState,
   qid: string,
   ok: boolean,
@@ -182,17 +239,48 @@ function applyReviewTransition(
   now: number
 ): void {
   const entry = s.review[qid];
+  const alive = entry && entry.box <= MAX_BOX;
   if (!ok) {
-    // 誤答は卒業済み(墓標)でも箱1へ戻す
-    s.review[qid] = { box: 1, due: addDaysStr(today, REVIEW_INTERVALS[0]), u: now };
-  } else if (entry) {
-    if (entry.box >= MAX_BOX) {
-      // 卒業。削除ではなく墓標を残す(削除は同期マージで復活してしまう)。
-      // 既に墓標なら u を更新して古いスナップショットに勝ち続けられるようにする。
-      s.review[qid] = { box: MAX_BOX + 1, due: GRADUATED_DUE, u: now };
+    if (!alive) {
+      const init = initialState(1); // 新規または墓標からの再入院
+      s.review[qid] = {
+        box: tierOf(init.s),
+        due: addDaysStr(today, intervalDays(init.s)),
+        u: now,
+        s: round2(init.s),
+        d: round2(init.d),
+        lr: today,
+      };
     } else {
-      const box = entry.box + 1;
-      s.review[qid] = { box, due: addDaysStr(today, REVIEW_INTERVALS[box - 1]), u: now };
+      const prev = fsrsOf(entry, today);
+      const next = nextState({ s: prev.s, d: prev.d }, daysBetween(prev.lr, today), 1);
+      s.review[qid] = {
+        box: tierOf(next.s),
+        due: addDaysStr(today, intervalDays(next.s)),
+        u: now,
+        s: round2(next.s),
+        d: round2(next.d),
+        lr: today,
+        pv: [prev.s, prev.d, prev.lr],
+      };
+    }
+  } else if (alive) {
+    const prev = fsrsOf(entry, today);
+    const next = nextState({ s: prev.s, d: prev.d }, daysBetween(prev.lr, today), 3);
+    if (next.s >= GRADUATE_STABILITY) {
+      // 卒業。削除ではなく墓標を残す(削除は同期マージで復活してしまう)。
+      // pv は残し、直後の「まぐれ」申告で卒業を取り消せるようにする
+      s.review[qid] = { box: MAX_BOX + 1, due: GRADUATED_DUE, u: now, pv: [prev.s, prev.d, prev.lr] };
+    } else {
+      s.review[qid] = {
+        box: tierOf(next.s),
+        due: capDue(addDaysStr(today, intervalDays(next.s)), s, today),
+        u: now,
+        s: round2(next.s),
+        d: round2(next.d),
+        lr: today,
+        pv: [prev.s, prev.d, prev.lr],
+      };
     }
   }
 }
@@ -238,17 +326,61 @@ export function applyConfidence(
   }
   if (!last || last.conf) return false;
   last.conf = conf;
+  const entry = s.review[qid];
   if (!last.ok && conf === "high") {
-    // 直前の applyReviewTransition で箱1になっているはず。期日は保ったまま hc を立てる
-    const entry = s.review[qid];
-    s.review[qid] = {
-      box: 1,
-      due: entry && entry.box <= MAX_BOX ? entry.due : addDaysStr(today, 1),
-      u: now,
-      hc: true,
-    };
+    // 直前の applyReviewTransition が組んだ予定はそのままに、hc(最優先)だけ立てる
+    if (entry && entry.box <= MAX_BOX) {
+      s.review[qid] = { ...entry, u: now, hc: true };
+    } else {
+      const init = initialState(1);
+      s.review[qid] = {
+        box: 1,
+        due: addDaysStr(today, 1),
+        u: now,
+        s: round2(init.s),
+        d: round2(init.d),
+        lr: today,
+        hc: true,
+      };
+    }
   } else if (last.ok && conf === "low") {
-    s.review[qid] = { box: 1, due: addDaysStr(today, 1), u: now };
+    // まぐれ正解は「思い出せなかった」扱い。直前の遷移を Again でやり直す
+    if (entry?.pv) {
+      const [ps, pd, plr] = entry.pv;
+      const next = nextState({ s: ps, d: pd }, daysBetween(plr, today), 1);
+      s.review[qid] = {
+        box: tierOf(next.s),
+        due: addDaysStr(today, intervalDays(next.s)),
+        u: now,
+        s: round2(next.s),
+        d: round2(next.d),
+        lr: today,
+        pv: entry.pv,
+      };
+    } else if (entry && entry.box <= MAX_BOX) {
+      // 旧形式など pv が無い場合: 現状態から Again
+      const prev = fsrsOf(entry, today);
+      const next = nextState({ s: prev.s, d: prev.d }, daysBetween(prev.lr, today), 1);
+      s.review[qid] = {
+        box: tierOf(next.s),
+        due: addDaysStr(today, intervalDays(next.s)),
+        u: now,
+        s: round2(next.s),
+        d: round2(next.d),
+        lr: today,
+      };
+    } else {
+      // キュー外での正解: 新規で入院(翌日から)
+      const init = initialState(1);
+      s.review[qid] = {
+        box: tierOf(init.s),
+        due: addDaysStr(today, intervalDays(init.s)),
+        u: now,
+        s: round2(init.s),
+        d: round2(init.d),
+        lr: today,
+      };
+    }
   }
   return true;
 }
@@ -259,12 +391,20 @@ export function markConfidence(qid: string, conf: Confidence): void {
   if (applyConfidence(s, qid, conf)) saveState(s);
 }
 
-/** 「あとで復習」手動追加(卒業済みの墓標は箱1へ復帰させる) */
+/** 「あとで復習」手動追加(卒業済みの墓標は翌日から再入院させる) */
 export function addToReview(qid: string): void {
   const s = loadState();
   const e = s.review[qid];
   if (!e || e.box > MAX_BOX) {
-    s.review[qid] = { box: 1, due: addDaysStr(todayStr(), 1), u: Date.now() };
+    const init = initialState(1);
+    s.review[qid] = {
+      box: 1,
+      due: addDaysStr(todayStr(), 1),
+      u: Date.now(),
+      s: round2(init.s),
+      d: round2(init.d),
+      lr: todayStr(),
+    };
     saveState(s);
   }
 }

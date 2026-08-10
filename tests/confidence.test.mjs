@@ -27,13 +27,41 @@ test("applyConfidence: 誤答+自信あり → hc付き箱1(期日は維持)", (
   assert.deepEqual(s.review.q1, { box: 1, due: "2026-08-11", u: 500, hc: true });
 });
 
-test("applyConfidence: 正解+まぐれ → 箱が進んでいても箱1に戻して翌日", () => {
+test("applyConfidence: 正解+まぐれ → 直前の遷移を Again でやり直す(pvから)", () => {
   const s = state({
     attempts: [at("q1", true)],
-    review: { q1: { box: 3, due: "2026-08-17", u: 1 } }, // 正解で進んだ直後を想定
+    // 正解の遷移直後: 安定度12日・pv=遷移前の状態(7日・7日前レビュー)
+    review: {
+      q1: {
+        box: 3,
+        due: "2026-08-22",
+        u: 1,
+        s: 12,
+        d: 5.16,
+        lr: "2026-08-10",
+        pv: [7, 5.1618, "2026-08-03"],
+      },
+    },
   });
   applyConfidence(s, "q1", "low", "2026-08-10", 500);
-  assert.deepEqual(s.review.q1, { box: 1, due: "2026-08-11", u: 500 });
+  const e = s.review.q1;
+  // Again: 安定度が崩れて(約2.1日)近日中に再出題。まぐれで間隔が延びない
+  assert.equal(e.box, 1);
+  assert.ok(e.s > 1 && e.s < 3, `s=${e.s}`);
+  assert.equal(e.due, "2026-08-12");
+  assert.equal(e.lr, "2026-08-10");
+});
+
+test("applyConfidence: 正解+まぐれ(旧形式・pv無し)→ 現状態から Again", () => {
+  const s = state({
+    attempts: [at("q1", true)],
+    review: { q1: { box: 3, due: "2026-08-17", u: 1 } }, // 旧Leitner形式
+  });
+  applyConfidence(s, "q1", "low", "2026-08-10", 500);
+  const e = s.review.q1;
+  assert.equal(e.box, 1);
+  assert.ok(e.s < 3, `s=${e.s}`);
+  assert.ok(e.due <= "2026-08-12", e.due);
 });
 
 test("applyConfidence: 正解+自信あり / 誤答+自信なし は記録のみで復習に触れない", () => {
