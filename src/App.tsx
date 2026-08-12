@@ -16,6 +16,7 @@ import DrillRun from "./pages/DrillRun";
 import DrillSetup from "./pages/DrillSetup";
 import Home from "./pages/Home";
 import MockExam from "./pages/MockExam";
+import MockResult from "./pages/MockResult";
 import MockRun from "./pages/MockRun";
 import PmDetail from "./pages/PmDetail";
 import PmList from "./pages/PmList";
@@ -69,6 +70,7 @@ function AppShell() {
           <Route path="/review/run" element={<ReviewRun />} />
           <Route path="/mock" element={<MockExam />} />
           <Route path="/mock/run" element={<MockRun />} />
+          <Route path="/mock/result/:examId/:at" element={<MockResult />} />
           <Route path="/pm" element={<PmList />} />
           <Route path="/pm/:id" element={<PmDetail />} />
           <Route path="/vocab" element={<VocabList />} />

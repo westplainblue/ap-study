@@ -8,7 +8,7 @@ import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
 import { choiceIndexFromKey, isPlainKey, isTypingTarget } from "../lib/keys";
-import { isPass } from "../lib/mockHistory";
+import { isPass, rateOf } from "../lib/mockHistory";
 import { recordAnswersBatch } from "../lib/progress";
 import { captureVocabForQuestion } from "../lib/vocab";
 import { MOCK_KEY, type MockState } from "./MockExam";
@@ -170,7 +170,7 @@ export default function MockRun() {
 
   if (graded) {
     const correct = results.filter(Boolean).length;
-    const rate = Math.round((correct / questions.length) * 100);
+    const rate = rateOf(correct, questions.length);
     const pass = isPass(correct, questions.length);
     const majorAgg = new Map<Major, { n: number; ok: number }>();
     questions.forEach((q, i) => {
@@ -260,7 +260,7 @@ export default function MockRun() {
                   {q.text}
                 </p>
                 <p className="small" style={{ fontWeight: 600 }}>
-                  正解: {["ア", "イ", "ウ", "エ"][q.answer]}
+                  正解: {KANA[q.answer]}
                 </p>
                 <p className="small muted" style={{ whiteSpace: "pre-wrap" }}>
                   {q.explanation}

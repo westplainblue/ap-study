@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   aggByGroup,
   examIdOfQuestion,
+  findMockSession,
   isPass,
   mockSessions,
   rateOf,
@@ -156,6 +157,45 @@ test("aggByGroup: 分類ごとに出題数と正解数を数える", () => {
   // 合計は出題数と一致する(取りこぼし・二重計上なし)
   const n = [...agg.values()].reduce((sum, v) => sum + v.n, 0);
   assert.equal(n, s.total);
+});
+
+test("findMockSession: 試験回IDと採点時刻で受験1回を特定する", () => {
+  const attempts = [
+    ...graded("2025r07a", [true, false], 1000),
+    ...graded("2025r07h", [true, true], 1000 + DAY),
+  ];
+  const s = findMockSession(attempts, "2025r07a", 1000);
+  assert.notEqual(s, null);
+  assert.equal(s.examId, "2025r07a");
+  assert.equal(s.correct, 1);
+});
+
+test("findMockSession: 同じ回を解き直した記録を採点時刻で見分ける", () => {
+  const attempts = [
+    ...graded("2025r07a", [true, false], 1000),
+    ...graded("2025r07a", [true, true], 1000 + DAY),
+  ];
+  assert.equal(findMockSession(attempts, "2025r07a", 1000).correct, 1);
+  assert.equal(findMockSession(attempts, "2025r07a", 1000 + DAY).correct, 2);
+});
+
+test("findMockSession: 該当が無ければ null(画面側で不在を扱えるように)", () => {
+  const attempts = graded("2025r07a", [true, false], 1000);
+  assert.equal(findMockSession(attempts, "2025r07a", 9999), null); // 時刻違い
+  assert.equal(findMockSession(attempts, "2024r06a", 1000), null); // 回違い
+  assert.equal(findMockSession([], "2025r07a", 1000), null); // 履歴なし
+});
+
+test("findMockSession: 時刻が数値でなければ null(URLの手打ち・壊れたリンク)", () => {
+  const attempts = graded("2025r07a", [true], 1000);
+  assert.equal(findMockSession(attempts, "2025r07a", Number("abc")), null);
+  assert.equal(findMockSession(attempts, "2025r07a", Infinity), null);
+});
+
+test("findMockSession: 返るセッションは mockSessions と同じ内容", () => {
+  const attempts = graded("2025r07a", [true, false, true], 1000);
+  const [fromList] = mockSessions(attempts);
+  assert.deepEqual(findMockSession(attempts, "2025r07a", fromList.at), fromList);
 });
 
 test("aggByGroup: 分類が引けない問題は除外する", () => {

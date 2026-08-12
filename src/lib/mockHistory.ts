@@ -78,6 +78,22 @@ export function mockSessions(attempts: Attempt[]): MockSession[] {
 }
 
 /**
+ * 受験1回を (試験回ID, 採点時刻) で特定する。詳細画面がURLから引き当てるのに使う。
+ *
+ * at は保存された識別子ではなく attempts から導いた値なので、他端末の記録が
+ * 後からマージされると区切りが変わって引けなくなることがある。呼び出し側は
+ * null(=見つからない)を必ず画面で受けること。
+ */
+export function findMockSession(
+  attempts: Attempt[],
+  examId: string,
+  at: number
+): MockSession | null {
+  if (!Number.isFinite(at)) return null;
+  return mockSessions(attempts).find((s) => s.examId === examId && s.at === at) ?? null;
+}
+
+/**
  * 受験1回ぶんの分類別集計。分類は問題データを知る呼び出し側が渡す
  * (このモジュールは問題データに依存しない)。undefined を返した問題は除く。
  */

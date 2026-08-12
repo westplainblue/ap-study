@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { EXAMS, amQuestion, examLabel } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
@@ -21,7 +21,7 @@ export interface MockState {
 }
 
 /** 履歴の日時表記(例: 2026/08/12 09:30)。同じ日に受けた回も見分けられるようにする */
-function formatWhen(ms: number): string {
+export function formatWhen(ms: number): string {
   const d = new Date(ms);
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
@@ -134,6 +134,13 @@ export default function MockExam() {
                       </div>
                     )
                   )}
+                  <Link
+                    to={`/mock/result/${s.examId}/${s.at}`}
+                    className="btn btn-block"
+                    style={{ marginTop: 8 }}
+                  >
+                    詳しく見る(問題ごとの正誤・解説)
+                  </Link>
                 </div>
               </details>
             );

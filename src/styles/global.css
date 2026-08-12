@@ -1154,6 +1154,21 @@ body {
   outline-offset: 1px;
 }
 
+/* 採点後(結果の詳細)の正誤表示。受験中の .answered とは意味が違うので別クラスにする */
+.mock-cell.ok {
+  background: var(--success-bg);
+  border-color: var(--success-bg);
+  color: var(--success-text);
+  font-weight: 600;
+}
+
+.mock-cell.ng {
+  background: var(--danger-bg);
+  border-color: var(--danger-text);
+  color: var(--danger-text);
+  font-weight: 700;
+}
+
 .mock-legend {
   display: flex;
   align-items: center;
