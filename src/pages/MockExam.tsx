@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { EXAMS } from "../data";
+import { EXAMS, amQuestion, examLabel } from "../data";
+import { MAJOR_LABEL, type Major } from "../data/types";
+import { aggByGroup, isPass, mockSessions, rateOf } from "../lib/mockHistory";
+import { loadState } from "../lib/progress";
 
 export const MOCK_KEY = "ap-study:mock";
 export const MOCK_MINUTES = 150;
@@ -17,11 +20,20 @@ export interface MockState {
   flags?: number[];
 }
 
+/** 履歴の日時表記(例: 2026/08/12 09:30)。同じ日に受けた回も見分けられるようにする */
+function formatWhen(ms: number): string {
+  const d = new Date(ms);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 export default function MockExam() {
   const navigate = useNavigate();
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const saved = localStorage.getItem(MOCK_KEY);
   const savedState: MockState | null = saved ? JSON.parse(saved) : null;
+  // 受験結果は別に保存せず、解答履歴から復元する(→ lib/mockHistory)
+  const history = useMemo(() => mockSessions(loadState().attempts), []);
 
   const start = (examId: string) => {
     const exam = EXAMS.find((e) => e.examId === examId)!;
@@ -64,6 +76,68 @@ export default function MockExam() {
               破棄する
             </button>
           </div>
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="card" style={{ marginBottom: 12 }}>
+          <p style={{ fontWeight: 600, marginBottom: 4 }}>
+            これまでの模試({history.length}回)
+          </p>
+          {history.map((s) => {
+            const pass = isPass(s.correct, s.total);
+            return (
+              <details
+                key={`${s.examId}-${s.at}`}
+                style={{ borderTop: "1px solid var(--border)", padding: "8px 0" }}
+              >
+                <summary style={{ cursor: "pointer", fontSize: 14 }}>
+                  {examLabel(s.examId)} 午前{" "}
+                  <span className="muted small">{formatWhen(s.at)}</span>
+                  <span
+                    style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}
+                  >
+                    <span style={{ fontWeight: 600 }}>
+                      {s.correct} / {s.total}
+                    </span>
+                    <span className="muted small">
+                      正答率 {rateOf(s.correct, s.total)}%
+                    </span>
+                    <span
+                      className="chip"
+                      style={
+                        pass
+                          ? { background: "var(--success-bg)", color: "var(--success-text)" }
+                          : { background: "var(--danger-bg)", color: "var(--danger-text)" }
+                      }
+                    >
+                      {pass ? "合格ラインクリア" : "合格ライン未満"}
+                    </span>
+                  </span>
+                </summary>
+                <div style={{ marginTop: 6 }}>
+                  {[...aggByGroup(s, (q) => amQuestion(q)?.major).entries()].map(
+                    ([major, agg]) => (
+                      <div
+                        key={major}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: 13,
+                          padding: "2px 0",
+                        }}
+                      >
+                        <span className="muted">{MAJOR_LABEL[major as Major]}</span>
+                        <span className="muted">
+                          {agg.ok}/{agg.n}({Math.round((agg.ok / agg.n) * 100)}%)
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              </details>
+            );
+          })}
         </div>
       )}
 

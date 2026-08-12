@@ -8,11 +8,10 @@ import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
 import { choiceIndexFromKey, isPlainKey, isTypingTarget } from "../lib/keys";
+import { isPass } from "../lib/mockHistory";
 import { recordAnswersBatch } from "../lib/progress";
 import { captureVocabForQuestion } from "../lib/vocab";
 import { MOCK_KEY, type MockState } from "./MockExam";
-
-const PASS_RATE = 0.6;
 
 function formatTime(totalSec: number): string {
   const h = Math.floor(totalSec / 3600);
@@ -172,7 +171,7 @@ export default function MockRun() {
   if (graded) {
     const correct = results.filter(Boolean).length;
     const rate = Math.round((correct / questions.length) * 100);
-    const pass = correct >= Math.ceil(questions.length * PASS_RATE);
+    const pass = isPass(correct, questions.length);
     const majorAgg = new Map<Major, { n: number; ok: number }>();
     questions.forEach((q, i) => {
       const m = majorAgg.get(q.major) ?? { n: 0, ok: 0 };
