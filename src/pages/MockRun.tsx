@@ -185,6 +185,9 @@ export default function MockRun() {
       <div>
         <h1 style={{ fontSize: 20, marginBottom: 12 }}>模試の結果</h1>
         <div className="card" style={{ textAlign: "center", marginBottom: 12 }}>
+          {/* どの回を解いた結果なのかは、点数と同じカード内に出す
+              (結果を見返したときに回次と点数が離れていると取り違えるため) */}
+          <p style={{ fontWeight: 600, marginBottom: 6 }}>{exam.label} 午前</p>
           <p style={{ fontSize: 34, fontWeight: 700 }}>
             {correct} / {questions.length}
           </p>
