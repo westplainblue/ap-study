@@ -25,8 +25,15 @@ function formatTime(totalSec: number): string {
 export default function MockRun() {
   const navigate = useNavigate();
   const [mock, setMock] = useState<MockState | null>(() => {
-    const raw = localStorage.getItem(MOCK_KEY);
-    return raw ? (JSON.parse(raw) as MockState) : null;
+    // 壊れた中断データで JSON.parse が throw すると画面ごと白画面になるため守る。
+    // 壊れていれば null 扱いにして下の「模試が見つかりません」フォールバックに落とす。
+    try {
+      const raw = localStorage.getItem(MOCK_KEY);
+      return raw ? (JSON.parse(raw) as MockState) : null;
+    } catch {
+      localStorage.removeItem(MOCK_KEY);
+      return null;
+    }
   });
   const [idx, setIdx] = useState(0);
   const [showGrid, setShowGrid] = useState(false);

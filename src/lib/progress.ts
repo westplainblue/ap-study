@@ -183,14 +183,30 @@ export function loadState(): ProgressState {
   }
 }
 
+/**
+ * localStorage へ保存する。容量超過(QuotaExceededError)などで失敗しても
+ * 例外を投げず、通知イベントだけ出す。ここで throw すると解答クリックの
+ * ハンドラを直撃し、以降の解答・設定変更がすべて黙って失われてしまうため。
+ */
+function persist(s: ProgressState): void {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(s));
+  } catch (e) {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("storage:error"));
+    }
+    console.error("進捗の保存に失敗しました(ストレージ容量を確認してください)", e);
+  }
+}
+
 export function saveState(s: ProgressState): void {
   s.updatedAt = Date.now();
-  localStorage.setItem(KEY, JSON.stringify(s));
+  persist(s);
 }
 
 /** 保存済み updatedAt を保って書き込む(同期のマージ結果用) */
 export function saveStateRaw(s: ProgressState): void {
-  localStorage.setItem(KEY, JSON.stringify(s));
+  persist(s);
 }
 
 /** 2つの YYYY-MM-DD の日数差(a→b、負にはしない) */
@@ -245,7 +261,7 @@ export function applyReviewTransition(
       const init = initialState(1); // 新規または墓標からの再入院
       s.review[qid] = {
         box: tierOf(init.s),
-        due: addDaysStr(today, intervalDays(init.s)),
+        due: capDue(addDaysStr(today, intervalDays(init.s)), s, today),
         u: now,
         s: round2(init.s),
         d: round2(init.d),
@@ -256,7 +272,7 @@ export function applyReviewTransition(
       const next = nextState({ s: prev.s, d: prev.d }, daysBetween(prev.lr, today), 1);
       s.review[qid] = {
         box: tierOf(next.s),
-        due: addDaysStr(today, intervalDays(next.s)),
+        due: capDue(addDaysStr(today, intervalDays(next.s)), s, today),
         u: now,
         s: round2(next.s),
         d: round2(next.d),
@@ -350,7 +366,7 @@ export function applyConfidence(
       const next = nextState({ s: ps, d: pd }, daysBetween(plr, today), 1);
       s.review[qid] = {
         box: tierOf(next.s),
-        due: addDaysStr(today, intervalDays(next.s)),
+        due: capDue(addDaysStr(today, intervalDays(next.s)), s, today),
         u: now,
         s: round2(next.s),
         d: round2(next.d),
@@ -363,7 +379,7 @@ export function applyConfidence(
       const next = nextState({ s: prev.s, d: prev.d }, daysBetween(prev.lr, today), 1);
       s.review[qid] = {
         box: tierOf(next.s),
-        due: addDaysStr(today, intervalDays(next.s)),
+        due: capDue(addDaysStr(today, intervalDays(next.s)), s, today),
         u: now,
         s: round2(next.s),
         d: round2(next.d),
@@ -374,7 +390,7 @@ export function applyConfidence(
       const init = initialState(1);
       s.review[qid] = {
         box: tierOf(init.s),
-        due: addDaysStr(today, intervalDays(init.s)),
+        due: capDue(addDaysStr(today, intervalDays(init.s)), s, today),
         u: now,
         s: round2(init.s),
         d: round2(init.d),
@@ -596,10 +612,65 @@ export function exportJson(): string {
   return JSON.stringify(loadState(), null, 1);
 }
 
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+// プロトタイプ汚染を防ぐため、レコード再構築時に無視するキー
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+/** レコードを安全に再構築する。危険キーを除外し、valid を満たす値だけ残す */
+function sanitizeRecord<T>(rec: unknown, valid: (v: unknown) => v is T): Record<string, T> {
+  const out: Record<string, T> = {};
+  if (!isPlainObject(rec)) return out;
+  for (const [k, v] of Object.entries(rec)) {
+    if (UNSAFE_KEYS.has(k)) continue;
+    if (valid(v)) out[k] = v;
+  }
+  return out;
+}
+
 export function importJson(text: string): void {
-  const s = JSON.parse(text) as ProgressState;
-  if (!Array.isArray(s.attempts) || typeof s.review !== "object") {
+  const parsed = JSON.parse(text) as unknown;
+  if (!isPlainObject(parsed) || !Array.isArray(parsed.attempts)) {
     throw new Error("進捗データの形式が不正です");
+  }
+  // 要素レベルの破損(null要素・型不一致)は保存前に落とす。放置すると
+  // studyStats / buildContext / activeReviewIds が読込時に例外を投げ、
+  // ErrorBoundary が無いためアプリ全体が白画面になり、設定画面のリセットにも
+  // たどり着けなくなる(手動でストレージを消すしか復旧手段が無くなる)。
+  const s: ProgressState = {
+    attempts: parsed.attempts.filter(
+      (a): a is Attempt => isPlainObject(a) && typeof a.q === "string" && Number.isFinite(a.t)
+    ),
+    review: sanitizeRecord(
+      parsed.review,
+      (v): v is ReviewEntry =>
+        isPlainObject(v) && typeof v.box === "number" && typeof v.due === "string"
+    ),
+    settings: isPlainObject(parsed.settings) ? (parsed.settings as unknown as Settings) : {},
+    updatedAt: typeof parsed.updatedAt === "number" ? parsed.updatedAt : Date.now(),
+  };
+  if (parsed.achievements != null) {
+    s.achievements = sanitizeRecord(
+      parsed.achievements,
+      (v): v is AchievementRecord => isPlainObject(v) && typeof v.unlockedAt === "number"
+    );
+  }
+  if (isPlainObject(parsed.pm)) {
+    const pm: PmRecords = {};
+    for (const [pmId, parts] of Object.entries(parsed.pm)) {
+      if (UNSAFE_KEYS.has(pmId)) continue;
+      pm[pmId] = sanitizeRecord(parts, (v): v is PmPartRecord => isPlainObject(v));
+    }
+    s.pm = pm;
+  }
+  if (parsed.vocab != null) {
+    s.vocab = sanitizeRecord(
+      parsed.vocab,
+      (v): v is VocabEntry =>
+        isPlainObject(v) && typeof v.box === "number" && typeof v.due === "string"
+    );
   }
   // vocab を持たない旧バックアップで現在のことば帳が消えないよう温存する
   if (s.vocab == null) {

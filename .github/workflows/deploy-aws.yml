@@ -7,7 +7,7 @@ name: Deploy to AWS (S3 + CloudFront)
 #   AWS_DEPLOY_ROLE_ARN   … infra/github-oidc.yaml が出力する DeployRoleArn
 #   S3_BUCKET             … infra/hosting.yaml の出力 BucketName
 #   CF_DISTRIBUTION_ID    … infra/hosting.yaml の出力 DistributionId
-#   VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY … 任意(クラウド同期を使う場合)
+#   VITE_SYNC_API_URL     … 任意(クラウド同期を使う場合。infra/sync.yaml の出力 SyncApiUrl)
 #
 # 既定は無効(手動起動のみ)。有効化するには push トリガーのコメントを外す。
 
@@ -40,8 +40,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SYNC_API_URL: ${{ secrets.VITE_SYNC_API_URL }}
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4

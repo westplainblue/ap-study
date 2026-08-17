@@ -30,12 +30,24 @@ export function formatWhen(ms: number): string {
 export default function MockExam() {
   const navigate = useNavigate();
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  const saved = localStorage.getItem(MOCK_KEY);
-  const savedState: MockState | null = saved ? JSON.parse(saved) : null;
+  // 中断中の模試を上書きして始める前の確認対象(examId)。null=確認不要
+  const [pendingExam, setPendingExam] = useState<string | null>(null);
+  // 壊れた中断データ(書き込み中断・拡張機能による破損など)で JSON.parse が
+  // throw すると、ErrorBoundary が無いためこの画面ごと白画面になり、破棄操作にも
+  // たどり着けなくなる。読み取りをガードし、壊れていれば除去して無視する。
+  const savedState: MockState | null = (() => {
+    try {
+      const raw = localStorage.getItem(MOCK_KEY);
+      return raw ? (JSON.parse(raw) as MockState) : null;
+    } catch {
+      localStorage.removeItem(MOCK_KEY);
+      return null;
+    }
+  })();
   // 受験結果は別に保存せず、解答履歴から復元する(→ lib/mockHistory)
   const history = useMemo(() => mockSessions(loadState().attempts), []);
 
-  const start = (examId: string) => {
+  const beginExam = (examId: string) => {
     const exam = EXAMS.find((e) => e.examId === examId)!;
     const state: MockState = {
       examId,
@@ -44,6 +56,16 @@ export default function MockExam() {
     };
     localStorage.setItem(MOCK_KEY, JSON.stringify(state));
     navigate("/mock/run");
+  };
+
+  const start = (examId: string) => {
+    // 中断中の模試があるのに無確認で上書きすると、最大80問の解答・見直しフラグ・
+    // 残り時間が一瞬で消える。破棄フローと同様に確認ダイアログを挟む。
+    if (savedState) {
+      setPendingExam(examId);
+      return;
+    }
+    beginExam(examId);
   };
 
   return (
@@ -171,6 +193,19 @@ export default function MockExam() {
           navigate(0);
         }}
         onCancel={() => setConfirmDiscard(false)}
+      />
+
+      <ConfirmDialog
+        open={pendingExam !== null}
+        message="中断中の模試があります。破棄して新しく始めますか?"
+        confirmLabel="破棄して始める"
+        danger
+        onConfirm={() => {
+          const id = pendingExam!;
+          setPendingExam(null);
+          beginExam(id);
+        }}
+        onCancel={() => setPendingExam(null)}
       />
     </div>
   );

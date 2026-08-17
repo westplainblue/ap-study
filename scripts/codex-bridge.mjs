@@ -49,6 +49,33 @@ function isLoopback(host) {
   return host === "127.0.0.1" || host === "::1" || host === "localhost";
 }
 
+/**
+ * Hostヘッダのホスト名がループバックかを判定する(DNSリバインディング対策)。
+ * ポートは無視し、[::1] のようなIPv6ブラケットも許可する。
+ */
+function isLoopbackHostHeader(hostHeader) {
+  if (!hostHeader) return false;
+  // 末尾ポートを除去。IPv6は "[::1]:8399" 形式なので括弧内を取り出す。
+  let host;
+  if (hostHeader.startsWith("[")) {
+    host = hostHeader.slice(1, hostHeader.indexOf("]"));
+  } else {
+    host = hostHeader.split(":")[0];
+  }
+  return isLoopback(host);
+}
+
+/** Originヘッダのホスト名がループバックかを判定する(同一オリジンのブリッジ配信アプリ用) */
+function isLoopbackOrigin(origin) {
+  try {
+    let h = new URL(origin).hostname;
+    if (h.startsWith("[") && h.endsWith("]")) h = h.slice(1, -1);
+    return isLoopback(h);
+  } catch {
+    return false;
+  }
+}
+
 function tokenMatches(expected, header) {
   if (!header?.startsWith("Bearer ")) return false;
   const got = Buffer.from(header.slice(7));
@@ -257,17 +284,18 @@ const MIME = {
  * 戻り値: 配信した場合 true
  */
 function serveStatic(req, res, url) {
-  if (!existsSync(DIST_DIR)) return false;
+  // %エンコードの検証は dist/ の有無より先に行う。不正な%エンコード(/%zz 等)は
+  // decodeURIComponent が URIError を投げ、この関数はリクエストハンドラの try の外から
+  // 呼ばれるため、ここで握らないとプロセスごと落ちる。dist/ 未ビルド時でも 400 を返す。
   let rel;
   try {
     rel = decodeURIComponent(url.pathname);
   } catch {
-    // 不正な%エンコード(/%zz 等)は URIError を投げる。この関数はリクエスト
-    // ハンドラの try の外から呼ばれるため、ここで握らないとプロセスごと落ちる。
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: { code: "bad_request", message: "不正なURLです" } }));
     return true;
   }
+  if (!existsSync(DIST_DIR)) return false;
   if (rel === "/") rel = "/index.html";
   const filePath = path.resolve(DIST_DIR, "." + rel);
   if (!filePath.startsWith(DIST_DIR + path.sep) && filePath !== DIST_DIR) return false;
@@ -363,6 +391,21 @@ export function createBridgeServer(opts = {}) {
       return res.end();
     }
     const url = new URL(req.url ?? "/", "http://bridge.local");
+
+    // トークン未設定(ループバック既定)では、これ以外にアクセス制御が無い。
+    // CORSはレスポンスの読み取りを制限するだけで、状態変更リクエストの「実行」自体は
+    // 防げず(単純リクエストのCSRF)、Hostを検証しないとDNSリバインディングで
+    // 悪意あるサイトからローカルのCodex認証枠を操作されてしまう。そこでトークンが
+    // 無いときは Host をループバックに限定し、Origin(あれば)を許可リストに限る。
+    if (!bridgeToken) {
+      if (!isLoopbackHostHeader(req.headers.host)) {
+        return jsonError(res, 403, "forbidden_host", "ループバック以外のHostは許可されていません", cors);
+      }
+      const reqOrigin = req.headers.origin;
+      if (reqOrigin && !allowedOrigins.has(reqOrigin) && !isLoopbackOrigin(reqOrigin)) {
+        return jsonError(res, 403, "forbidden_origin", "許可されていないオリジンからのアクセスです", cors);
+      }
+    }
 
     // アプリ本体(dist/)の配信。/v1/ 以外のGETは静的ファイルとして扱う
     if (req.method === "GET" && !url.pathname.startsWith("/v1/")) {

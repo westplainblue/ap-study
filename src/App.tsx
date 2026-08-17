@@ -4,6 +4,7 @@ import AchievementToast from "./components/AchievementToast";
 import AiChat from "./components/AiChat";
 import ShortcutHelp from "./components/ShortcutHelp";
 import SideNav from "./components/SideNav";
+import StorageErrorToast from "./components/StorageErrorToast";
 import TabBar from "./components/TabBar";
 import { loadTermsData } from "./data/terms";
 import { reconcileSilent } from "./lib/achievements";
@@ -81,6 +82,7 @@ function AppShell() {
       </main>
       <ShortcutHelp />
       <AchievementToast />
+      <StorageErrorToast />
       <AiChat />
       <TabBar />
     </>

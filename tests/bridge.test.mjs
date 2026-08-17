@@ -4,6 +4,7 @@
  * tests/fixtures/codex(偽CLI)をPATH先頭に差し込んで検証する。
  */
 import assert from "node:assert/strict";
+import http from "node:http";
 import path from "node:path";
 import { after, beforeEach, test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -42,6 +43,24 @@ after(() => {
 });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// fetch は Host/Origin を偽装できない(禁止ヘッダ)ため、低レベルの http.request で
+// 任意のヘッダを送ってサーバー側のアクセス制御を検証する。
+function rawRequest(base, pathname, { method = "GET", headers = {} } = {}) {
+  const u = new URL(pathname, base);
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      { hostname: u.hostname, port: u.port, path: u.pathname + u.search, method, headers },
+      (res) => {
+        let data = "";
+        res.on("data", (c) => (data += c));
+        res.on("end", () => resolve({ status: res.statusCode, body: data }));
+      }
+    );
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 test("ログイン済み: connected と planType を返し、トークン類を漏らさない", async () => {
   process.env.FAKE_CODEX_STATE = "loggedin";
@@ -191,4 +210,45 @@ test("不正な%エンコードのGETでもプロセスが落ちず400を返す"
   // サーバは生きていて後続リクエストに応答できる
   const alive = await fetch(`${base}/v1/models`);
   assert.equal(alive.status, 200);
+});
+
+test("トークン未設定: 非ループバックHostは403で拒否(DNSリバインディング対策)", async () => {
+  const { base } = await startBridge();
+  const res = await rawRequest(base, "/v1/models", {
+    headers: { Host: "evil.example:8399" },
+  });
+  assert.equal(res.status, 403);
+  assert.equal(JSON.parse(res.body).error.code, "forbidden_host");
+});
+
+test("トークン未設定: 許可外OriginのPOSTは403で拒否(CSRF対策)", async () => {
+  const { base } = await startBridge();
+  const res = await rawRequest(base, "/v1/codex/logout", {
+    method: "POST",
+    headers: { Origin: "https://evil.example" },
+  });
+  assert.equal(res.status, 403);
+  assert.equal(JSON.parse(res.body).error.code, "forbidden_origin");
+});
+
+test("トークン未設定: 許可リストのOriginは通る", async () => {
+  const { base } = await startBridge();
+  const res = await rawRequest(base, "/v1/models", {
+    headers: { Origin: "https://westplainblue.github.io" },
+  });
+  assert.equal(res.status, 200);
+});
+
+test("トークン未設定: ループバックOrigin(同一オリジン配信)は通る", async () => {
+  const { base } = await startBridge();
+  const res = await rawRequest(base, "/v1/models", { headers: { Origin: base } });
+  assert.equal(res.status, 200);
+});
+
+test("トークン設定時: 非ループバックHostでもトークンが正しければ通る(LAN利用)", async () => {
+  const { base } = await startBridge({ bridgeToken: "test-secret" });
+  const res = await rawRequest(base, "/v1/models", {
+    headers: { Host: "192.168.1.5:8399", Authorization: "Bearer test-secret" },
+  });
+  assert.equal(res.status, 200);
 });

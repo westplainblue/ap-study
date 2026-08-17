@@ -92,14 +92,13 @@ node scripts/crop-pm-figure.mjs 2025r07h 6 0.695 0.925 pm-q01-fig1
 
 ## クラウド同期(任意)
 
-未設定でもローカル保存(localStorage)で完全に動作します。スマホとPCで進捗を同期したい場合:
+未設定でもローカル保存(localStorage)で完全に動作します。スマホとPCで進捗を同期したい場合は、AWS(DynamoDB + Lambda Function URL)で同期バックエンドを構築します。
 
-1. [Supabase](https://supabase.com) で無料プロジェクトを作成
-2. SQL Editor で `supabase/schema.sql` を実行
-3. `.env` を作成(`.env.example` 参照)し、プロジェクトのURLとanonキーを設定してビルド
-4. アプリの設定画面で「同期コードを発行」→ 他端末で同じコードを入力 →「今すぐ同期」
+1. `infra/sync.yaml` をデプロイして同期APIを作成(手順は [infra/README.md](infra/README.md) の「5. クラウド同期バックエンド」)
+2. 出力の `SyncApiUrl` を `.env` の `VITE_SYNC_API_URL` に設定してビルド(`.env.example` 参照)
+3. アプリの設定画面で「同期コードを発行」→ 他端末で同じコードを入力 →「今すぐ同期」
 
-注意: 認証なしの同期コード方式です。anonキーを知る人は理論上他コードのデータも読めるため、学習履歴のみを保存する本アプリの用途に限った割り切り構成です(詳細は `supabase/schema.sql` のコメント)。
+注意: 認証なしの同期コード方式です(同期コードは端末内にのみ保存され、エクスポートには含まれません)。保存対象は学習履歴のみで、機微情報は含めない前提の割り切った構成です。データの統合はクライアント側で行い、サーバーは同期コードをキーにした読み書きのみを行います。
 
 ## AIチャット(任意)
 
@@ -156,9 +155,9 @@ AP_STUDY_CODEX_BRIDGE_TOKEN=<十分長いランダムな値> npm run codex-bridg
 
 静的サイトとしてどこにでも置けます(`vite.config.ts` で相対パス設定済み、ルーティングはHashRouter)。
 
-- **GitHub Pages**: `npm run build` → `dist/` を公開(Actionsを使う場合は環境変数に同期用キーを設定)
+- **GitHub Pages**: `npm run build` → `dist/` を公開(Actionsを使う場合は同期用の `VITE_SYNC_API_URL` を Secrets に登録)
 - **Vercel/Netlify**: リポジトリを接続し、ビルドコマンド `npm run build`・出力 `dist` を指定
 
 ## 技術構成
 
-Vite + React + TypeScript(SPA)。問題データは静的JSONとしてバンドルに同梱し、ランタイムのAI API等は不要。進捗は localStorage(キー `ap-study:v1`)+任意でSupabase同期。
+Vite + React + TypeScript(SPA)。問題データは静的JSONとしてバンドルに同梱し、ランタイムのAI API等は不要。進捗は localStorage(キー `ap-study:v1`)+任意でAWS(DynamoDB + Lambda)同期。

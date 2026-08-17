@@ -338,3 +338,31 @@ test("importJson: vocab の無い旧バックアップでも現在のことば�
     assert.deepEqual(s2.vocab, { T9: ve(3) });
   });
 });
+
+test("importJson: 壊れた要素(null・型不正)はサニタイズして保存し、読込で落ちない", () => {
+  const store = {};
+  withLocalStorage(store, () => {
+    // null 要素や型不正が混じった破損バックアップ。以前はそのまま保存され、
+    // 次回読込で studyStats / activeReviewIds が例外を投げアプリが白画面になった。
+    importJson(
+      JSON.stringify({
+        attempts: [null, { q: "q1", t: 1, ok: true, mode: "practice" }, { q: 5, t: "x" }],
+        review: { good: { box: 1, due: "2026-01-01" }, bad: null },
+        updatedAt: 7,
+      })
+    );
+    const s = loadState();
+    assert.equal(s.attempts.length, 1); // null と型不正を除去
+    assert.equal(s.attempts[0].q, "q1");
+    assert.deepEqual(Object.keys(s.review), ["good"]); // null エントリを除去
+  });
+});
+
+test("importJson: __proto__ を含む入力でもプロトタイプ汚染しない", () => {
+  const store = {};
+  withLocalStorage(store, () => {
+    importJson('{"attempts":[],"review":{"__proto__":{"polluted":true}}}');
+    assert.equal({}.polluted, undefined);
+    assert.deepEqual(Object.keys(loadState().review), []);
+  });
+});

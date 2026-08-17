@@ -107,6 +107,22 @@ test("recordAnswer: 試験日を超える先送りはしない(期日を試験�
   });
 });
 
+test("recordAnswer: 誤答でも試験日を超える先送りはしない(直前に間違えた問題を試験前に必ず出す)", () => {
+  const store = {};
+  withLocalStorage(store, () => {
+    seed(store, {
+      attempts: [],
+      // 成熟カード(安定度大)を試験2日前に誤答 → 失効後安定度でも素の期日は試験日超
+      review: { q1: { box: 4, due: TODAY, u: 1, s: 50, d: 5, lr: addDays(TODAY, -20) } },
+      settings: { examDate: addDays(TODAY, 2) },
+      updatedAt: 0,
+    });
+    recordAnswer("q1", false, "review");
+    const e = read(store).review.q1;
+    assert.equal(e.due, addDays(TODAY, 2)); // 試験日でキャップ(素の期日は今日+5)
+  });
+});
+
 test("recordAnswer: 卒業(墓標)後の誤答は箱1へ復帰する", () => {
   const store = {};
   withLocalStorage(store, () => {

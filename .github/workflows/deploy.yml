@@ -26,8 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         # クラウド同期を使う場合は、リポジトリのSecretsに
-        # VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY を登録し、
-        # ここで env として渡す(READMEの「クラウド同期」参照)
+        # VITE_SYNC_API_URL を登録し、ここで env として渡す
+        # (READMEの「クラウド同期」参照)
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

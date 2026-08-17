@@ -204,7 +204,9 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
   // キーボード操作(PC)。キーは画面の並び順なので、シャッフル時は order で
   // 元の添字に戻してから記録する(マウスでの選択と完全に同じ経路にする)
   useAnswerKeys({
-    enabled: !finished && Boolean(cur),
+    // 中断ダイアログ表示中は無効化する。有効なままだと 1-4/A-D がダイアログ背後で
+    // 解答を記録し、Enter/Space が次問へ進めてしまう(ダイアログのボタン操作も奪う)。
+    enabled: !finished && !askQuit && Boolean(cur),
     choiceCount: cur?.choices.length ?? 0,
     onPick: (d) => handleSelect(order ? order[d] : d),
     onNext: answered ? handleNext : undefined,

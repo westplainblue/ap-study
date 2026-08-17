@@ -17,6 +17,7 @@ import {
 } from "../lib/modeStats";
 import { CALC_THEMES, statsByCalcTheme } from "../lib/calc";
 import { addDaysStr, loadState, MAX_BOX, todayStr } from "../lib/progress";
+import { clearRun } from "../lib/run";
 import { delayedRetention } from "../lib/srs";
 
 interface Agg {
@@ -155,6 +156,9 @@ export default function Stats() {
   }
 
   const goPractice = (middle: string) => {
+    // 中断中の演習があると PracticeRun はそちらを優先して再開してしまい、
+    // ここで選んだ弱点トピックが無視される。新規に始めるので途中状態を破棄する。
+    clearRun("practice");
     sessionStorage.setItem(
       "ap-practice",
       JSON.stringify({ middles: [middle], count: 10 })

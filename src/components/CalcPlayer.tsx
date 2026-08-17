@@ -174,7 +174,8 @@ export default function CalcPlayer({ questions, emptyMessage }: Props) {
 
   // キーボード操作(PC)。キーは画面の並び順なので order で元の添字に戻す
   useAnswerKeys({
-    enabled: !finished && Boolean(cur),
+    // 中断ダイアログ表示中は無効化(背後での解答記録・進行を防ぐ)
+    enabled: !finished && !askQuit && Boolean(cur),
     choiceCount: cur?.choices.length ?? 0,
     onPick: (d) => handleSelect(order ? order[d] : d),
     onNext: answered ? handleNext : undefined,
