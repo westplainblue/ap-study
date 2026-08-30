@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Badge from "../components/Badge";
 import ConfirmDialog from "../components/ConfirmDialog";
 import QuestionCard from "../components/QuestionCard";
-import { EXAMS, KANA, sourceOf } from "../data";
+import { EXAMS, KANA, isCalcQuestion, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
@@ -36,6 +36,8 @@ export default function MockRun() {
   // (window.confirm はPWA等で無反応になるため使わない → components/ConfirmDialog)
   const [confirmGrade, setConfirmGrade] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
+  /** 結果画面の誤答一覧を計算問題だけに絞る */
+  const [wrongCalcOnly, setWrongCalcOnly] = useState(false);
   const [unlocked, setUnlocked] = useState<string[]>([]);
   // キーハンドラは1度だけ登録し、最新の処理を ref 経由で呼ぶ
   // (依存に入れて貼り直すと、押しっぱなしの取りこぼしや無駄な再登録が起きる)
@@ -180,6 +182,8 @@ export default function MockRun() {
       majorAgg.set(q.major, m);
     });
     const wrong = questions.filter((_, i) => !results[i]);
+    const wrongCalc = wrong.filter(isCalcQuestion);
+    const shownWrong = wrongCalcOnly ? wrongCalc : wrong;
     return (
       <div>
         <h1 style={{ fontSize: 20, marginBottom: 12 }}>模試の結果</h1>
@@ -248,10 +252,33 @@ export default function MockRun() {
 
         {wrong.length > 0 && (
           <div className="card" style={{ marginBottom: 12 }}>
-            <p style={{ fontWeight: 600, marginBottom: 4 }}>
-              間違えた問題({wrong.length}問・復習キューに登録済み)
-            </p>
-            {wrong.map((q) => (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: 4,
+              }}
+            >
+              <p style={{ fontWeight: 600 }}>
+                {wrongCalcOnly
+                  ? `間違えた計算問題(${wrongCalc.length}問)`
+                  : `間違えた問題(${wrong.length}問・復習キューに登録済み)`}
+              </p>
+              {wrongCalc.length > 0 && (
+                <button
+                  className={`chip-toggle ${wrongCalcOnly ? "on" : ""}`}
+                  onClick={() => setWrongCalcOnly((v) => !v)}
+                  aria-pressed={wrongCalcOnly}
+                  style={{ flexShrink: 0, marginLeft: "auto" }}
+                >
+                  計算のみ
+                </button>
+              )}
+            </div>
+            {shownWrong.map((q) => (
               <details key={q.id} style={{ borderTop: "1px solid var(--border)", padding: "8px 0" }}>
                 <summary style={{ cursor: "pointer", fontSize: 14 }}>
                   問{q.number} {q.middle}

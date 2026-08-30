@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { IconCheck, IconX } from "../components/Icons";
 import QuestionCard from "../components/QuestionCard";
-import { KANA, amQuestion, examLabel, sourceOf } from "../data";
+import { KANA, amQuestion, examLabel, isCalcQuestion, sourceOf } from "../data";
 import { MAJOR_LABEL, type Major } from "../data/types";
 import { setAiContext } from "../lib/aiContext";
 import { aggByGroup, findMockSession, isPass, rateOf } from "../lib/mockHistory";
@@ -29,6 +29,8 @@ export default function MockResult() {
   /** 開いている問題の位置(出題順の添字)。開いたものだけ描画する(80問ぶんは重い) */
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [wrongOnly, setWrongOnly] = useState(true);
+  /** 計算問題だけに絞る(誤答のみとは独立。両方オンなら「間違えた計算問題」) */
+  const [calcOnly, setCalcOnly] = useState(false);
   /** 番号グリッドから開いたときだけスクロールする(行クリックはもう見えている) */
   const [scrollTo, setScrollTo] = useState<number | null>(null);
 
@@ -97,17 +99,32 @@ export default function MockResult() {
   }
 
   const pass = isPass(session.correct, session.total);
-  const rows = session.qids.map((qid, i) => ({
-    i,
-    ok: session.results[i],
-    q: amQuestion(qid),
-  }));
-  const wrongCount = session.total - session.correct;
-  const shown = wrongOnly ? rows.filter((r) => !r.ok) : rows;
+  const rows = session.qids.map((qid, i) => {
+    const q = amQuestion(qid);
+    return {
+      i,
+      ok: session.results[i],
+      q,
+      // 収録から外れた問題は判定できないので計算問題として扱わない
+      calc: q ? isCalcQuestion(q) : false,
+    };
+  });
+  const calcCount = rows.filter((r) => r.calc).length;
+  const shown = rows.filter((r) => (!wrongOnly || !r.ok) && (!calcOnly || r.calc));
 
-  /** 番号グリッドから問題を開く。正解の問題は絞り込みを解いてから開く */
+  /** 絞り込みの状態をそのまま見出しにする(いま何を見ているかを一目で分かるように) */
+  const listTitle = wrongOnly
+    ? calcOnly
+      ? `間違えた計算問題(${shown.length}問)`
+      : `間違えた問題(${shown.length}問)`
+    : calcOnly
+      ? `計算問題(${shown.length}問)`
+      : `全${session.total}問`;
+
+  /** 番号グリッドから問題を開く。絞り込みで隠れる問題は絞り込みを解いてから開く */
   const openFromGrid = (i: number) => {
     if (session.results[i]) setWrongOnly(false);
+    if (!rows[i].calc) setCalcOnly(false);
     setOpenIdx(i);
     setScrollTo(i);
   };
@@ -220,25 +237,40 @@ export default function MockResult() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            flexWrap: "wrap",
             gap: 8,
             marginBottom: 4,
           }}
         >
-          <p style={{ fontWeight: 600 }}>
-            {wrongOnly ? `間違えた問題(${wrongCount}問)` : `全${session.total}問`}
-          </p>
-          <button
-            className={`chip-toggle ${wrongOnly ? "on" : ""}`}
-            onClick={() => setWrongOnly((v) => !v)}
-            aria-pressed={wrongOnly}
-          >
-            {wrongOnly ? "誤答のみ" : "全問"}
-          </button>
+          {/* 見出しは折り返さず、入らなければチップの側を次の行(右寄せ)に送る */}
+          <p style={{ fontWeight: 600, flexShrink: 0 }}>{listTitle}</p>
+          {/* 絞り込みは2つとも独立したオン/オフ。押されている状態は色と
+              aria-pressed で示し、ラベルは入れ替えない(隣の条件と読み違えるため) */}
+          <div style={{ display: "flex", gap: 6, flexShrink: 0, marginLeft: "auto" }}>
+            <button
+              className={`chip-toggle ${wrongOnly ? "on" : ""}`}
+              onClick={() => setWrongOnly((v) => !v)}
+              aria-pressed={wrongOnly}
+            >
+              誤答のみ
+            </button>
+            {calcCount > 0 && (
+              <button
+                className={`chip-toggle ${calcOnly ? "on" : ""}`}
+                onClick={() => setCalcOnly((v) => !v)}
+                aria-pressed={calcOnly}
+              >
+                計算のみ
+              </button>
+            )}
+          </div>
         </div>
 
         {shown.length === 0 && (
           <p className="muted small" style={{ padding: "8px 0" }}>
-            間違えた問題はありません。全問正解です。
+            {calcOnly
+              ? "間違えた計算問題はありません。"
+              : "間違えた問題はありません。全問正解です。"}
           </p>
         )}
 
