@@ -12,6 +12,7 @@
     "extract-am": "tsx scripts/extract-am.ts",
     "build:terms": "tsx scripts/build-terms.ts",
     "build:calc": "tsx scripts/build-calc-index.ts",
+    "build:frequent": "tsx scripts/build-frequent-index.ts",
     "codex-bridge": "node scripts/codex-bridge.mjs",
     "test": "node --import tsx --test \"tests/*.test.mjs\""
   },

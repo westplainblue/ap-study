@@ -40,10 +40,19 @@ interface Props {
   emptyMessage?: string;
   /** 指定すると進行状況を保存し、タブ破棄・再読込をまたいで途中から再開できる */
   storageKey?: string;
+  /** 結果画面の「もう一度」リンク(既定は分野別演習の設定画面)。頻出問題などが差し替える */
+  retryLink?: { to: string; label: string };
 }
 
 /** 1問ごと即時フィードバック型の演習プレイヤー(分野別演習・復習で共用) */
-export default function Player({ questions, mode, title, emptyMessage, storageKey }: Props) {
+export default function Player({
+  questions,
+  mode,
+  title,
+  emptyMessage,
+  storageKey,
+  retryLink,
+}: Props) {
   const navigate = useNavigate();
   const [askQuit, setAskQuit] = useState(false); // 中断の確認ダイアログ
   // 保存済みセッションの問題セットが現在の出題と一致する場合のみ進捗を復元する
@@ -270,8 +279,8 @@ export default function Player({ questions, mode, title, emptyMessage, storageKe
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {mode === "practice" && (
-            <Link to="/practice" className="btn btn-primary btn-block">
-              分野を選んでもう一度
+            <Link to={retryLink?.to ?? "/practice"} className="btn btn-primary btn-block">
+              {retryLink?.label ?? "分野を選んでもう一度"}
             </Link>
           )}
           <Link to="/" className="btn btn-block">

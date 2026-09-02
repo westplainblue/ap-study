@@ -73,6 +73,11 @@ export function examLabel(examId: string): string {
   return examById.get(examId)?.label ?? examId;
 }
 
+/** チップ表示用の短い試験回名(例: 令和7年度 秋期 → 令和7秋期、令和2年度 10月 → 令和2年10月) */
+export function shortExamLabel(label: string): string {
+  return label.replace(/年度 (?=\d+月$)/, "年").replace("年度 ", "");
+}
+
 /** 出典表記(例: 令和7年度 秋期 午前 問12) */
 export function sourceOf(q: AmQuestion): string {
   return `${examLabel(q.examId)} 午前 問${q.number}`;

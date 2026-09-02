@@ -32,6 +32,15 @@ function IconCalc({ size = 20 }: { size?: number }) {
   );
 }
 
+/** 頻出問題の絵文字アイコン(IconVocab と同じ理由で絵文字) */
+function IconFrequent({ size = 20 }: { size?: number }) {
+  return (
+    <span style={{ fontSize: size - 3, lineHeight: 1 }} aria-hidden>
+      🔁
+    </span>
+  );
+}
+
 function daysUntil(dateStr: string): number {
   const target = new Date(`${dateStr}T00:00:00`).getTime();
   const today = new Date();
@@ -344,6 +353,12 @@ export default function Home() {
             icon: IconCalc,
             label: "計算ドリル",
             desc: "公式のテーマ別に計算問題を特訓",
+          },
+          {
+            to: "/frequent",
+            icon: IconFrequent,
+            label: "頻出問題",
+            desc: "何度も出題された問題を回数順に確認",
           },
           {
             to: "/vocab",

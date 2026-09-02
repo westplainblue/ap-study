@@ -23,6 +23,7 @@ function Emoji({ char }: { char: string }) {
 }
 const IconCalc = () => <Emoji char="🧮" />;
 const IconVocab = () => <Emoji char="📒" />;
+const IconFrequent = () => <Emoji char="🔁" />;
 
 /**
  * PC(1024px以上)専用の左サイドバー。下部タブバーと排他で表示する。
@@ -52,6 +53,7 @@ const GROUPS: {
       { to: "/practice", label: "分野別演習", icon: IconPencil },
       { to: "/drill", label: "反復学習", icon: IconRefresh },
       { to: "/calc", label: "計算ドリル", icon: IconCalc },
+      { to: "/frequent", label: "頻出問題", icon: IconFrequent },
       { to: "/vocab", label: "用語ノート", icon: IconVocab },
       { to: "/mock", label: "模試", icon: IconClock },
     ],
