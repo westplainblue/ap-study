@@ -1,16 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { countByMiddle, EXAMS } from "../data";
+import { countByMiddle, EXAMS, shortExamLabel } from "../data";
 import { MAJOR_LABEL, MIDDLES_BY_MAJOR, type Major } from "../data/types";
 import { statsByQuestion } from "../lib/progress";
 import { clearRun } from "../lib/run";
 
 const COUNTS = [5, 10, 20];
-
-/** チップ表示用の短い試験回名(例: 令和7年度 秋期 → 令和7秋期) */
-function shortExamLabel(label: string): string {
-  return label.replace(/年度 (?=\d+月$)/, "年").replace("年度 ", "");
-}
 
 export default function PracticeSetup() {
   const navigate = useNavigate();

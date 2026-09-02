@@ -14,6 +14,8 @@ import CalcRun from "./pages/CalcRun";
 import CalcSetup from "./pages/CalcSetup";
 import DrillRun from "./pages/DrillRun";
 import DrillSetup from "./pages/DrillSetup";
+import FrequentList from "./pages/FrequentList";
+import FrequentRun from "./pages/FrequentRun";
 import Home from "./pages/Home";
 import MockExam from "./pages/MockExam";
 import MockResult from "./pages/MockResult";
@@ -67,6 +69,8 @@ function AppShell() {
           <Route path="/drill/run" element={<DrillRun />} />
           <Route path="/calc" element={<CalcSetup />} />
           <Route path="/calc/run" element={<CalcRun />} />
+          <Route path="/frequent" element={<FrequentList />} />
+          <Route path="/frequent/run" element={<FrequentRun />} />
           <Route path="/review/run" element={<ReviewRun />} />
           <Route path="/mock" element={<MockExam />} />
           <Route path="/mock/run" element={<MockRun />} />

@@ -8,6 +8,7 @@ const GOTO: [string, string, string][] = [
   ["p", "/practice", "分野別演習"],
   ["d", "/drill", "反復学習"],
   ["c", "/calc", "計算ドリル"],
+  ["f", "/frequent", "頻出問題"],
   ["v", "/vocab", "用語ノート"],
   ["m", "/mock", "模試"],
   ["a", "/pm", "午後演習"],
