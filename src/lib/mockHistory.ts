@@ -25,6 +25,11 @@ export interface MockSession {
   qids: string[];
   /** qids と同じ並びの正誤 */
   results: boolean[];
+  /**
+   * qids と同じ並びの、選んだ選択肢(元データの添字)。
+   * null=未解答、undefined=選択肢を記録する前の受験なので不明。
+   */
+  choices: (number | null | undefined)[];
   total: number;
   correct: number;
 }
@@ -65,11 +70,12 @@ export function mockSessions(attempts: Attempt[]): MockSession[] {
   for (const a of mock) {
     const examId = examIdOfQuestion(a.q)!;
     if (!cur || cur.examId !== examId || a.t - lastT > SESSION_GAP_MS) {
-      cur = { examId, at: a.t, qids: [], results: [], total: 0, correct: 0 };
+      cur = { examId, at: a.t, qids: [], results: [], choices: [], total: 0, correct: 0 };
       sessions.push(cur);
     }
     cur.qids.push(a.q);
     cur.results.push(a.ok);
+    cur.choices.push(a.c);
     cur.total += 1;
     if (a.ok) cur.correct += 1;
     lastT = a.t;

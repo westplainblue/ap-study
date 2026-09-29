@@ -45,6 +45,19 @@ test("mockSessions: 一括記録された解答を1回の受験にまとめる",
   ]);
 });
 
+test("mockSessions: 選んだ選択肢を出題順に復元する(未解答は null、記録前は undefined)", () => {
+  const chosen = [1, 0, null];
+  const attempts = graded("2025r07a", [false, true, false], 1000).map((a, i) => ({
+    ...a,
+    c: chosen[i],
+  }));
+  const [s] = mockSessions(attempts);
+  assert.deepEqual(s.choices, [1, 0, null]);
+  // 選択肢の記録を始める前の受験は不明(undefined)として並ぶ
+  const [old] = mockSessions(graded("2025r07a", [true, false], 1000));
+  assert.deepEqual(old.choices, [undefined, undefined]);
+});
+
 test("mockSessions: 同じ回を解き直したら別の受験に分かれる", () => {
   const s = mockSessions([
     ...graded("2025r07a", [true, false], 1000),
