@@ -15,11 +15,17 @@ const WEAK_LIMIT = 5;
 /**
  * 過去に受けた模試1回ぶんの詳細。
  *
- * 受験結果は保存しておらず解答履歴から復元するため(→ lib/mockHistory)、
- * 出せるのは「どの問題を間違えたか」まで。受験時に選んだ選択肢・所要時間・
- * 見直しフラグは残っていないので、欄そのものを作らない(空欄はデータが
+ * 受験結果は保存しておらず解答履歴から復元する(→ lib/mockHistory)。
+ * 選んだ選択肢は解答履歴に記録している(記録を始める前の受験は不明と明示する)。
+ * 所要時間・見直しフラグは残っていないので、欄そのものを作らない(空欄はデータが
  * あるかのように誤解させる)。
  */
+
+/** 選んだ選択肢の表記。null=未解答、undefined=記録前の受験で不明 */
+function chosenLabel(c: number | null | undefined): string | null {
+  if (c === undefined) return null;
+  return c === null ? "未解答" : KANA[c];
+}
 export default function MockResult() {
   const { examId, at } = useParams<{ examId: string; at: string }>();
   const session = useMemo(
@@ -37,6 +43,7 @@ export default function MockResult() {
   const openQuestion =
     session && openIdx !== null ? amQuestion(session.qids[openIdx]) : undefined;
   const openOk = session && openIdx !== null ? session.results[openIdx] : false;
+  const openChosen = session && openIdx !== null ? session.choices[openIdx] : undefined;
 
   // 開いている問題をAIチャットに共有する(採点済みなので答えを伏せる必要はない)
   useEffect(() => {
@@ -56,12 +63,15 @@ export default function MockResult() {
           : "",
         `正解: ${KANA[openQuestion.answer]}`,
         `ユーザーはこの問題を模試で${openOk ? "正解" : "不正解"}でした。`,
+        !openOk && chosenLabel(openChosen)
+          ? `ユーザーが選んだ解答: ${chosenLabel(openChosen)}`
+          : "",
         `解説: ${openQuestion.explanation}`,
       ]
         .filter(Boolean)
         .join("\n"),
     });
-  }, [openQuestion, openOk]);
+  }, [openQuestion, openOk, openChosen]);
 
   useEffect(() => () => setAiContext(null), []);
 
@@ -104,6 +114,7 @@ export default function MockResult() {
     return {
       i,
       ok: session.results[i],
+      chosen: session.choices[i],
       q,
       // 収録から外れた問題は判定できないので計算問題として扱わない
       calc: q ? isCalcQuestion(q) : false,
@@ -274,7 +285,7 @@ export default function MockResult() {
           </p>
         )}
 
-        {shown.map(({ i, ok, q }) => (
+        {shown.map(({ i, ok, chosen, q }) => (
           <div key={i} id={`mq-${i}`} style={{ borderTop: "1px solid var(--border)" }}>
             <button
               onClick={() => setOpenIdx(openIdx === i ? null : i)}
@@ -307,6 +318,12 @@ export default function MockResult() {
               <span style={{ flex: 1, fontSize: 14 }}>
                 問{q?.number ?? i + 1}{" "}
                 <span className="muted">{q?.middle ?? "収録から外れた問題"}</span>
+                {!ok && q && chosenLabel(chosen) && (
+                  <span className="muted small">
+                    {" "}
+                    (あなた: {chosenLabel(chosen)} → 正解: {KANA[q.answer]})
+                  </span>
+                )}
               </span>
               <span className="muted small">{openIdx === i ? "閉じる" : "開く"}</span>
             </button>
@@ -314,9 +331,10 @@ export default function MockResult() {
             {openIdx === i &&
               (q ? (
                 <div style={{ paddingBottom: 12 }}>
+                  {/* 選んだ選択肢を渡すと、誤答は赤・正解は緑で色分けされる */}
                   <QuestionCard
                     question={q}
-                    selected={null}
+                    selected={chosen ?? null}
                     answered
                     onSelect={() => {}}
                   />
@@ -326,7 +344,11 @@ export default function MockResult() {
                   >
                     {ok ? <IconCheck size={18} /> : <IconX size={18} />}
                     <span>
-                      {ok ? "正解" : "不正解"} 答えは「{KANA[q.answer]}」
+                      {ok
+                        ? `正解 答えは「${KANA[q.answer]}」`
+                        : chosen === undefined
+                          ? `不正解 答えは「${KANA[q.answer]}」(選んだ選択肢は記録されていません)`
+                          : `不正解 あなたの解答は「${chosenLabel(chosen)}」、答えは「${KANA[q.answer]}」`}
                     </span>
                   </div>
                   <div className="card" style={{ marginTop: 10 }}>

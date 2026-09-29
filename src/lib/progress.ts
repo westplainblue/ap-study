@@ -20,6 +20,11 @@ export interface Attempt {
   ms?: number;
   /** 確信度の自己申告(任意)。解答直後の1タップで後付けされる */
   conf?: Confidence;
+  /**
+   * 選んだ選択肢(元データの添字)。模試のみ記録する任意フィールド。
+   * null=未解答のまま採点、フィールド無し=記録を始める前の解答。
+   */
+  c?: number | null;
 }
 
 export interface ReviewEntry {
@@ -472,16 +477,23 @@ export function statsByQuestion(state = loadState()): Map<string, QuestionStat> 
   return map;
 }
 
-/** まとめて解答を記録する(模試の採点用) */
+/** まとめて解答を記録する(模試の採点用)。c は選んだ選択肢(null=未解答) */
 export function recordAnswersBatch(
-  entries: { qid: string; ok: boolean; mode: Mode }[]
+  entries: { qid: string; ok: boolean; mode: Mode; c?: number | null }[]
 ): void {
   const s = loadState();
   const now = Date.now();
   const today = todayStr();
   const sid = currentSessionId();
   entries.forEach((e, i) => {
-    s.attempts.push({ q: e.qid, t: now + i, ok: e.ok, mode: e.mode, s: sid });
+    s.attempts.push({
+      q: e.qid,
+      t: now + i,
+      ok: e.ok,
+      mode: e.mode,
+      s: sid,
+      ...(e.c !== undefined ? { c: e.c } : {}),
+    });
     applyReviewTransition(s, e.qid, e.ok, today, now);
   });
   saveState(s);

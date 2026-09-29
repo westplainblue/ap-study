@@ -158,7 +158,12 @@ export default function MockRun() {
   const grade = () => {
     const res = questions.map((q, i) => mock.answers[i] === q.answer);
     recordAnswersBatch(
-      questions.map((q, i) => ({ qid: q.id, ok: res[i], mode: "mock" as const }))
+      questions.map((q, i) => ({
+        qid: q.id,
+        ok: res[i],
+        mode: "mock" as const,
+        c: mock.answers[i] ?? null, // 振り返りで「何を選んで間違えたか」を出すため
+      }))
     );
     // 誤答した問題の用語をことば帳へ採取する(チップ表示は用語ノート側)
     questions.forEach((q, i) => {
@@ -181,8 +186,10 @@ export default function MockRun() {
       if (results[i]) m.ok += 1;
       majorAgg.set(q.major, m);
     });
-    const wrong = questions.filter((_, i) => !results[i]);
-    const wrongCalc = wrong.filter(isCalcQuestion);
+    const wrong = questions
+      .map((q, i) => ({ q, chosen: mock.answers[i] }))
+      .filter((_, i) => !results[i]);
+    const wrongCalc = wrong.filter(({ q }) => isCalcQuestion(q));
     const shownWrong = wrongCalcOnly ? wrongCalc : wrong;
     return (
       <div>
@@ -278,16 +285,26 @@ export default function MockRun() {
                 </button>
               )}
             </div>
-            {shownWrong.map((q) => (
+            {shownWrong.map(({ q, chosen }) => (
               <details key={q.id} style={{ borderTop: "1px solid var(--border)", padding: "8px 0" }}>
                 <summary style={{ cursor: "pointer", fontSize: 14 }}>
                   問{q.number} {q.middle}
+                  <span className="muted small">
+                    {" "}
+                    (あなた: {chosen == null ? "未解答" : KANA[chosen]} → 正解: {KANA[q.answer]})
+                  </span>
                 </summary>
                 <p className="small" style={{ whiteSpace: "pre-wrap", margin: "8px 0 4px" }}>
                   {q.text}
                 </p>
                 <p className="small" style={{ fontWeight: 600 }}>
-                  正解: {KANA[q.answer]}
+                  あなたの解答:{" "}
+                  <span style={{ color: "var(--danger-text)" }}>
+                    {chosen == null ? "未解答" : `${KANA[chosen]}(${q.choices[chosen]})`}
+                  </span>
+                </p>
+                <p className="small" style={{ fontWeight: 600 }}>
+                  正解: {KANA[q.answer]}({q.choices[q.answer]})
                 </p>
                 <p className="small muted" style={{ whiteSpace: "pre-wrap" }}>
                   {q.explanation}
