@@ -27,6 +27,8 @@ interface Props {
   questions: AmQuestion[];
   title: string;
   emptyMessage?: string;
+  /** 完了画面の主ボタン(既定は反復学習の設定画面)。模試の解き直しが差し替える */
+  retryLink?: { to: string; label: string };
 }
 
 /**
@@ -36,7 +38,7 @@ interface Props {
  * 履歴に残すのは各問題の初回解答のみ(以降の反復は記録せず、統計や
  * 間隔反復(Leitner)のスケジュールを乱さない)。
  */
-export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
+export default function DrillPlayer({ questions, title, emptyMessage, retryLink }: Props) {
   const total = questions.length;
   const byId = useMemo(() => new Map(questions.map((q) => [q.id, q])), [questions]);
 
@@ -204,8 +206,8 @@ export default function DrillPlayer({ questions, title, emptyMessage }: Props) {
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <Link to="/drill" className="btn btn-primary btn-block">
-            もう一度
+          <Link to={retryLink?.to ?? "/drill"} className="btn btn-primary btn-block">
+            {retryLink?.label ?? "もう一度"}
           </Link>
           <Link to="/" className="btn btn-block">
             ホームへ戻る

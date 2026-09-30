@@ -100,6 +100,15 @@ export function findMockSession(
 }
 
 /**
+ * 受験1回で間違えた問題ID(未解答のまま採点した問題を含む)を出題順に返す。
+ * 解き直しの出題に使う。同じ回を5分以内に採点し直すと2回ぶんが1受験に
+ * まとまるので、同じ問題は1度だけ返す(出題キューに重複を作らない)。
+ */
+export function wrongQids(session: MockSession): string[] {
+  return [...new Set(session.qids.filter((_, i) => !session.results[i]))];
+}
+
+/**
  * 受験1回ぶんの分類別集計。分類は問題データを知る呼び出し側が渡す
  * (このモジュールは問題データに依存しない)。undefined を返した問題は除く。
  */

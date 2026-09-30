@@ -7,6 +7,7 @@ import {
   isPass,
   mockSessions,
   rateOf,
+  wrongQids,
 } from "../src/lib/mockHistory.ts";
 
 /** 採点1回ぶんの attempts(recordAnswersBatch と同じく1ミリ秒刻みで並ぶ) */
@@ -216,4 +217,45 @@ test("aggByGroup: 分類が引けない問題は除外する", () => {
   const agg = aggByGroup(s, (q) => (q.endsWith("01") ? "T" : undefined));
   assert.equal(agg.size, 1);
   assert.deepEqual(agg.get("T"), { n: 1, ok: 1 });
+});
+
+test("wrongQids: 間違えた問題を出題順に返す(未解答のまま採点した問題も含む)", () => {
+  const chosen = [0, 2, null, 1];
+  const attempts = graded("2025r07a", [true, false, false, true], 1000).map((a, i) => ({
+    ...a,
+    c: chosen[i],
+  }));
+  const [s] = mockSessions(attempts);
+  // 問3は未解答(c=null)で不正解扱い。解き直しの対象に入る
+  assert.deepEqual(wrongQids(s), ["2025r07a-am-02", "2025r07a-am-03"]);
+});
+
+test("wrongQids: 全問正解なら空配列", () => {
+  const [s] = mockSessions(graded("2025r07a", [true, true, true], 1000));
+  assert.deepEqual(wrongQids(s), []);
+});
+
+test("wrongQids: 5分以内の採点し直しで1受験にまとまっても同じ問題は1度だけ返す", () => {
+  // 同じ回を続けて採点すると、SESSION_GAP_MS 以内なので1受験に復元される
+  const [s] = mockSessions([
+    ...graded("2025r07a", [false, false, true], 1000),
+    ...graded("2025r07a", [false, true, false], 1000 + 60 * 1000),
+  ]);
+  assert.equal(s.total, 6);
+  assert.deepEqual(wrongQids(s), ["2025r07a-am-01", "2025r07a-am-02", "2025r07a-am-03"]);
+});
+
+test("解き直し(drill)の記録は、直後でも模試の受験に混ざらない", () => {
+  // 採点の直後に間違えた問題を解き直すと、同じ問題IDの解答が5分以内に続く
+  const mock = graded("2025r07a", [true, false, false], 1000);
+  const retry = [
+    { q: "2025r07a-am-02", t: 1000 + 30 * 1000, ok: true, mode: "drill" },
+    { q: "2025r07a-am-03", t: 1000 + 60 * 1000, ok: false, mode: "drill" },
+  ];
+  const s = findMockSession([...mock, ...retry], "2025r07a", 1000);
+  assert.notEqual(s, null);
+  assert.equal(s.total, 3);
+  assert.equal(s.correct, 1); // 解き直しの正解で模試の点数が変わらない
+  // 解き直した後に開き直しても、解き直す問題は模試で間違えた問題のまま
+  assert.deepEqual(wrongQids(s), ["2025r07a-am-02", "2025r07a-am-03"]);
 });

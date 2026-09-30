@@ -8,6 +8,7 @@ import { setAiContext } from "../lib/aiContext";
 import { aggByGroup, findMockSession, isPass, rateOf } from "../lib/mockHistory";
 import { loadState } from "../lib/progress";
 import { formatWhen } from "./MockExam";
+import { mockRetryPath, mockRetryQuestions } from "./MockRetry";
 
 /** 「間違いが多かった分野」に出す中分類の件数(多すぎると弱点が埋もれる) */
 const WEAK_LIMIT = 5;
@@ -122,6 +123,8 @@ export default function MockResult() {
   });
   const calcCount = rows.filter((r) => r.calc).length;
   const shown = rows.filter((r) => (!wrongOnly || !r.ok) && (!calcOnly || r.calc));
+  /** 解き直す問題の数。「誤答のみ」を外していても解き直すのは間違えた問題だけ */
+  const retryCount = mockRetryQuestions(session, calcOnly).length;
 
   /** 絞り込みの状態をそのまま見出しにする(いま何を見ているかを一目で分かるように) */
   const listTitle = wrongOnly
@@ -276,6 +279,20 @@ export default function MockResult() {
             )}
           </div>
         </div>
+
+        {/* 一覧は最大80行になるので、下まで送らなくても押せるよう見出しの直下に置く。
+            ラベルに対象と件数を出す(「誤答のみ」を外した全問表示でも解き直すのは誤答だけ) */}
+        {retryCount > 0 && (
+          <Link
+            to={mockRetryPath(session.examId, session.at, calcOnly)}
+            className="btn btn-primary btn-block"
+            style={{ margin: "4px 0 8px" }}
+          >
+            {calcOnly
+              ? `間違えた計算問題を解き直す(${retryCount}問)`
+              : `間違えた問題を解き直す(${retryCount}問)`}
+          </Link>
+        )}
 
         {shown.length === 0 && (
           <p className="muted small" style={{ padding: "8px 0" }}>

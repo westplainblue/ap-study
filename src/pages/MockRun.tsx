@@ -8,10 +8,11 @@ import { MAJOR_LABEL, type Major } from "../data/types";
 import { achvDef, refreshAfterBatch } from "../lib/achievements";
 import { setAiContext } from "../lib/aiContext";
 import { choiceIndexFromKey, isPlainKey, isTypingTarget } from "../lib/keys";
-import { isPass, rateOf } from "../lib/mockHistory";
-import { recordAnswersBatch } from "../lib/progress";
+import { isPass, mockSessions, rateOf } from "../lib/mockHistory";
+import { loadState, recordAnswersBatch } from "../lib/progress";
 import { captureVocabForQuestion } from "../lib/vocab";
 import { MOCK_KEY, type MockState } from "./MockExam";
+import { mockRetryPath } from "./MockRetry";
 
 function formatTime(totalSec: number): string {
   const h = Math.floor(totalSec / 3600);
@@ -36,6 +37,8 @@ export default function MockRun() {
   // (window.confirm はPWA等で無反応になるため使わない → components/ConfirmDialog)
   const [confirmGrade, setConfirmGrade] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
+  /** 採点した受験を解答履歴から引き当てる時刻(解き直しのURLに使う → MockRetry) */
+  const [gradedAt, setGradedAt] = useState<number | null>(null);
   /** 結果画面の誤答一覧を計算問題だけに絞る */
   const [wrongCalcOnly, setWrongCalcOnly] = useState(false);
   const [unlocked, setUnlocked] = useState<string[]>([]);
@@ -170,6 +173,12 @@ export default function MockRun() {
       if (!res[i]) captureVocabForQuestion(q.id);
     });
     setUnlocked(refreshAfterBatch()); // 実績を判定(トーストは出さず結果画面に表示)
+    // いま記録した受験は、この回の受験のうち最も新しいものとして復元される。
+    // 受験の時刻は保存した値ではなく履歴から導く値なので、記録した時刻ではなく
+    // 復元結果の at を使う(5分以内の採点し直しは1受験にまとまるため)
+    setGradedAt(
+      mockSessions(loadState().attempts).find((s) => s.examId === exam.examId)?.at ?? null
+    );
     localStorage.removeItem(MOCK_KEY);
     setResults(res);
     setGraded(true);
@@ -285,6 +294,23 @@ export default function MockRun() {
                 </button>
               )}
             </div>
+            {/* 解き直すのは一覧に出ている問題(計算のみなら間違えた計算問題)。
+                一覧は長くなるので、下まで送らなくても押せるよう見出しの直下に置く */}
+            {gradedAt !== null && (
+              <Link
+                to={mockRetryPath(exam.examId, gradedAt, wrongCalcOnly)}
+                // この結果画面はこの場限り(模試の状態は採点で破棄済み)で、戻ると
+                // 「進行中の模試がありません」になる。履歴を置き換え、解き直しから
+                // 戻る操作は模試モードのトップ(受験の履歴がある)に着地させる
+                replace
+                className="btn btn-primary btn-block"
+                style={{ margin: "4px 0 8px" }}
+              >
+                {wrongCalcOnly
+                  ? `間違えた計算問題を解き直す(${wrongCalc.length}問)`
+                  : `間違えた問題を解き直す(${wrong.length}問)`}
+              </Link>
+            )}
             {shownWrong.map(({ q, chosen }) => (
               <details key={q.id} style={{ borderTop: "1px solid var(--border)", padding: "8px 0" }}>
                 <summary style={{ cursor: "pointer", fontSize: 14 }}>
@@ -314,7 +340,13 @@ export default function MockRun() {
           </div>
         )}
 
-        <Link to="/" className="btn btn-primary btn-block">
+        {/* 解き直しがあるときはそちらを主ボタンにする(主ボタンを2つ並べない) */}
+        <Link
+          to="/"
+          className={
+            wrong.length > 0 && gradedAt !== null ? "btn btn-block" : "btn btn-primary btn-block"
+          }
+        >
           ホームへ戻る
         </Link>
       </div>
